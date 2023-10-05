@@ -19,4 +19,5 @@ app.get('/',(req,res)=>{
 app.use('/patients',require('./routes/guestRoutes'))
 app.use('/auth',require('./routes/authRoutes'))
 app.use('/admin',require('./routes/adminRoutes'))
+app.use('/Doctor-Home',require('./routes/doctorRoutes'))
 app.listen(port,()=> console.log('server started on port '+port))
