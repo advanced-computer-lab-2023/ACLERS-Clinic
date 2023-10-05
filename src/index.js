@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom";
-import App from "./App"; // Import your root component
+import App from "./signup/SignUp"; // Import your root component
 import React, { useEffect, useState } from "react";
 
 ReactDOM.render(
