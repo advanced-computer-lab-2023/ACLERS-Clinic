@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const healthPackageSchema = new mongoose.Schema({
-    gender: {
+    type: {
         type: String,
         enum: ['Silver', 'Gold', 'Platinum'],
         required: true,
