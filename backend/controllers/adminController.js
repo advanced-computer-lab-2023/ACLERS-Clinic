@@ -83,7 +83,7 @@ const removeAdmin = asyncHandler(async (req, res) => {
   
 
 
-module.exports = {addAdmin, removeAdmin, removeDoctor, removePatient}
+
 =======
 
 const addHealthPackage = asyncHandler (async(req,res)=>{
@@ -109,10 +109,10 @@ return res.status(200).json({ message: 'Health package added successfully' });
 
 });
 
-module.exports = {addAdmin,addHealthPackage}
 
 
 
 
 
+module.exports = {addAdmin,addHealthPackage, removeAdmin, removeDoctor, removePatient}
 
