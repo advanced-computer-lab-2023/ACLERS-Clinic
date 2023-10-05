@@ -1,9 +1,8 @@
 const express = require('express')
 const router = express.Router()
 
-const {addAdmin, removeAdmin, removeDoctor, removePatient}= require('../controllers/adminController')
-=======
-const {addAdmin,addHealthPackage}= require('../controllers/adminController')
+const {addAdmin,addHealthPackage, removeAdmin, removeDoctor, removePatient}= require('../controllers/adminController')
+
 
 
 router.post('/add-admin',addAdmin)
