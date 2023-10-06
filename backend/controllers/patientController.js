@@ -90,6 +90,33 @@ const setAppointment = asyncHandler(async (req,res)=>{
    
 })
 
+const filterAppointments = asyncHandler( async (req, res) => {
+
+    try {
+      const { patientId,status, date } = req.query;
+  
+      // Define a filter object to build the query dynamically
+      const filter = {patient:patientId};
+  
+      if (status) {
+        // If 'status' is provided in the query, add it to the filter
+        filter.status = status;
+      }
+  
+      if (date) {
+        // If 'date' is provided in the query, convert it to a Date object and add it to the filter
+        filter.date = new Date(date);
+      }
+  
+      // Use the filter object to query the database
+      const appointments = await Appointment.find(filter);
+  
+      res.status(200).json(appointments);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 
 
-module.exports = {addFamilyMember,viewFamilyMembers,setAppointment}
+module.exports = {addFamilyMember,viewFamilyMembers,setAppointment,filterAppointments}

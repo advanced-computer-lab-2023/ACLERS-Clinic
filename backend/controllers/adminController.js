@@ -4,7 +4,6 @@ const Admin = require('../models/Admin')
 
 const Doctor = require('../models/Doctor')
 const Patient = require('../models/Patient')
-=======
 const healthPackage=require('../models/healthPackage')
 
 
@@ -84,7 +83,7 @@ const removeAdmin = asyncHandler(async (req, res) => {
 
 
 
-=======
+
 
 const addHealthPackage = asyncHandler (async(req,res)=>{
     const { selectedpackage , Price , doctorDiscount , medicineDiscount , subscriptionDiscount} = req.body;
