@@ -2,8 +2,9 @@ const Patient = require('../models/Patient');
 const asyncHandler = require('express-async-handler');
 const FamilyMember = require('../models/FamilyMember');
 const Appointment = require('../models/Appointment')
-
-
+const Doctor = require('../models/Doctor')
+const PatientHealthPackage = require('../models/PatientHealthPackage')
+const HealthPackage = require('../models/healthPackage')
 const addFamilyMember = asyncHandler(async (req, res) => {
     try {
       const patientId = req.query.patientId;
@@ -117,8 +118,186 @@ const filterAppointments = asyncHandler( async (req, res) => {
       res.status(500).json({ message: 'Internal server error' });
     }
   });
+  const viewDoctors = asyncHandler(async (req, res) => {
+    try {
+        var { patientId,speciality, date, time } = req.query;
+    
+        // Create an initial query object for doctors
+        const doctorQuery = {};
+        var doctorsWithSessionPrices =[]
+        // Add speciality filter if provided
+        if (speciality) {
+          doctorQuery.educationalBackground = speciality;
+        }
+    
+        // If date and time are provided, check doctor availability
+        if (date && time) {
+            
+          var dateWithTime = new Date(date);
+          dateWithTime.setHours(parseInt(time)+2, 0, 0, 0);
+    
+          // Find doctors available at the specified date and time
+          console.log(dateWithTime)
+         // dateWithTime=new Date('2023-10-15T15:00:00.000+00:00')
+          console.log(dateWithTime)
 
+          const availableDoctors = await Doctor.find(doctorQuery);
+          const doctorIds = availableDoctors.map((doctor) => doctor._id);
+    
+          // Check if there are appointments for these doctors at the specified date and time
+          const appointments = await Appointment.find({
+            doctor: { $in: doctorIds },
+            date: dateWithTime,
+          });
+    
+          // Filter out doctors who have appointments at the specified date and time
+          const filteredDoctors = availableDoctors.filter((doctor) => {
+            return !appointments.some((appointment) => appointment.doctor.toString() === doctor._id.toString());
+          });
+           doctorsWithSessionPrices = await Promise.all(filteredDoctors.map(async (doctor) => {
+            let sessionPrice = doctor.hourlyRate;
+      
+            // Check if the patient has a subscribed health package
+            const patientHealthPackages = await PatientHealthPackage.find({ patient: patientId });
+      
+            if (patientHealthPackages.length > 0) {
+              const healthPackageId = patientHealthPackages[0].healthPackage;
+              const healthPackage = await HealthPackage.findById(healthPackageId);
+      
+              // Calculate the session price based on the health package
+              if (healthPackage) {
+                sessionPrice += (sessionPrice * 0.10) - ((healthPackage.doctorDiscount/100)*doctor.hourlyRate);
+              }
+            } else {
+              // If no health package is provided, calculate without discounts and markup
+              sessionPrice += sessionPrice * 0.10;
+            }
+      
+            return {
+              _id: doctor._id,
+              username: doctor.username,
+              name: doctor.name,
+              specialty: doctor.educationalBackground, // Add the specialty field as needed
+              sessionPrice: sessionPrice,
+            };
+          }));
+    
+        //   return res.status(200).json(filteredDoctors);
+        }else{
+    
+        // If only speciality is provided, return doctors matching the speciality
+        const doctors = await Doctor.find(doctorQuery); // Exclude password field from response
+  
+      // Calculate session prices for each doctor
+       doctorsWithSessionPrices = await Promise.all(doctors.map(async (doctor) => {
+        let sessionPrice = doctor.hourlyRate;
+  
+        // Check if the patient has a subscribed health package
+        const patientHealthPackages = await PatientHealthPackage.find({ patient: patientId });
+  
+        if (patientHealthPackages.length > 0) {
+          const healthPackageId = patientHealthPackages[0].healthPackage;
+          const healthPackage = await HealthPackage.findById(healthPackageId);
+  
+          // Calculate the session price based on the health package
+          if (healthPackage) {
+            sessionPrice += (sessionPrice * 0.10) - ((healthPackage.doctorDiscount/100)*doctor.hourlyRate);
+          }
+        } else {
+          // If no health package is provided, calculate without discounts and markup
+          sessionPrice += sessionPrice * 0.10;
+        }
+  
+        return {
+          _id: doctor._id,
+          username: doctor.username,
+          name: doctor.name,
+          specialty: doctor.educationalBackground, // Add the specialty field as needed
+          sessionPrice: sessionPrice,
+        };
+      }));
+    }
+  
+      res.status(200).json(doctorsWithSessionPrices);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
   
 
+  const subscribeHealthPackage = asyncHandler(async (req, res) => {
+    try {
+      const { patientId, healthPackageId } = req.query;
+  
+      // Check if the patient has an existing subscription
+      const existingSubscription = await PatientHealthPackage.findOne({ patient: patientId });
+  
+      if (existingSubscription) {
+        // Check if a year has passed since the last subscription
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+  
+        if (existingSubscription.subscriptionDate > oneYearAgo) {
+          return res.status(400).json({ message: 'Patient is not eligible for a new subscription yet' });
+        }
+      }
+  
+      // Create a new patient health package subscription
+      const subscriptionDate = new Date();
+      const patientHealthPackage = await PatientHealthPackage.create({
+        patient: patientId,
+        healthPackage: healthPackageId,
+        dateOfSubscription: subscriptionDate,
+      });
+  
+      res.status(200).json({ patientHealthPackage });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
+const viewHealthPackages = asyncHandler(async (req,res)=>{
+    try{
+        const healthPackages = await HealthPackage.find()
+        res.status(200).send(healthPackages)
+    }catch(error){
+        res.status(400).send(error)
+    }
+})
+const viewDoctor = asyncHandler(async (req, res) => {
+    try {
+      const doctorId = req.query.doctorId;
+  
+      // Retrieve the doctor from the database
+      const doctor = await Doctor.findById(doctorId);
+  
+      // Check if the doctor exists
+      if (!doctor) {
+        return res.status(404).json({ message: 'Doctor not found' });
+      }
+  
+      // Remove attributes you want to exclude from the response
+      // For example, let's remove the 'password' attribute
+      const modifiedDoctor = {
+        _id: doctor._id,
+        username: doctor.username,
+        name: doctor.name,
+        email:doctor.email,
+        hourlyRate:doctor.hourlyRate
+        ,affiliation:doctor.affiliation,
+        educationalBackground:doctor.educationalBackground
+        // Include other attributes as needed
+      };
+      
+      // Send the modified doctor object in the response
+      res.status(200).json(modifiedDoctor);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
 
-module.exports = {addFamilyMember,viewFamilyMembers,setAppointment,filterAppointments}
+module.exports = {addFamilyMember,viewFamilyMembers,setAppointment,filterAppointments,viewDoctors,viewHealthPackages,subscribeHealthPackage,viewDoctor}
