@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const {addAdmin,addHealthPackage, removeAdmin, removeDoctor, removePatient}= require('../controllers/adminController')
+const {viewApplicants,approveDoctorRequest,disapproveDoctorRequest,deleteHealthPackage,editHealthPackage,addAdmin,addHealthPackage, removeAdmin, removeDoctor, removePatient}= require('../controllers/adminController')
 
 
 
@@ -14,7 +14,9 @@ router.delete('/remove-patient', removePatient)
 
 
 router.post('/add-HealthPackage',addHealthPackage) 
-// router.post('/delete-HealthPackage',deleteHealthPackage)
-// router.post('/update-HealthPackage',updateHealthPackage)
-
+ router.delete('/delete-HealthPackage',deleteHealthPackage)
+ router.put('/update-HealthPackage',editHealthPackage)
+router.post('/approve-doctor',approveDoctorRequest)
+router.delete('/reject-doctor',disapproveDoctorRequest)
+router.get('/view-applicants',viewApplicants)
 module.exports = router

@@ -16,7 +16,7 @@ app.use(express.json())
 app.get('/',(req,res)=>{
     res.send("hello world")
 })
-app.use('/patients',require('./routes/guestRoutes'))
+// app.use('/patients',require('./routes/guestRoutes'))
 app.use('/auth',require('./routes/authRoutes'))
 app.use('/admin',require('./routes/adminRoutes'))
 app.use('/Doctor-Home',require('./routes/doctorRoutes'))

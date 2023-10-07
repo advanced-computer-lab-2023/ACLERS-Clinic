@@ -4,7 +4,8 @@ const Admin = require('../models/Admin')
 
 const Doctor = require('../models/Doctor')
 const Patient = require('../models/Patient')
-const healthPackage=require('../models/healthPackage')
+const healthPackage=require('../models/healthPackage');
+const Applicant = require('../models/Applicant');
 
 
 const addAdmin = asyncHandler( async (req,res)=>{
@@ -108,10 +109,110 @@ return res.status(200).json({ message: 'Health package added successfully' });
 
 });
 
+const editHealthPackage = asyncHandler(async (req,res)=>{
+    try {
+        const healthPackageId = req.query.healthPackageId;
+    
+        // Check if the health package exists
+        const existingHealthPackage = await healthPackage.findById(healthPackageId);
+    
+        if (!existingHealthPackage) {
+          return res.status(404).json({ message: 'Health package not found' });
+        }
+    
+        // Parse the request body to get the updated field(s)
+        const { selectedPackage, Price, doctorDiscount, medicineDiscount, subscriptionDiscount } = req.body;
+    
+        // Update the health package document with the provided fields
+        if (selectedPackage) {
+          existingHealthPackage.type = selectedPackage;
+        }
+        if (Price) {
+          existingHealthPackage.Price = Price;
+        }
+        if (doctorDiscount) {
+          existingHealthPackage.doctorDiscount = doctorDiscount;
+        }
+        if (medicineDiscount) {
+          existingHealthPackage.medicineDiscount = medicineDiscount;
+        }
+        if (subscriptionDiscount) {
+          existingHealthPackage.subscriptionDiscount = subscriptionDiscount;
+        }
+    
+        // Save the updated health package
+        await existingHealthPackage.save();
+    
+        return res.status(200).json({ message: 'Health package updated successfully' ,existingHealthPackage});
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+})
+ const deleteHealthPackage = asyncHandler(async (req,res)=>{
+    try {
+        const healthPackageId = req.query.healthPackageId;
+    
+        // Check if the health package exists
+        const existingHealthPackage = await healthPackage.findById(healthPackageId);
+    
+        if (!existingHealthPackage) {
+          return res.status(404).json({ message: 'Health package not found' });
+        }
+    
+        // Delete the health package document
+        await healthPackage.findByIdAndRemove(healthPackageId);
+    
+        return res.status(200).json({ message: 'Health package deleted successfully',healthPackage });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+ })
 
+const  approveDoctorRequest = asyncHandler(async (req,res)=>{
+    const applicantId= req.query.applicantId
+    var applicant = await Applicant.findById(applicantId)
+    if(!applicant){
+        return res.status(404).json({ message: 'Applicant not found' });
+    }
+    const doctor = await Doctor.create({
+        username:applicant.username,
+        name:applicant.name,
+        email:applicant.email,
+        password:applicant.password,
+        dateOfBirth:applicant.dateOfBirth,
+        hourlyRate:applicant.hourlyRate,
+        affiliation:applicant.affiliation,
+        educationalBackground:applicant.educationalBackground,
+    })
+    await Applicant.findByIdAndDelete(applicantId)
+    return res.status(200).send(doctor);
 
+})
 
+const  disapproveDoctorRequest = asyncHandler(async (req,res)=>{
+    const applicantId= req.query.applicantId
+    var applicant = await Applicant.findById(applicantId)
+    if(!applicant){
+        return res.status(404).json({ message: 'Applicant not found' });
+    }
+   
+    await Applicant.findByIdAndDelete(applicantId)
+    return res.status(200).json({message:'applicant rejected successfullly'})
 
+})
+const viewApplicants = asyncHandler(async (req,res)=>{
+    try{
+        var applicants =await Applicant.find()
+        if(!applicants){
+            return res.status(404).json({message:'no applicants were found'})
+        }
+        return res.status(200).send(applicants)
+    }catch(error){
+        return res.status(400).send(error)
+    }
+})
 
-module.exports = {addAdmin,addHealthPackage, removeAdmin, removeDoctor, removePatient}
+module.exports = {viewApplicants,addAdmin,addHealthPackage, removeAdmin, removeDoctor, removePatient,editHealthPackage,deleteHealthPackage,approveDoctorRequest,disapproveDoctorRequest}
 
