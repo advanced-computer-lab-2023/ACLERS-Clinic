@@ -168,14 +168,20 @@ const viewPatient = asyncHandler(async (req,res)=>{
 })
 
 const writePerscription = asyncHandler(async(req,res)=>{
-   const {patientId,doctorId} = req.query.patientId
+   const {patientId,doctorId} = req.query
    const description = req.body.description
    const perscription = await Perscription.create({
-    patient:patientId,doctor:doctorId,
+   
     description:description,
-    date:new Date(),status:'filled'
+    date:new Date(),
+    status:'filled',
+    patient:patientId,
+    doctor:doctorId,
+    
+
 
    })
+   res.send(perscription)
 })
 const searchForPatient = asyncHandler( async (req, res) => {
 
@@ -194,5 +200,5 @@ const searchForPatient = asyncHandler( async (req, res) => {
   const patient= await Patient.find(filter)
   res.send(patient)
 });
-module.exports = {editEmail,filterAppointments,viewPatients,viewPatient,searchForPatient}
+module.exports = {writePerscription,editEmail,filterAppointments,viewPatients,viewPatient,searchForPatient}
 
