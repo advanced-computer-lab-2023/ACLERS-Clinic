@@ -1,7 +1,5 @@
 body {
   background-color: black;
-  margin: 0; /* Remove default margin */
-  padding: 0; /* Remove default padding */
-
-  overflow-x: hidden; /* Prevent horizontal scrolling */
+  margin: 0;
+  padding: 0;
 }

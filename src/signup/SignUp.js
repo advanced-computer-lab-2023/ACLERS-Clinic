@@ -1,22 +1,34 @@
 import React, { useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Link from "@mui/material/Link";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
+import Link from "@mui/material/Link";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import "./signup.css"; // Import the CSS file
+import MenuItem from "@mui/material/MenuItem"; // Import MenuItem
+import "./signup.css";
+
+const theme = createTheme({
+  palette: {
+    background: {
+      default: "#000000",
+    },
+  },
+});
 
 const defaultTheme = createTheme();
 
 export default function SignUp() {
+  const [userType, setUserType] = useState(""); // State to hold the selected user type
+
+  const handleUserTypeChange = (event) => {
+    setUserType(event.target.value);
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -26,34 +38,58 @@ export default function SignUp() {
       email: data.get("email"),
       password: data.get("password"),
       dateOfBirth: data.get("dateOfBirth"),
-      hourlyRate: data.get("hourlyRate"),
-      affiliation: data.get("affiliation"),
-      educationalBackground: data.get("educationalBackground"),
+      userType: userType, // Include the selected user type in the data
     });
+
+    if (userType === "doctor") {
+      console.log({
+        // Doctor-specific data
+        hourlyRate: data.get("hourlyRate"),
+        affiliation: data.get("affiliation"),
+        educationalBackground: data.get("educationalBackground"),
+      });
+    } else if (userType === "patient") {
+      console.log({
+        // Patient-specific data
+        gender: data.get("gender"),
+        mobileNumber: data.get("mobileNumber"),
+        emergencyContactName: data.get("emergencyContactName"),
+        emergencyContactMobile: data.get("emergencyContactMobile"),
+      });
+    }
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
-      {/* Use the Container as the top-level wrapper */}
-      <Container
+    <ThemeProvider theme={theme}>
+      <box>
+        <img
+          src="https://i.ibb.co/HPDqVyW/el7a2nilogoblack.png" // Replace with your image URL
+          alt="Top Image"
+          style={{
+            position: "absolute",
+            top: "15%", // Center vertically
+            left: "50%", // Center horizontally
+            transform: "translate(-50%, -50%)", // Center the image
+            width: "50%",
+            height: "auto",
+          }}
+        />
+      </box>
+      <Box
         sx={{
-          background: "black", // Set the background color to black
-          height: "100vh", // Set the height to 100vh for full-screen coverage
-          width: "200%", // Set the width to 100vw for full-width coverage
+          height: "100vh", // Set the height to cover the full viewport height
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          flexGrow: 1,
+          alignItems: "center", // Center vertically
+          justifyContent: "center", // Center horizontally
         }}
       >
-        <CssBaseline />
         <Box
           sx={{
-            marginTop: 8,
+            marginTop: 75,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            width: "50%", // Make the form width 100% of the container
+            width: "50%", // Make the form width 90% of the container
             backgroundColor: "rgba(255, 255, 255, 0.8)", // Add a semi-transparent white background to the form
             padding: "20px",
             borderRadius: "8px", // Add rounded corners to the form
@@ -71,6 +107,25 @@ export default function SignUp() {
             onSubmit={handleSubmit}
             sx={{ mt: 3 }}
           >
+            {/* User Type Selection */}
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  select
+                  required
+                  fullWidth
+                  id="userType"
+                  label="User Type"
+                  name="userType"
+                  value={userType}
+                  onChange={handleUserTypeChange}
+                >
+                  <MenuItem value="doctor">Doctor</MenuItem>
+                  <MenuItem value="patient">Patient</MenuItem>
+                </TextField>
+              </Grid>
+            </Grid>
+            {/* Common Fields */}
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
@@ -123,34 +178,80 @@ export default function SignUp() {
                   id="dateOfBirth"
                 />
               </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="hourlyRate"
-                  label="Hourly Rate"
-                  type="number"
-                  id="hourlyRate"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="affiliation"
-                  label="Affiliation (Hospital)"
-                  id="affiliation"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="educationalBackground"
-                  label="Educational Background"
-                  id="educationalBackground"
-                />
-              </Grid>
+              {/* Doctor Fields */}
+              {userType === "doctor" && (
+                <>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      name="hourlyRate"
+                      label="Hourly Rate"
+                      type="number"
+                      id="hourlyRate"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      name="affiliation"
+                      label="Affiliation (Hospital)"
+                      id="affiliation"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      name="educationalBackground"
+                      label="Educational Background"
+                      id="educationalBackground"
+                    />
+                  </Grid>
+                </>
+              )}
+              {/* Patient Fields */}
+              {userType === "patient" && (
+                <>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      name="gender"
+                      label="Gender"
+                      id="gender"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      name="mobileNumber"
+                      label="Mobile Number"
+                      id="mobileNumber"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      name="emergencyContactName"
+                      label="Emergency Contact Name"
+                      id="emergencyContactName"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      required
+                      fullWidth
+                      name="emergencyContactMobile"
+                      label="Emergency Contact Mobile"
+                      id="emergencyContactMobile"
+                    />
+                  </Grid>
+                </>
+              )}
             </Grid>
             <Button
               type="submit"
@@ -162,14 +263,14 @@ export default function SignUp() {
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="/login" variant="body2">
                   Already have an account? Sign in
                 </Link>
               </Grid>
             </Grid>
           </Box>
         </Box>
-      </Container>
+      </Box>
     </ThemeProvider>
   );
 }

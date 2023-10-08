@@ -1,10 +1,13 @@
 import ReactDOM from "react-dom";
-import App from "./signup/SignUp"; // Import your root component
 import React, { useEffect, useState } from "react";
+import App from "./App";
+import { BrowserRouter } from "react-router-dom";
 
-ReactDOM.render(
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
   <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById("root")
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
 );

@@ -80,10 +80,11 @@ export default function SignInSide() {
             }}
           >
             <img
-              src="./login/login.png"
+              src="https://i.ibb.co/vP2dX46/el7a2nilogo.png"
               alt="Your Image"
-              width="100"
-              height="100"
+              style={{
+                width: "50%",
+              }}
             />
             <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
               <LockOutlinedIcon />
@@ -146,7 +147,7 @@ export default function SignInSide() {
               </Button>
               <Grid container>
                 <Grid item xs>
-                  <Link href="#" variant="body2">
+                  <Link href="/signuppage" variant="body2">
                     {"Don't have an account? Sign Up"}
                   </Link>
                 </Grid>
