@@ -9,7 +9,7 @@ const RegisteredPatients = require('../models/RegisteredPatients');
 const PatientHealthRecord = require('../models/PatientHealthRecord');
 
 
-
+const Perscription = require('../models/Perscription')
 
 const addFamilyMember = asyncHandler(async (req, res) => {
     try {
@@ -134,20 +134,22 @@ const setAppointment = asyncHandler(async (req, res) => {
 const viewMyPerscriptions=asyncHandler( async (req, res) => {
 
     try{
-      const { patientId,date,doctor,status } = req.body;
+      const { patientId,date,doctorId,status } = req.query;
   const filter={}
       if (date){
         filter.date=date
       }
-     if (doctor){
-      filter.doctor=doctor
+     if (doctorId){
+      filter.doctor=doctorId
      } 
      if(status){
       filter.status=status
      }
-     filter.patientId=patientId
-  var perscriptions = await Perscription.find({ filter });
-       
+     filter.patient=patientId
+
+    
+  var perscriptions = await Perscription.find(filter );
+      
         res.json({perscriptions});
          
       }  catch (error) {
@@ -366,8 +368,8 @@ const viewDoctor = asyncHandler(async (req, res) => {
 
 const selectPresc=asyncHandler( async (req, res) => {
     try{
-    prescId=req.query.prescId
-    const perscription=await Perscription.findById({prescId})
+   var prescId=req.query.prescId
+    const perscription=await Perscription.findById(prescId)
     res.json({perscription})
   
     }
