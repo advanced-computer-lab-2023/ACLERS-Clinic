@@ -82,11 +82,11 @@ const filterAppointments = asyncHandler(async (req, res) => {
 const viewPatients = asyncHandler(async (req, res) => {
   const doctorId = req.query.doctorId;
   const status = req.query.status;
-
+  // console.log(doctorId)
   const registeredPatients = await RegisteredPatients.findOne({
     doctor: doctorId,
   });
-
+   console.log(registeredPatients,"registered")
   if (!registeredPatients) {
     return res
       .status(404)
@@ -96,11 +96,12 @@ const viewPatients = asyncHandler(async (req, res) => {
   }
 
   const patientHealthRecordIds = registeredPatients.patients;
-
+  console.log(registeredPatients.patients)
+console.log(patientHealthRecordIds,"ids")
   const patientsHealthRecords = await PatientHealthRecord.find({
     _id: { $in: patientHealthRecordIds },
   });
-
+  console.log(patientsHealthRecords,"patient halth record")
   const patientIds = patientsHealthRecords.map((record) => record.patient);
 
   const patients = await Patient.find({ _id: { $in: patientIds } }).select(
@@ -108,6 +109,7 @@ const viewPatients = asyncHandler(async (req, res) => {
   );
 
   var filteredPatients = patients;
+  console.log(patients,"patients")
   if (status) {
     filteredPatients = await Promise.all(
       filteredPatients.map(async (patient) => {
@@ -117,23 +119,23 @@ const viewPatients = asyncHandler(async (req, res) => {
           status: status,
           doctor: doctorId,
         });
-        console.log(hasMatchingAppointment);
+      //  console.log(hasMatchingAppointment);
         return hasMatchingAppointment ? patient : null;
       })
     );
     filteredPatients = filteredPatients.filter((patient) => patient !== null);
-    console.log(filteredPatients);
+   console.log(filteredPatients);
   }
   const patientMap = filteredPatients.reduce((acc, patient) => {
     acc[patient._id.toString()] = patient;
     return acc;
   }, {});
-
+console.log(patientMap,"map")
   const patientsWithHealthRecords = patientsHealthRecords.map((record) => ({
     patient: patientMap[record.patient.toString()],
     healthRecord: record.healthRecord,
   }));
-
+   console.log(patientsWithHealthRecords)
   // Return the patients along with their health records
   res.status(200).send( patientsWithHealthRecords );
 });
