@@ -54,7 +54,7 @@ const ViewDoctors = asyncHandler(async (req, res) => {
     if (!doctors) {
       return res.status(404).json({ message: "no doctors were found" });
     }
-    return res.status(200).send(admins);
+    return res.status(200).send(doctors);
   } catch (error) {
     return res.status(400).send(error);
   }

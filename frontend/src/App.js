@@ -31,6 +31,29 @@ const App = () => {
         <Route path="/admin/viewadmins" element={<ViewAdmins />} />
         <Route path="/admin/viewdoctors" element={<ViewDoctors />} />
         <Route path="/admin/viewpatients" element={<ViewPatients />} />
+        <Route
+          path="/admin/add-health-package"
+          element={<AddHealthPackage />}
+        />
+        <Route
+          path="/admin/view-HealthPackages"
+          element={<HealthPackageList />}
+        />
+        <Route
+          path="/admin/edit-HealthPackage/"
+          element={<EditHealthPackage />}
+        />
+        <Route path="/admin/Dashboard" element={<AdminDashboard />} />
+        <Route path="/doctor/Dashboard" element={<DoctorDashboard />} />
+        <Route path="/doctor/view-my-info/:doctorId" element={<DoctorInfo />} />
+        <Route
+          path="/doctor/view-my-appointments/:doctorId"
+          element={<DoctorAppointments />}
+        />
+        <Route
+          path="/doctor/view-my-patients/:doctorId"
+          element={<DoctorPatients />}
+        />
       </Routes>
     </>
   );
