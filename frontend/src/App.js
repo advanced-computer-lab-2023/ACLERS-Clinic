@@ -17,6 +17,8 @@ import DoctorDashboard from "./dashboard/DoctorDashboard";
 import DoctorInfo from "./doctor/DoctorInfo";
 import DoctorAppointments from "./doctor/DoctorAppointments";
 import DoctorPatients from "./doctor/DoctorPatients";
+import PatientInfo from "./doctor/patientInfo"; // Import the new component
+
 import PatientDashBoard from "./dashboard/PatientDashboard";
 const App = () => {
   return (
@@ -55,7 +57,6 @@ const App = () => {
           path="/doctor/view-my-patients/:doctorId"
           element={<DoctorPatients />}
         />
-        <Route path="/patient/Dashboard" element={<PatientDashBoard />} />
       </Routes>
     </>
   );
