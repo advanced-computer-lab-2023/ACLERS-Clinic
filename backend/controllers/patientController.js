@@ -245,7 +245,9 @@ const viewDoctors = asyncHandler(async (req, res) => {
                     username: doctor.username,
                     name: doctor.name,
                     specialty: doctor.speciality, // Add the specialty field as needed
-                    sessionPrice: sessionPrice,
+                    sessionPrice: doctor.sessionPrice,
+                    educationalBackground: doctor.educationalBackground,
+                    affiliation: doctor.affiliation
                 };
             }));
 
