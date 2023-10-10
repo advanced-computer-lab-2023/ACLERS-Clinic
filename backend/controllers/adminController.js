@@ -6,6 +6,7 @@ const Doctor = require("../models/Doctor");
 const Patient = require("../models/Patient");
 const healthPackage = require("../models/healthPackage");
 const Applicant = require("../models/Applicant");
+const { Types } = require("mongoose");
 
 const addAdmin = asyncHandler(async (req, res) => {
   const username = req.body.username;
@@ -47,6 +48,17 @@ const ViewAdmins = asyncHandler(async (req, res) => {
     return res.status(400).send(error);
   }
 });
+const viewHealthPackges = asyncHandler(async (req,res)=>{
+  try {
+    var healthPackagess = await healthPackage.find();
+    if (!healthPackagess) {
+      return res.status(404).json({ message: "no packages were found" });
+    }
+    return res.status(200).send(healthPackagess);
+  } catch (error) {
+    return res.status(400).send(error);
+  }
+})
 
 const ViewDoctors = asyncHandler(async (req, res) => {
   try {
@@ -54,7 +66,7 @@ const ViewDoctors = asyncHandler(async (req, res) => {
     if (!doctors) {
       return res.status(404).json({ message: "no doctors were found" });
     }
-    return res.status(200).send(admins);
+    return res.status(200).send(doctors);
   } catch (error) {
     return res.status(400).send(error);
   }
@@ -116,21 +128,21 @@ const removePatient = asyncHandler(async (req, res) => {
 
 const addHealthPackage = asyncHandler(async (req, res) => {
   const {
-    selectedpackage,
+    type,
     Price,
     doctorDiscount,
     medicineDiscount,
     subscriptionDiscount,
   } = req.body;
   console.log(
-    selectedpackage,
+    type,
     doctorDiscount,
     Price,
     medicineDiscount,
     subscriptionDiscount
   );
   if (
-    !selectedpackage ||
+    !type ||
     !doctorDiscount ||
     !Price ||
     !medicineDiscount ||
@@ -143,15 +155,25 @@ const addHealthPackage = asyncHandler(async (req, res) => {
   }
 
   const HealthPackage = await healthPackage.create({
-    type: req.body.selectedpackage,
+    type: req.body.type,
     Price: req.body.Price,
     doctorDiscount: req.body.doctorDiscount,
     medicineDiscount: req.body.medicineDiscount,
     subscriptionDiscount: req.body.subscriptionDiscount,
   });
-  return res.status(200).json({ message: "Health package added successfully" });
+  return res.status(200).json(HealthPackage);
 });
-
+const viewPackage = asyncHandler(async(req,res)=>{
+  try {
+    var healthPackage = await healthPackage.findById(req.query.id)
+    if (!healthPackage) {
+      return res.status(404).json({ message: "no packages were found" });
+    }
+    return res.status(200).send(healthPackage);
+  } catch (error) {
+    return res.status(400).send(error);
+  }
+})
 const editHealthPackage = asyncHandler(async (req, res) => {
   try {
     const healthPackageId = req.query.healthPackageId;
@@ -165,7 +187,7 @@ const editHealthPackage = asyncHandler(async (req, res) => {
 
     // Parse the request body to get the updated field(s)
     const {
-      selectedPackage,
+      type,
       Price,
       doctorDiscount,
       medicineDiscount,
@@ -173,8 +195,8 @@ const editHealthPackage = asyncHandler(async (req, res) => {
     } = req.body;
 
     // Update the health package document with the provided fields
-    if (selectedPackage) {
-      existingHealthPackage.type = selectedPackage;
+    if (type) {
+      existingHealthPackage.type = type;
     }
     if (Price) {
       existingHealthPackage.Price = Price;
@@ -267,6 +289,7 @@ const viewApplicants = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  viewHealthPackges,
   viewApplicants,
   addAdmin,
   addHealthPackage,
@@ -280,4 +303,5 @@ module.exports = {
   ViewAdmins,
   ViewPatients,
   ViewDoctors,
+  viewPackage
 };
