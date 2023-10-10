@@ -239,6 +239,7 @@ const approveDoctorRequest = asyncHandler(async (req, res) => {
     hourlyRate: applicant.hourlyRate,
     affiliation: applicant.affiliation,
     educationalBackground: applicant.educationalBackground,
+    speciality: applicant.speciality
   });
   await Applicant.findByIdAndDelete(applicantId);
   return res.status(200).send(doctor);
