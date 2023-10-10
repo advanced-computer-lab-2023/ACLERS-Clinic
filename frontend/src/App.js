@@ -9,6 +9,7 @@ import AdminRemove from "./admin/adminremove/adminremove";
 import ViewAdmins from "./admin/viewadmins/viewadmins";
 import ViewDoctors from "./admin/viewdoctors/viewdoctors";
 import ViewPatients from "./admin/viewpatients/viewpatients";
+import ViewApplicants from "./admin/viewapplicants/viewapplicants";
 
 const App = () => {
   return (
@@ -24,6 +25,7 @@ const App = () => {
         <Route path="/admin/viewadmins" element={<ViewAdmins />} />
         <Route path="/admin/viewdoctors" element={<ViewDoctors />} />
         <Route path="/admin/viewpatients" element={<ViewPatients />} />
+        <Route path="/admin/viewapplicants" element={<ViewApplicants />} />
       </Routes>
     </>
   );
