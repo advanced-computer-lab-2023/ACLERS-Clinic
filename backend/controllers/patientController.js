@@ -194,7 +194,7 @@ const viewDoctors = asyncHandler(async (req, res) => {
         var doctorsWithSessionPrices = []
         // Add speciality filter if provided
         if (speciality) {
-            doctorQuery.educationalBackground = speciality;
+            doctorQuery.speciality = speciality;
         }
 
         // If date and time are provided, check doctor availability
@@ -244,7 +244,7 @@ const viewDoctors = asyncHandler(async (req, res) => {
                     _id: doctor._id,
                     username: doctor.username,
                     name: doctor.name,
-                    specialty: doctor.educationalBackground, // Add the specialty field as needed
+                    specialty: doctor.speciality, // Add the specialty field as needed
                     sessionPrice: sessionPrice,
                 };
             }));
@@ -279,7 +279,7 @@ const viewDoctors = asyncHandler(async (req, res) => {
                     _id: doctor._id,
                     username: doctor.username,
                     name: doctor.name,
-                    specialty: doctor.educationalBackground, // Add the specialty field as needed
+                    specialty: doctor.speciality, // Add the specialty field as needed
                     sessionPrice: sessionPrice,
                 };
             }));
@@ -355,6 +355,7 @@ const viewDoctor = asyncHandler(async (req, res) => {
             hourlyRate: doctor.hourlyRate
             , affiliation: doctor.affiliation,
             educationalBackground: doctor.educationalBackground
+            , speciality: doctor.speciality
             // Include other attributes as needed
         };
 
@@ -394,7 +395,7 @@ const searchForDoctor = asyncHandler( async (req, res) => {
 
     if (speciality) {
       // If 'date' is provided in the query, convert it to a Date object and add it to the filter
-      filter.educationalBackground = speciality;
+      filter.speciality = speciality;
     }
     const doctors= await Doctor.find(filter)
     res.send(doctors)

@@ -45,6 +45,11 @@ const applicantSchema = new mongoose.Schema({
         enum: ['accepted','pending', 'rejected'],
         required: true,
      }
+     ,
+     speciality:{
+      type: String,
+      required:true
+     }
     })
 
 module.exports = mongoose.model('applicant',applicantSchema)

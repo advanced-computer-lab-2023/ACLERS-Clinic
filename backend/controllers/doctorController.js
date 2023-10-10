@@ -26,7 +26,7 @@ const editEmail = asyncHandler(async (req, res) => {
       const existingDoctor = await Doctor.findOne({ email: newEmail });
 
       if (existingDoctor) {
-        res.status(400).json({ exists: true, message: "Email already taken" });
+       return res.status(400).json({ exists: true, message: "Email already taken" });
       } else {
         doctor.email = newEmail;
       }
@@ -69,10 +69,11 @@ const filterAppointments = asyncHandler(async (req, res) => {
     // Use the filter object to query the database
     const appointments = await Appointment.find(filter).populate(
       "patient",
-      "-password"
+     
     );
 
     res.status(200).json(appointments);
+    console.log(appointments)
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
@@ -134,7 +135,7 @@ const viewPatients = asyncHandler(async (req, res) => {
   }));
 
   // Return the patients along with their health records
-  res.status(200).json({ patients: patientsWithHealthRecords });
+  res.status(200).send( patientsWithHealthRecords );
 });
 
 const viewPatient = asyncHandler(async (req, res) => {
@@ -187,6 +188,19 @@ const viewPatient = asyncHandler(async (req, res) => {
   // Return the patient along with their health record without the extra "patient" layer
   res.status(200).json(patientResponse);
 });
+const viewMyInfo = asyncHandler(async (req,res)=>{
+  try{
+    const id = req.query.id 
+    const doctor = await Doctor.findById(id)
+    if(doctor){
+      res.status(200).send(doctor)
+    }else{
+      res.status(404).json({message:'doctor not found'})
+    }
+  }catch(error){
+    res.status(400).send(error)
+  }
+})
 
 const writePerscription = asyncHandler(async (req, res) => {
   const { patientId, doctorId } = req.query;
@@ -221,4 +235,5 @@ module.exports = {
   viewPatients,
   viewPatient,
   searchForPatient,
+  viewMyInfo
 };
