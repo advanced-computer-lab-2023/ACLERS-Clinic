@@ -247,7 +247,9 @@ const viewDoctors = asyncHandler(async (req, res) => {
             username: doctor.username,
             name: doctor.name,
             specialty: doctor.speciality, // Add the specialty field as needed
-            sessionPrice: sessionPrice,
+            sessionPrice: doctor.sessionPrice,
+            educationalBackground: doctor.educationalBackground,
+            affiliation: doctor.affiliation,
           };
         })
       );
@@ -315,11 +317,9 @@ const subscribeHealthPackage = asyncHandler(async (req, res) => {
       oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
       if (existingSubscription.subscriptionDate > oneYearAgo) {
-        return res
-          .status(400)
-          .json({
-            message: "Patient is not eligible for a new subscription yet",
-          });
+        return res.status(400).json({
+          message: "Patient is not eligible for a new subscription yet",
+        });
       }
     }
 
