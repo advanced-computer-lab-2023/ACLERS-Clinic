@@ -9,8 +9,14 @@ import AdminRemove from "./admin/adminremove/adminremove";
 import ViewAdmins from "./admin/viewadmins/viewadmins";
 import ViewDoctors from "./admin/viewdoctors/viewdoctors";
 import ViewPatients from "./admin/viewpatients/viewpatients";
-import ViewApplicants from "./admin/viewapplicants/viewapplicants";
-
+import AddHealthPackage from "./admin/addhealthpackage/addHealthPackage";
+import HealthPackageList from "./admin/viewhealthpackages/viewHealthPackages";
+import EditHealthPackage from "./admin/viewhealthpackages/editHealthPackage";
+import AdminDashboard from "./dashboard/AdminDashboard";
+import DoctorDashboard from "./dashboard/DoctorDashboard";
+import DoctorInfo from "./doctor/DoctorInfo";
+import DoctorAppointments from "./doctor/DoctorAppointments";
+import DoctorPatients from "./doctor/DoctorPatients";
 const App = () => {
   return (
     <>
@@ -25,7 +31,6 @@ const App = () => {
         <Route path="/admin/viewadmins" element={<ViewAdmins />} />
         <Route path="/admin/viewdoctors" element={<ViewDoctors />} />
         <Route path="/admin/viewpatients" element={<ViewPatients />} />
-        <Route path="/admin/viewapplicants" element={<ViewApplicants />} />
       </Routes>
     </>
   );
