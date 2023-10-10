@@ -17,6 +17,8 @@ import DoctorDashboard from "./dashboard/DoctorDashboard"
 import DoctorInfo from "./doctor/DoctorInfo"
 import DoctorAppointments from "./doctor/DoctorAppointments";
 import DoctorPatients from "./doctor/DoctorPatients";
+import PatientInfo from './doctor/patientInfo'; // Import the new component
+
 const App = () => {
   return (
     <>
@@ -39,6 +41,7 @@ const App = () => {
         <Route path="/doctor/view-my-info/:doctorId" element = {<DoctorInfo/>}/>
         <Route path="/doctor/view-my-appointments/:doctorId" element = {<DoctorAppointments/>}/>
         <Route path="/doctor/view-my-patients/:doctorId" element = {<DoctorPatients/>}/>
+        <Route path="/doctor/view-patient/:patientId/:doctorId" element={<PatientInfo />} />
 
 
       </Routes>
