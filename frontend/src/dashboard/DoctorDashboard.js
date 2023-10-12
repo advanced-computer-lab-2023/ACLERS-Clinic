@@ -7,19 +7,15 @@ function DoctorDashboard() {
       <nav>
         <ul>
           <li>
-            <Link to="/doctor/view-my-info/6527a04c1e841bdc9bcf43e0">
-              View My Info
-            </Link>
+            <Link to="/doctor/view-my-info/:doctorId">View My Info</Link>
           </li>
           <li>
-            <Link to="/doctor/view-my-appointments/6527a04c1e841bdc9bcf43e0">
+            <Link to="/doctor/view-my-appointments/:doctorId">
               View My Appointments
             </Link>
           </li>
           <li>
-            <Link to="/doctor/view-my-patients/6527a04c1e841bdc9bcf43e0">
-              View Patients
-            </Link>
+            <Link to="/doctor/view-my-patients/:doctorId">View Patients</Link>
           </li>
         </ul>
       </nav>

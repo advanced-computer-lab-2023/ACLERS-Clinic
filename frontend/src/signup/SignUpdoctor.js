@@ -70,7 +70,7 @@ export default function DoctorSignUp() {
       .then((data) => {
         console.log(data);
         // Redirect to a different page after successful registration
-        //window.location.href = "/login";
+        window.location.href = "/login";
       })
       .catch((err) => {
         console.log(err);
