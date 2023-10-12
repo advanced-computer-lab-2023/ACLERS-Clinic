@@ -23,6 +23,8 @@ import PatientPerscriptions from "./patient/viewPerscriptions";
 import PatientFamilyMembers from "./patient/familymembers";
 import DoctorSignUpPage from "./signup/SignUpdoctor";
 import ViewApplicants from "./admin/viewapplicants/viewapplicants";
+import PatientDoctors from "./patient/viewdoctors";
+import PatientAppointments from "./patient/appointments";
 const App = () => {
   return (
     <>
@@ -72,6 +74,8 @@ const App = () => {
           element={<PatientFamilyMembers />}
         />
         <Route path="/admin/view-applicants" element={<ViewApplicants />} />
+        <Route path="/patient/viewdoctors" element={<PatientDoctors />} />
+        <Route path="/patient/appointments" element={<PatientAppointments />} />
       </Routes>
     </>
   );
