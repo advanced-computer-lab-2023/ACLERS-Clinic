@@ -25,7 +25,7 @@ const editEmail = asyncHandler(async (req, res) => {
     if (newEmail != null) {
       const existingDoctor = await Doctor.findOne({ email: newEmail });
 
-      if (existingDoctor) {
+      if (existingDoctor && doctor._id == existingDoctor._id) {
        return res.status(400).json({ exists: true, message: "Email already taken" });
       } else {
         doctor.email = newEmail;
@@ -68,7 +68,7 @@ const filterAppointments = asyncHandler(async (req, res) => {
 
     // Use the filter object to query the database
     const appointments = await Appointment.find(filter).populate(
-      "patient",
+      "patient","-emergencyContact"
      
     );
 

@@ -18,10 +18,10 @@ const DoctorPatients = () => {
       .then((response) => response.json())
       .then((data) => {
         setPatients(data);
-        console.log(data)
-        console.log(patients)
+        console.log(data,"data")
+        console.log(patients,"patients")
         setFilteredPatients(data);
-        console.log(filteredPatients) // Initialize filteredPatients with all patients
+        console.log(filteredPatients,"filtered 1") // Initialize filteredPatients with all patients
       })
       .catch((error) => {
         console.error('Error fetching patients:', error);
@@ -55,17 +55,22 @@ const handleFilter = () => {
   };
 
   const handleSearch = () => {
-    
-    const filteredPatientsByName = filteredPatients.filter((patient) =>
-    {
-    if(patient.patient){
-
-      patient.patient.name.toLowerCase().includes(searchName.toLowerCase())
-    }
- } );
+    // Convert the search name to lowercase for a case-insensitive search
+    const searchNameLower = searchName.toLowerCase();
+  
+    // Filter the patients based on the search criteria
+    const filteredPatientsByName = patients.filter((patient) => {
+      if (patient.patient && patient.patient.name.toLowerCase().includes(searchNameLower)) {
+        return true;
+      }
+      return false;
+    });
+  
+    // Update the state with the filtered results
     setFilteredPatients(filteredPatientsByName);
-    
   };
+  
+  
   
   
 
