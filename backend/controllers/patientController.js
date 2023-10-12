@@ -246,7 +246,7 @@ const viewDoctors = asyncHandler(async (req, res) => {
             _id: doctor._id,
             username: doctor.username,
             name: doctor.name,
-            specialty: doctor.speciality, // Add the specialty field as needed
+            speciality: doctor.speciality, // Add the speciality field as needed
             sessionPrice: doctor.sessionPrice,
             educationalBackground: doctor.educationalBackground,
             affiliation: doctor.affiliation,
@@ -288,8 +288,10 @@ const viewDoctors = asyncHandler(async (req, res) => {
             _id: doctor._id,
             username: doctor.username,
             name: doctor.name,
-            specialty: doctor.speciality, // Add the specialty field as needed
+            speciality: doctor.speciality, // Add the speciality field as needed
             sessionPrice: sessionPrice,
+            educationalBackground: doctor.educationalBackground,
+            affiliation: doctor.affiliation,
           };
         })
       );

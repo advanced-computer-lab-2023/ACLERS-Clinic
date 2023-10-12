@@ -17,9 +17,12 @@ import DoctorDashboard from "./dashboard/DoctorDashboard";
 import DoctorInfo from "./doctor/DoctorInfo";
 import DoctorAppointments from "./doctor/DoctorAppointments";
 import DoctorPatients from "./doctor/DoctorPatients";
-import PatientInfo from "./doctor/patientInfo"; // Import the new component
-
+import PatientInfo from "./doctor/patientInfo";
 import PatientDashBoard from "./dashboard/PatientDashboard";
+import PatientPerscriptions from "./patient/viewPerscriptions";
+import PatientFamilyMembers from "./patient/familymembers";
+import DoctorSignUpPage from "./signup/SignUpdoctor";
+import ViewApplicants from "./admin/viewapplicants/viewapplicants";
 const App = () => {
   return (
     <>
@@ -28,6 +31,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/signuppage" element={<SignUpPage />} />
         <Route path="/signuppage/patient" element={<PatinetSignUpPage />} />
+        <Route path="/signuppage/doctor" element={<DoctorSignUpPage />} />
         <Route path="/admin" element={<AdminHome />} />
         <Route path="/admin/adminadd" element={<AdminAdd />} />
         <Route path="/admin/adminremove" element={<AdminRemove />} />
@@ -57,6 +61,17 @@ const App = () => {
           path="/doctor/view-my-patients/:doctorId"
           element={<DoctorPatients />}
         />
+        <Route path="/doctor/patientinfo" element={<PatientInfo />} />
+        <Route path="/patient/dashboard" element={<PatientDashBoard />} />
+        <Route
+          path="/patient/view-perscriptions"
+          element={<PatientPerscriptions />}
+        />
+        <Route
+          path="/patient/familymembers"
+          element={<PatientFamilyMembers />}
+        />
+        <Route path="/admin/view-applicants" element={<ViewApplicants />} />
       </Routes>
     </>
   );

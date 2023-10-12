@@ -17,8 +17,13 @@ const DoctorDetails = ({ doctor }) => {
   return (
     <>
       <div className="doctordetails">
-        <h2>{doctor.username}</h2>
-        <p>{doctor.password}</p>
+        <h2>Username: {doctor.username}</h2>
+        <p>Name: {doctor.name}</p>
+        <p>Email: {doctor.email}</p>
+        <p>Date of Birth: {doctor.dateOfBirth}</p>
+        <p>Hourly Rate: {doctor.hourlyRate}</p>
+        <p>Affiliation: {doctor.affiliation}</p>
+        <p>Educational Background: {doctor.educationalBackground}</p>
         <button onClick={handleClick}>delete</button>
       </div>
     </>

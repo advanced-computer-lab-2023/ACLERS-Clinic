@@ -6,16 +6,14 @@ function DoctorDataGrid() {
   const columns = [
     { field: "_id", headerName: "ID", width: 275 },
     { field: "name", headerName: "Name", width: 200 },
-    { field: "speciality", headerName: "Speciality", width: 200 },
-    { field: "sessionPrice", headerName: "Session Price", width: 150 },
-    { field: "appointmentDate", headerName: "Appointment Date", width: 200 },
     { field: "affiliation", headerName: "Affiliation", width: 200 },
     {
       field: "educationalBackground",
       headerName: "Educational Background",
       width: 300,
     },
-    { field: "sessionP" },
+    { field: "speciality", headerName: "Speciality", width: 200 },
+    { field: "sessionPrice", headerName: "Session Price", width: 150 },
   ];
 
   useEffect(() => {
