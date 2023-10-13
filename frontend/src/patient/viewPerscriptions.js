@@ -1,54 +1,124 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
 import { DataGrid } from "@mui/x-data-grid";
 
-function PrescriptionDataGrid() {
+function PrescriptionDataText() {
+  const [patientId, setPatientId] = useState("");
+  const [date, setDate] = useState("");
+  const [doctorId, setDoctorId] = useState("");
+  const [status, setStatus] = useState("");
   const [prescriptions, setPrescriptions] = useState([]);
-  const columns = [
-    { field: "_id", headerName: "ID", width: 275 },
-    { field: "description", headerName: "Description", width: 300 },
-    { field: "status", headerName: "Status", width: 200 },
-    { field: "date", headerName: "Date", width: 200 },
-    { field: "doctor", headerName: "Doctor", width: 200 },
-    { field: "patient", headerName: "Patient", width: 200 },
-  ];
+  const [selectedPrescription, setSelectedPrescription] = useState(null);
 
-  useEffect(() => {
-    // Fetch prescription information from the API
-    fetch(
-      "http://localhost:8000/Patient-home/view-perscriptions?patientId=651f1a0ffa0441d0e58c0700"
-    )
+  const handleChange = (e) => {
+    setPatientId(e.target.value);
+  };
+
+  const handleFetchPrescriptions = () => {
+    // Construct the query string with filters
+    let query = `patientId=${patientId}`;
+    if (date) query += `&date=${date}`;
+    if (doctorId) query += `&doctorId=${doctorId}`;
+    if (status) query += `&status=${status}`;
+
+    fetch(`http://localhost:8000/Patient-home/view-perscriptions?${query}`)
       .then((response) => response.json())
       .then((data) => {
-        const prescriptionData = data.perscriptions; // Access the "perscriptions" array
-
-        if (prescriptionData && prescriptionData.length > 0) {
-          const prescriptionsWithIds = prescriptionData.map(
-            (prescription, index) => ({
-              id: index + 1, // You can use a different method to generate IDs if needed
-              ...prescription,
-            })
-          );
-
-          setPrescriptions(prescriptionsWithIds);
-        } else {
-          setPrescriptions([]); // No prescriptions found, set the state to an empty array
-        }
+        const prescriptions = data.perscriptions;
+        setPrescriptions(prescriptions);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
+        setPrescriptions([]);
       });
-  }, []);
+  };
+
+  const handleSelectPrescription = (prescId) => {
+    fetch(
+      `http://localhost:8000/Patient-home/view-perscription?prescId=${prescId}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        setSelectedPrescription(data.perscription);
+      })
+      .catch((error) => {
+        console.error("Error fetching prescription data:", error);
+        setSelectedPrescription(null);
+      });
+  };
 
   return (
-    <div style={{ height: 400, width: "100%" }}>
-      <DataGrid
-        rows={prescriptions}
-        columns={columns}
-        pageSize={10}
-        checkboxSelection
-      />
+    <div>
+      <div>
+        <label htmlFor="patientId">Enter Patient ID:</label>
+        <input
+          type="text"
+          id="patientId"
+          value={patientId}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div>
+        <TextField
+          id="date"
+          label="Date"
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
+      </div>
+
+      <div>
+        <TextField
+          id="doctorId"
+          label="Doctor ID"
+          type="text"
+          value={doctorId}
+          onChange={(e) => setDoctorId(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <TextField
+          select
+          id="status"
+          label="Status"
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+        >
+          <MenuItem value="">Select Status</MenuItem>
+          <MenuItem value="filled">Filled</MenuItem>
+          <MenuItem value="unfilled">Unfilled</MenuItem>
+        </TextField>
+      </div>
+
+      <button onClick={handleFetchPrescriptions}>Fetch Prescriptions</button>
+
+      {prescriptions.map((prescription) => (
+        <div key={prescription._id}>
+          <p>ID: {prescription._id}</p>
+          <p>Description: {prescription.description}</p>
+          <button onClick={() => handleSelectPrescription(prescription._id)}>
+            Select Prescription
+          </button>
+          {selectedPrescription &&
+            selectedPrescription._id === prescription._id && (
+              <div>
+                <p>Status: {selectedPrescription.status}</p>
+                <p>Date: {selectedPrescription.date}</p>
+                <p>Doctor: {selectedPrescription.doctor}</p>
+                <p>Patient: {selectedPrescription.patient}</p>
+              </div>
+            )}
+        </div>
+      ))}
     </div>
   );
 }
 
-export default PrescriptionDataGrid;
+export default PrescriptionDataText;

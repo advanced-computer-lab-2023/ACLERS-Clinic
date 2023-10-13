@@ -303,7 +303,6 @@ const viewDoctors = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
-
 const subscribeHealthPackage = asyncHandler(async (req, res) => {
   try {
     const { patientId, healthPackageId } = req.query;
@@ -393,23 +392,23 @@ const selectPresc = asyncHandler(async (req, res) => {
   }
 });
 const searchForDoctor = asyncHandler(async (req, res) => {
-  const { name, speciality } = req.body;
+  const { name, speciality } = req.query;
 
   // Define a filter object to build the query dynamically
   const filter = {};
 
   if (name) {
-    // If 'status' is provided in the query, add it to the filter
     filter.name = name;
   }
 
   if (speciality) {
-    // If 'date' is provided in the query, convert it to a Date object and add it to the filter
     filter.speciality = speciality;
   }
+
   const doctors = await Doctor.find(filter);
   res.send(doctors);
 });
+
 module.exports = {
   searchForDoctor,
   selectPresc,
