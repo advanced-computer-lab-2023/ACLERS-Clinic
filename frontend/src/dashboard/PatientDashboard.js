@@ -1,51 +1,28 @@
-import React, { useEffect, useState } from "react";
-import { DataGrid } from "@mui/x-data-grid";
+import React from "react";
+import { Link } from "react-router-dom";
 
-function DoctorDataGrid() {
-  const [doctors, setDoctors] = useState([]);
-  const columns = [
-    { field: "_id", headerName: "ID", width: 275 },
-    { field: "name", headerName: "Name", width: 200 },
-    { field: "speciality", headerName: "Speciality", width: 200 },
-    { field: "sessionPrice", headerName: "Session Price", width: 150 },
-    { field: "appointmentDate", headerName: "Appointment Date", width: 200 },
-    { field: "affiliation", headerName: "Affiliation", width: 200 },
-    {
-      field: "educationalBackground",
-      headerName: "Educational Background",
-      width: 300,
-    },
-    { field: "sessionP" },
-  ];
-
-  useEffect(() => {
-    // Fetch doctor information from the API
-    fetch("http://localhost:8000/Patient-home/view-doctors")
-      .then((response) => response.json())
-      .then((data) => {
-        // Generate unique IDs for each doctor
-        const doctorsWithIds = data.map((doctor, index) => ({
-          id: index + 1, // You can use a different method to generate IDs if needed
-          ...doctor,
-        }));
-
-        setDoctors(doctorsWithIds);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
-  }, []);
-
+function PatientDashboard() {
   return (
-    <div style={{ height: 400, width: "100%" }}>
-      <DataGrid
-        rows={doctors}
-        columns={columns}
-        pageSize={10}
-        checkboxSelection
-      />
+    <div>
+      <nav>
+        <ul>
+          <li>
+            <Link to="/patient/familymembers">Family Members</Link>
+          </li>
+          <li>
+            <Link to="/patient/appointments">View My Appointments</Link>
+          </li>
+          <li>
+            <Link to="/patient/viewdoctors">View Doctors</Link>
+          </li>
+          <li>
+            <Link to="/patient/view-perscriptions">View perscriptions</Link>
+          </li>
+        </ul>
+      </nav>
+      {/* Add content for each section here */}
     </div>
   );
 }
 
-export default DoctorDataGrid;
+export default PatientDashboard;

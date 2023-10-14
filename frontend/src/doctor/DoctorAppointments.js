@@ -1,36 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 const DoctorAppointments = () => {
-    const { doctorId } = useParams();
+  const { doctorId } = useParams();
   const [appointments, setAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
-  const [filterBy, setFilterBy] = useState('date'); // Default filter by date
-  const [filterValue, setFilterValue] = useState('');
+  const [filterBy, setFilterBy] = useState("date"); // Default filter by date
+  const [filterValue, setFilterValue] = useState("");
 
   // Fetch doctor's appointments based on doctorId
   useEffect(() => {
     // Replace with your API call to fetch doctor's appointments
-    fetch(`http://localhost:8000/Doctor-Home/view-appointments?doctorId=${doctorId}`)
+    fetch(
+      `http://localhost:8000/Doctor-Home/view-appointments?doctorId=${doctorId}`
+    )
       .then((response) => response.json())
       .then((data) => {
         setAppointments(data);
         setFilteredAppointments(data); // Initialize filteredAppointments with all appointments
       })
       .catch((error) => {
-        console.error('Error fetching doctor appointments:', error);
+        console.error("Error fetching doctor appointments:", error);
       });
   }, [doctorId]);
 
   // Function to handle filtering appointments
   const handleFilter = () => {
-    if (filterBy === 'date') {
+    if (filterBy === "date") {
       // Filter appointments by date
       const filtered = appointments.filter((appointment) =>
         appointment.date.includes(filterValue)
       );
       setFilteredAppointments(filtered);
-    } else if (filterBy === 'status') {
+    } else if (filterBy === "status") {
       // Filter appointments by status
       const filtered = appointments.filter(
         (appointment) => appointment.status === filterValue

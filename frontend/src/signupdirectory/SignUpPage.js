@@ -25,7 +25,7 @@ export const SignUpPage = () => {
             </div>
             <div className="text-wrapper">Sign up as a:</div>
           </div>
-          <Link to="/signuppage/patient">
+          <Link to="/signuppage/doctor">
             <button class="button-27">Doctor</button>
           </Link>
           <Link to="/signuppage/patient">
