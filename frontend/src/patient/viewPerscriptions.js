@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import { DataGrid } from "@mui/x-data-grid";
+import { useNavigate, useParams } from "react-router-dom";
 
 function PrescriptionDataText() {
+  const {id} = useParams()
+  const navigate = useNavigate()
   const [patientId, setPatientId] = useState("");
   const [date, setDate] = useState("");
   const [doctorId, setDoctorId] = useState("");
@@ -14,14 +17,35 @@ function PrescriptionDataText() {
   const handleChange = (e) => {
     setPatientId(e.target.value);
   };
-
-  const handleFetchPrescriptions = () => {
+   useEffect(()=>{
+    const handleFetchPrescriptions = () => {
+      // Construct the query string with filters
+      let query = `patientId=${id}`;
+      if (date) query += `&date=${date}`;
+      if (doctorId) query += `&doctorId=${doctorId}`;
+      if (status) query += `&status=${status}`;
+  
+      fetch(`http://localhost:8000/Patient-home/view-perscriptions?${query}`)
+        .then((response) => response.json())
+        .then((data) => {
+          const prescriptions = data.perscriptions;
+          setPrescriptions(prescriptions);
+        })
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+          setPrescriptions([]);
+        });
+    };
+     handleFetchPrescriptions()
+   },[])
+   const handleFetchPrescriptions = () => {
     // Construct the query string with filters
-    let query = `patientId=${patientId}`;
+    let query = `patientId=${id}`;
     if (date) query += `&date=${date}`;
     if (doctorId) query += `&doctorId=${doctorId}`;
     if (status) query += `&status=${status}`;
-
+    // var filtered =prescriptions.filter((perscription)=>perscription.date.includes(date))
+    // console.log(filtered[0].date)
     fetch(`http://localhost:8000/Patient-home/view-perscriptions?${query}`)
       .then((response) => response.json())
       .then((data) => {
@@ -33,7 +57,6 @@ function PrescriptionDataText() {
         setPrescriptions([]);
       });
   };
-
   const handleSelectPrescription = (prescId) => {
     fetch(
       `http://localhost:8000/Patient-home/view-perscription?prescId=${prescId}`
@@ -50,21 +73,13 @@ function PrescriptionDataText() {
 
   return (
     <div>
-      <div>
-        <label htmlFor="patientId">Enter Patient ID:</label>
-        <input
-          type="text"
-          id="patientId"
-          value={patientId}
-          onChange={handleChange}
-        />
-      </div>
+       <button onClick={() => navigate(-1)}>Go Back</button>
 
       <div>
         <TextField
           id="date"
           label="Date"
-          type="date"
+          type="text"
           value={date}
           onChange={(e) => setDate(e.target.value)}
           InputLabelProps={{
@@ -97,7 +112,7 @@ function PrescriptionDataText() {
         </TextField>
       </div>
 
-      <button onClick={handleFetchPrescriptions}>Fetch Prescriptions</button>
+      <button onClick={handleFetchPrescriptions}>Filter</button>
 
       {prescriptions.map((prescription) => (
         <div key={prescription._id}>

@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import { useParams,useNavigate } from "react-router-dom";
 
 function DoctorSearch() {
+  const navigate = useNavigate()
+
+  const {id}= useParams()
   const [name, setName] = useState("");
   const [speciality, setSpeciality] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -13,6 +17,22 @@ function DoctorSearch() {
   const [filterDate, setFilterDate] = useState("");
   const [filterTime, setFilterTime] = useState("");
 
+
+  useEffect(()=>{
+   const fetchDoctors =  async ()=>{
+    fetch(`http://localhost:8000/Patient-home/view-doctors?patientID=${id}`)
+    .then((response) => response.json())
+    .then((data) => {
+      setDoctors(data);
+    })
+    .catch((error) => {
+      console.error("Error fetching doctor data:", error);
+      setDoctors(null);
+    });
+
+   }
+   fetchDoctors()
+  },[])
   const handleSearch = () => {
     // Prepare the query parameters
     const queryParams = new URLSearchParams();
@@ -25,7 +45,8 @@ function DoctorSearch() {
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        setSearchResults(data);
+        setDoctors(data);
+        
       })
       .catch((error) => {
         console.error("Error searching for doctors:", error);
@@ -44,20 +65,7 @@ function DoctorSearch() {
       });
   };
 
-  const handleFetchDoctors = () => {
-    // Construct the query string
-    const query = `patientId=${patientId}`;
-
-    fetch(`http://localhost:8000/Patient-home/view-doctors?${query}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setDoctors(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching doctor data:", error);
-        setDoctors(null);
-      });
-  };
+  
 
   const handleFilterDoctors = () => {
     // Construct the query string for filters
@@ -76,6 +84,8 @@ function DoctorSearch() {
 
   return (
     <div>
+             <button onClick={() => navigate(-1)}>Go Back</button>
+
       <h1>Doctor Search</h1>
       <label htmlFor="doctorName">Doctor Name:</label>
       <input
@@ -94,62 +104,7 @@ function DoctorSearch() {
       />
 
       <button onClick={handleSearch}>Search</button>
-
-      <div>
-        <h2>Search Results:</h2>
-        <ul>
-          {searchResults.map((doctor) => (
-            <li key={doctor._id}>
-              Name: {doctor.name}, Specialty: {doctor.speciality}
-              <button onClick={() => handleSelectDoctor(doctor._id)}>
-                Select Doctor
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {selectedDoctor && (
-        <div>
-          <h2>Selected Doctor:</h2>
-          <p>ID: {selectedDoctor._id}</p>
-          <p>Name: {selectedDoctor.username}</p>
-          <p>Email: {selectedDoctor.email}</p>
-          <p>Hourly Rate: {selectedDoctor.hourlyRate}</p>
-          <p>Affiliation: {selectedDoctor.affiliation}</p>
-          <p>Educational Background: {selectedDoctor.educationalBackground}</p>
-        </div>
-      )}
-
-      <div>
-        <label htmlFor="patientId">Enter Patient ID:</label>
-        <input
-          type="text"
-          id="patientId"
-          value={patientId}
-          onChange={(e) => setPatientId(e.target.value)}
-        />
-        <button onClick={handleFetchDoctors}>Fetch Doctors</button>
-      </div>
-
-      {doctors ? (
-        <div>
-          <h2>Available Doctors:</h2>
-          {doctors.map((doctor) => (
-            <div key={doctor._id}>
-              <p>ID: {doctor._id}</p>
-              <p>Name: {doctor.username}</p>
-              <p>Specialty: {doctor.speciality}</p>
-              <p>Session Price: {doctor.sessionPrice}</p>
-              <p>Affiliation: {doctor.affiliation}</p>
-              <p>Educational Background: {doctor.educationalBackground}</p>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p></p>
-      )}
-
+    
       <div>
         <h2>Filter Doctors:</h2>
         <TextField
@@ -183,21 +138,47 @@ function DoctorSearch() {
           Filter
         </Button>
       </div>
+     
+
+      {selectedDoctor && (
+        <div>
+          <h2>Selected Doctor:</h2>
+          <p>ID: {selectedDoctor._id}</p>
+          <p>Name: {selectedDoctor.username}</p>
+          <p>Email: {selectedDoctor.email}</p>
+          <p>Hourly Rate: {selectedDoctor.hourlyRate}</p>
+          <p>Affiliation: {selectedDoctor.affiliation}</p>
+          <p>Educational Background: {selectedDoctor.educationalBackground}</p>
+        </div>
+      )}
+
+     
 
       {doctors ? (
         <div>
-          <h2>Filtered Doctors:</h2>
+          <h2>Available Doctors:</h2>
           {doctors.map((doctor) => (
             <div key={doctor._id}>
               <p>ID: {doctor._id}</p>
               <p>Name: {doctor.username}</p>
               <p>Specialty: {doctor.speciality}</p>
+              <p>Session Price: {doctor.sessionPrice}</p>
               <p>Affiliation: {doctor.affiliation}</p>
               <p>Educational Background: {doctor.educationalBackground}</p>
+              <button onClick={() => handleSelectDoctor(doctor._id)}>
+                Select Doctor
+              </button>
             </div>
+            
           ))}
         </div>
-      ) : null}
+      ) : (
+        <p></p>
+      )}
+
+      
+
+      
     </div>
   );
 }

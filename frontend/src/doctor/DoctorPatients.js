@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 
+
 const DoctorPatients = () => {
+  const navigate=useNavigate();
   const { doctorId } = useParams();
   const [patients, setPatients] = useState([]);
   const [filteredPatients, setFilteredPatients] = useState([]);
@@ -78,6 +80,8 @@ const DoctorPatients = () => {
 
   return (
     <div>
+        <button onClick={() => navigate(-1)}>Go Back</button>
+
       <h1>Doctor's Patients</h1>
       <div>
         <label>

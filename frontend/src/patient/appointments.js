@@ -1,96 +1,91 @@
-import React, { useState } from "react";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
+import React, { useState, useEffect } from "react";
+import { useParams,useNavigate } from "react-router-dom";
 
-function AppointmentFilter() {
-  const [patientId, setPatientId] = useState("");
-  const [status, setStatus] = useState("");
-  const [date, setDate] = useState("");
+const PatientAppointments = () => {
+  const navigate = useNavigate()
+
+  const {id } = useParams();
+  const [appointments, setAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
+  const [filterBy, setFilterBy] = useState("date"); // Default filter by date
+  const [filterValue, setFilterValue] = useState("");
 
-  const handleFilterAppointments = () => {
-    // Construct the query string with filters
-    const queryParams = new URLSearchParams();
-    if (patientId) queryParams.append("patientId", patientId);
-    if (status) queryParams.append("status", status);
-    if (date) queryParams.append("date", date);
-
-    // Combine the base URL with the query parameters
-    const url = `http://localhost:8000/Patient-home/appointments?${queryParams.toString()}`;
-
-    fetch(url)
+  // Fetch doctor's appointments based on doctorId
+  useEffect(() => {
+    // Replace with your API call to fetch doctor's appointments
+    fetch(
+      `http://localhost:8000/Patient-Home/appointments?patientId=${id}`
+    )
       .then((response) => response.json())
       .then((data) => {
-        setFilteredAppointments(data);
+        console.log(data)
+        setAppointments(data);
+        setFilteredAppointments(data); // Initialize filteredAppointments with all appointments
       })
       .catch((error) => {
-        console.error("Error filtering appointments:", error);
+        console.error("Error fetching doctor appointments:", error);
       });
+  }, [id]);
+
+  // Function to handle filtering appointments
+  const handleFilter = () => {
+    if (filterBy === "date") {
+      // Filter appointments by date
+      const filtered = appointments.filter((appointment) =>
+        appointment.date.includes(filterValue)
+      );
+      setFilteredAppointments(filtered);
+    } else if (filterBy === "status") {
+      // Filter appointments by status
+      const filtered = appointments.filter(
+        (appointment) => appointment.status === filterValue
+      );
+      
+      setFilteredAppointments(filtered);
+    }
   };
 
   return (
     <div>
-      <h1>Appointment Filter</h1>
+             <button onClick={() => navigate(-1)}>Go Back</button>
 
+      <h1>Patient Appointments</h1>
       <div>
-        <TextField
-          id="patientId"
-          label="Patient ID"
+        <label>
+          Filter by:
+          <select onChange={(e) => setFilterBy(e.target.value)}>
+            <option value="date">Date</option>
+            <option value="status">Status</option>
+          </select>
+        </label>
+        <input
           type="text"
-          value={patientId}
-          onChange={(e) => setPatientId(e.target.value)}
+          placeholder={`Filter by ${filterBy}`}
+          value={filterValue}
+          onChange={(e) => setFilterValue(e.target.value)}
         />
+        <button onClick={handleFilter}>Filter</button>
       </div>
-
-      <div>
-        <Select
-          id="status"
-          label="Status"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-        >
-          <MenuItem value="">Select Status</MenuItem>
-          <MenuItem value="UpComing">UpComing</MenuItem>
-          <MenuItem value="Done">Done</MenuItem>
-        </Select>
-      </div>
-
-      <div>
-        <TextField
-          id="date"
-          label="Date"
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
-      </div>
-
-      <Button variant="contained" onClick={handleFilterAppointments}>
-        Filter
-      </Button>
-
-      {filteredAppointments ? (
-        <div>
-          <h2>Filtered Appointments:</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Doctor</th>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
           {filteredAppointments.map((appointment) => (
-            <div key={appointment._id}>
-              <p>ID: {appointment._id}</p>
-              <p>Patient: {appointment.patient}</p>
-              <p>Doctor: {appointment.doctor}</p>
-              <p>Status: {appointment.status}</p>
-              <p>Date: {appointment.date}</p>
-              {/* Include additional appointment details here */}
-            </div>
+            <tr key={appointment.id}>
+              <td>{appointment.doctor}</td>
+              <td>{appointment.date}</td>
+              <td>{appointment.status}</td>
+            </tr>
           ))}
-        </div>
-      ) : null}
+        </tbody>
+      </table>
     </div>
   );
-}
+};
 
-export default AppointmentFilter;
+export default PatientAppointments;

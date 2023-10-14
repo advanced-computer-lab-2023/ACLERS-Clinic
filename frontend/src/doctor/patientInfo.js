@@ -1,10 +1,11 @@
 // PatientInfo.js
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const PatientInfo = () => {
   const { patientId ,doctorId} = useParams();
   const [patient, setPatient] = useState(null);
+const navigate=useNavigate();
 
   useEffect(() => {
     // Replace with your API call to fetch patient information by patientId
@@ -25,6 +26,8 @@ const PatientInfo = () => {
 
   return (
     <div>
+             <button onClick={() => navigate(-1)}>Go Back</button>
+
       <h1>Patient Information</h1>
       <p>Name: {patient.patient.name}</p>
       <p>Date of Birth: {patient.patient.dateOfBirth}</p>

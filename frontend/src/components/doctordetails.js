@@ -3,7 +3,7 @@ const DoctorDetails = ({ doctor }) => {
     console.log("el button etdas");
     console.log(doctor._id);
 
-    const url = `/admin/remove-doctor?doctorId=${doctor._id}`;
+    const url = `/admin/remove-doctor?id=${doctor._id}`;
     const response = await fetch(url, {
       method: "DELETE",
     });

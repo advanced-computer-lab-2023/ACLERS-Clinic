@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const DoctorAppointments = () => {
+  const navigate=useNavigate();
   const { doctorId } = useParams();
   const [appointments, setAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
@@ -16,11 +17,14 @@ const DoctorAppointments = () => {
     )
       .then((response) => response.json())
       .then((data) => {
+        console.log(data)
         setAppointments(data);
         setFilteredAppointments(data); // Initialize filteredAppointments with all appointments
       })
       .catch((error) => {
         console.error("Error fetching doctor appointments:", error);
+        setAppointments([]); // Set appointments as an empty array in case of an error
+        setFilteredAppointments([]);
       });
   }, [doctorId]);
 
@@ -37,12 +41,15 @@ const DoctorAppointments = () => {
       const filtered = appointments.filter(
         (appointment) => appointment.status === filterValue
       );
+      
       setFilteredAppointments(filtered);
     }
   };
 
   return (
     <div>
+             <button onClick={() => navigate(-1)}>Go Back</button>
+
       <h1>Doctor Appointments</h1>
       <div>
         <label>
@@ -69,7 +76,7 @@ const DoctorAppointments = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredAppointments.map((appointment) => (
+          {filteredAppointments && filteredAppointments.map((appointment) => (
             <tr key={appointment.id}>
               <td>{appointment.patient}</td>
               <td>{appointment.date}</td>

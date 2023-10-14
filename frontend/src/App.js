@@ -53,29 +53,29 @@ const App = () => {
           element={<EditHealthPackage />}
         />
         <Route path="/admin/Dashboard" element={<AdminDashboard />} />
-        <Route path="/doctor/Dashboard" element={<DoctorDashboard />} />
-        <Route path="/doctor/view-my-info/:doctorId" element={<DoctorInfo />} />
+        <Route path="/doctor/Dashboard/:id" element={<DoctorDashboard />} />
+        <Route path="/doctor/view-my-info/:id" element={<DoctorInfo />} />
         <Route
           path="/doctor/view-my-appointments/:doctorId"
           element={<DoctorAppointments />}
         />
         <Route
-          path="/doctor/view-my-patients/:doctorId"
+          path="/doctor/view-my-patients/:id"
           element={<DoctorPatients />}
         />
        
-        <Route path="/patient/dashboard" element={<PatientDashBoard />} />
+        <Route path="/patient/dashboard/:id" element={<PatientDashBoard />} />
         <Route
-          path="/patient/view-perscriptions"
+          path="/patient/view-perscriptions/:id"
           element={<PatientPerscriptions />}
         />
         <Route
-          path="/patient/familymembers"
+          path="/patient/familymembers/:id"
           element={<PatientFamilyMembers />}
         />
         <Route path="/admin/view-applicants" element={<ViewApplicants />} />
-        <Route path="/patient/viewdoctors" element={<PatientDoctors />} />
-        <Route path="/patient/appointments" element={<PatientAppointments />} />
+        <Route path="/patient/viewdoctors/:id" element={<PatientDoctors />} />
+        <Route path="/patient/appointments/:id" element={<PatientAppointments />} />
                 <Route path="/doctor/view-patient/:patientId/:doctorId" element={<PatientInfo />} />
 
       </Routes>

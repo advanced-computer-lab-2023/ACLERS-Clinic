@@ -1,6 +1,9 @@
 import React, { useState } from "react";
+import { useParams,useNavigate } from "react-router-dom";
 
 function AddFamilyMember() {
+  const navigate = useNavigate()
+
   const [formData, setFormData] = useState({
     name: "",
     nationalId: "",
@@ -8,6 +11,7 @@ function AddFamilyMember() {
     gender: "Male",
     relationToPatient: "wife",
   });
+  const {id}= useParams()
 
   const [familyMembers, setFamilyMembers] = useState([]);
   const [showFamilyMembers, setShowFamilyMembers] = useState(false);
@@ -23,7 +27,7 @@ function AddFamilyMember() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const patientId = "651f32fffa0441d0e58c0704";
+  
 
     const requestOptions = {
       method: "POST",
@@ -36,7 +40,7 @@ function AddFamilyMember() {
     };
 
     fetch(
-      `http://localhost:8000/Patient-home/add-family-member?patientId=${patientId}`,
+      `http://localhost:8000/Patient-home/add-family-member?patientId=${id}`,
       requestOptions
     )
       .then((response) => response.json())
@@ -60,7 +64,7 @@ function AddFamilyMember() {
     const patientId = "651f32fffa0441d0e58c0704"; // Replace with the actual patient ID
 
     fetch(
-      `http://localhost:8000/Patient-home/view-fam-member?patientId=${patientId}`
+      `http://localhost:8000/Patient-home/view-fam-member?patientId=${id}`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -79,6 +83,8 @@ function AddFamilyMember() {
 
   return (
     <div>
+             <button onClick={() => navigate(-1)}>Go Back</button>
+
       <h2>Add Family Member</h2>
       <form onSubmit={handleSubmit}>
         <div>
@@ -152,7 +158,13 @@ function AddFamilyMember() {
           <h3>Family Members:</h3>
           <ul>
             {familyMembers.map((familyMember) => (
+              <div>
               <li key={familyMember._id}>{familyMember.name}</li>
+              <li>{familyMember.nationalId}</li>
+              <li>{familyMember.age}</li>
+              <li>{familyMember.relationToPatient}</li>
+             
+              </div>
             ))}
           </ul>
         </div>

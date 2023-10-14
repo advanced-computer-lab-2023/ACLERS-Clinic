@@ -135,7 +135,8 @@ const viewMyPerscriptions = asyncHandler(async (req, res) => {
     const { patientId, date, doctorId, status } = req.query;
     const filter = {};
     if (date) {
-      filter.date = date;
+      filter.date = new Date(date);
+      console.log(filter.date)
     }
     if (doctorId) {
       filter.doctor = doctorId;
@@ -157,7 +158,8 @@ const viewMyPerscriptions = asyncHandler(async (req, res) => {
 const filterAppointments = asyncHandler(async (req, res) => {
   try {
     const { patientId, status, date } = req.query;
-
+   console.log(date)
+   console.log(patientId)
     // Define a filter object to build the query dynamically
     const filter = { patient: patientId };
 
@@ -173,6 +175,7 @@ const filterAppointments = asyncHandler(async (req, res) => {
 
     // Use the filter object to query the database
     const appointments = await Appointment.find(filter);
+    console.log(appointments)
 
     res.status(200).json(appointments);
   } catch (error) {

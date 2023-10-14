@@ -1,12 +1,13 @@
 // EditHealthPackage.js
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 const EditHealthPackage = () => {
   //const { id } = useParams(); // Get the ID from the URL
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get('id');
+  const navigate = useNavigate()
 
   const [healthPackage, setHealthPackage] = useState({
     type: '',
@@ -52,6 +53,8 @@ const EditHealthPackage = () => {
 
     if (response.ok) {
      //window.location.href('/admin/view-HealthPackages')
+     alert("updated successfully")
+     window.location.href = '/admin/view-HealthPackages';
     } else {
       // Handle errors, e.g., show an error message
     }
@@ -59,6 +62,7 @@ const EditHealthPackage = () => {
 
   return (
     <div>
+       <button onClick={() => navigate(-1)}>Go Back</button>
       <h2>Edit Health Package</h2>
       <form onSubmit={handleSubmit}>
         {/* Include input fields for editing health package attributes */}

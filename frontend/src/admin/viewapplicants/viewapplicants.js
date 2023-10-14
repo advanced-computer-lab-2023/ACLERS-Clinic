@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import ApplicantDetails from "../../components/applicantdetails.js";
+import { useNavigate } from "react-router-dom";
 
 const ViewApplicants = () => {
   const [applicants, setApplicants] = useState(null);
-
+  const navigate = useNavigate()
   useEffect(() => {
     const fetchApplicants = async () => {
       const response = await fetch("/admin/view-applicants");
@@ -48,6 +49,7 @@ const ViewApplicants = () => {
 
   return (
     <div className="applicantviewer">
+       <button onClick={() => navigate(-1)}>Go Back</button>
       <h1>Applicants</h1>
       {applicants &&
         applicants.map((applicant) => (

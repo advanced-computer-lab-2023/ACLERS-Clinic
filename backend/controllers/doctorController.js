@@ -67,13 +67,15 @@ const filterAppointments = asyncHandler(async (req, res) => {
     }
 
     // Use the filter object to query the database
-    const appointments = await Appointment.find(filter).populate(
-      "patient","-emergencyContact"
-     
-    );
-
+    const appointments = await Appointment.find(filter)
+    appointments.forEach(async (map)=>{
+     const patient = await Patient.findById(map.patient)
+    // console.log(patient)
+     console.log(map.patient)
+     map.patient =patient
+    })
     res.status(200).json(appointments);
-    console.log(appointments)
+    //console.log(appointments)
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });

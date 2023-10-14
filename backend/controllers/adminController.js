@@ -89,6 +89,7 @@ const removeDoctor = asyncHandler(async (req, res) => {
 
   try {
     const doctor = await Doctor.findByIdAndDelete(doctorId);
+    console.log(doctor)
 
     if (!doctor) {
       return res.status(404).send({ message: "Doctor not found" });
