@@ -21,10 +21,12 @@ import PatientInfo from "./doctor/patientInfo";
 import PatientDashBoard from "./dashboard/PatientDashboard";
 import PatientPerscriptions from "./patient/viewPerscriptions";
 import PatientFamilyMembers from "./patient/familymembers";
+import PatientMedicalHistory from "./patient/medicalhistory";
 import DoctorSignUpPage from "./signup/SignUpdoctor";
 import ViewApplicants from "./admin/viewapplicants/viewapplicants";
 import PatientDoctors from "./patient/viewdoctors";
 import PatientAppointments from "./patient/appointments";
+import ForgotPassword from "./login/forgotpassword";
 const App = () => {
   return (
     <>
@@ -63,7 +65,7 @@ const App = () => {
           path="/doctor/view-my-patients/:id"
           element={<DoctorPatients />}
         />
-       
+
         <Route path="/patient/dashboard/:id" element={<PatientDashBoard />} />
         <Route
           path="/patient/view-perscriptions/:id"
@@ -75,9 +77,19 @@ const App = () => {
         />
         <Route path="/admin/view-applicants" element={<ViewApplicants />} />
         <Route path="/patient/viewdoctors/:id" element={<PatientDoctors />} />
-        <Route path="/patient/appointments/:id" element={<PatientAppointments />} />
-                <Route path="/doctor/view-patient/:patientId/:doctorId" element={<PatientInfo />} />
-
+        <Route
+          path="/patient/appointments/:id"
+          element={<PatientAppointments />}
+        />
+        <Route
+          path="/patient/medicalhistory/:id"
+          element={<PatientMedicalHistory />}
+        />
+        <Route
+          path="/doctor/view-patient/:patientId/:doctorId"
+          element={<PatientInfo />}
+        />
+        <Route path="/ForgotPassword" element={<ForgotPassword />} />
       </Routes>
     </>
   );

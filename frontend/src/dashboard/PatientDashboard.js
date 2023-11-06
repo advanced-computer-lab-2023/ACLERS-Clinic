@@ -22,6 +22,9 @@ function PatientDashboard() {
             </Link>
           </li>
           <li>
+            <Link to={`/patient/medicalhistory/${id}`}>Medical History</Link>
+          </li>
+          <li>
             <Link to={`/`}>Logout</Link>
           </li>
         </ul>

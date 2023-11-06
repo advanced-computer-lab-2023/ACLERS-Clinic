@@ -1,0 +1,16 @@
+.card {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.file-list {
+  margin-top: 10px;
+}
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 5px;
+}
