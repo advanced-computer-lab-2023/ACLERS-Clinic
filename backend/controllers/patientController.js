@@ -7,12 +7,13 @@ const PatientHealthPackage = require("../models/PatientHealthPackage");
 const HealthPackage = require("../models/healthPackage");
 const RegisteredPatients = require("../models/RegisteredPatients");
 const PatientHealthRecord = require("../models/PatientHealthRecord");
-
+const multer = require('multer');
+const path = require('path');
 const Perscription = require("../models/Perscription");
 
 const addFamilyMember = asyncHandler(async (req, res) => {
   try {
-    const patientId = req.query.patientId;
+    const patientId = req.user.id;
 
     const familyMember = await FamilyMember.create({
       patient: patientId,
@@ -39,7 +40,7 @@ const addFamilyMember = asyncHandler(async (req, res) => {
 
 const viewFamilyMembers = asyncHandler(async (req, res) => {
   try {
-    const patientId = req.query.patientId;
+    const patientId = req.user.id;
 
     // Find the patient by ID
     // const patient = await Patient.findById(patientId);
@@ -61,7 +62,7 @@ const viewFamilyMembers = asyncHandler(async (req, res) => {
 });
 
 const setAppointment = asyncHandler(async (req, res) => {
-  const patientId = req.query.patientId;
+  const patientId = req.user.id;
   const doctorId = req.query.doctorId;
 
   const date = new Date(req.body.date);
@@ -135,7 +136,8 @@ const viewMyPerscriptions = asyncHandler(async (req, res) => {
     const { patientId, date, doctorId, status } = req.query;
     const filter = {};
     if (date) {
-      filter.date = date;
+      filter.date = new Date(date);
+      console.log(filter.date)
     }
     if (doctorId) {
       filter.doctor = doctorId;
@@ -156,8 +158,10 @@ const viewMyPerscriptions = asyncHandler(async (req, res) => {
 
 const filterAppointments = asyncHandler(async (req, res) => {
   try {
-    const { patientId, status, date } = req.query;
-
+    const { status, date } = req.query;
+    const patientId = req.user.id;
+    console.log(date)
+    console.log(patientId)
     // Define a filter object to build the query dynamically
     const filter = { patient: patientId };
 
@@ -173,6 +177,7 @@ const filterAppointments = asyncHandler(async (req, res) => {
 
     // Use the filter object to query the database
     const appointments = await Appointment.find(filter);
+    console.log(appointments)
 
     res.status(200).json(appointments);
   } catch (error) {
@@ -182,8 +187,8 @@ const filterAppointments = asyncHandler(async (req, res) => {
 });
 const viewDoctors = asyncHandler(async (req, res) => {
   try {
-    var { patientId, speciality, date, time } = req.query;
-
+    var { speciality, date, time } = req.query;
+    const patientId = req.user.id;
     // Create an initial query object for doctors
     const doctorQuery = {};
     var doctorsWithSessionPrices = [];
@@ -246,7 +251,7 @@ const viewDoctors = asyncHandler(async (req, res) => {
             _id: doctor._id,
             username: doctor.username,
             name: doctor.name,
-            specialty: doctor.speciality, // Add the specialty field as needed
+            speciality: doctor.speciality, // Add the speciality field as needed
             sessionPrice: doctor.sessionPrice,
             educationalBackground: doctor.educationalBackground,
             affiliation: doctor.affiliation,
@@ -288,8 +293,10 @@ const viewDoctors = asyncHandler(async (req, res) => {
             _id: doctor._id,
             username: doctor.username,
             name: doctor.name,
-            specialty: doctor.speciality, // Add the specialty field as needed
+            speciality: doctor.speciality, // Add the speciality field as needed
             sessionPrice: sessionPrice,
+            educationalBackground: doctor.educationalBackground,
+            affiliation: doctor.affiliation,
           };
         })
       );
@@ -301,11 +308,10 @@ const viewDoctors = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
-
 const subscribeHealthPackage = asyncHandler(async (req, res) => {
   try {
-    const { patientId, healthPackageId } = req.query;
-
+    const { healthPackageId } = req.query;
+    const patientId = req.user.id;
     // Check if the patient has an existing subscription
     const existingSubscription = await PatientHealthPackage.findOne({
       patient: patientId,
@@ -391,23 +397,67 @@ const selectPresc = asyncHandler(async (req, res) => {
   }
 });
 const searchForDoctor = asyncHandler(async (req, res) => {
-  const { name, speciality } = req.body;
+  const { name, speciality } = req.query;
 
   // Define a filter object to build the query dynamically
   const filter = {};
 
   if (name) {
-    // If 'status' is provided in the query, add it to the filter
     filter.name = name;
   }
 
   if (speciality) {
-    // If 'date' is provided in the query, convert it to a Date object and add it to the filter
     filter.speciality = speciality;
   }
+
   const doctors = await Doctor.find(filter);
   res.send(doctors);
 });
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // Define the destination folder where files will be saved
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname)); // Rename the file with a timestamp and original extension
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  fileFilter: function (req, file, cb) {
+    const extname = path.extname(file.originalname);
+    if (extname === '.pdf' || extname === '.jpeg' || extname === '.jpg' || extname === '.png') {
+      return cb(null, true);
+    }
+    cb(new Error('File type not supported'));
+  },
+});
+
+function handleUpload(req, res) {
+  if (!req.file) {
+    return res.status(400).json({ message: 'No file uploaded' });
+  }
+
+  // Here, you can save the file details to your database
+  const fileDetails = {
+    originalName: req.file.originalname,
+    filename: req.file.filename,
+    path: req.file.path,
+    // Add more details as needed
+  };
+
+  // Simulate saving to a database (you should use your database logic here)
+  // For demonstration purposes, we're using an array to store file details
+ // uploadedFiles.push(fileDetails);
+
+  // Return a success response
+  res.status(200).json({ fileDetails });
+};
+
+
+
+
+
 module.exports = {
   searchForDoctor,
   selectPresc,
@@ -420,4 +470,5 @@ module.exports = {
   viewHealthPackages,
   subscribeHealthPackage,
   viewDoctor,
+  upload,handleUpload
 };

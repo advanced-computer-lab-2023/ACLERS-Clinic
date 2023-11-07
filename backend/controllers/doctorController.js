@@ -8,7 +8,7 @@ const Patient = require("../models/Patient");
 const Perscription = require("../models/Perscription");
 
 const editEmail = asyncHandler(async (req, res) => {
-  const doctorID = req.query.doctorID;
+  const doctorID = req.user.id;
   console.log(doctorID);
   const newEmail = req.body.email;
   const newHourlyRate = req.body.hourlyRate;
@@ -25,7 +25,7 @@ const editEmail = asyncHandler(async (req, res) => {
     if (newEmail != null) {
       const existingDoctor = await Doctor.findOne({ email: newEmail });
 
-      if (existingDoctor) {
+      if (existingDoctor && doctor._id == existingDoctor._id) {
        return res.status(400).json({ exists: true, message: "Email already taken" });
       } else {
         doctor.email = newEmail;
@@ -51,8 +51,8 @@ const editEmail = asyncHandler(async (req, res) => {
 
 const filterAppointments = asyncHandler(async (req, res) => {
   try {
-    const { doctorId, status, date } = req.query;
-
+    const {  status, date } = req.query;
+ const doctorId =req.user.id;
     // Define a filter object to build the query dynamically
     const filter = { doctor: doctorId };
 
@@ -67,20 +67,22 @@ const filterAppointments = asyncHandler(async (req, res) => {
     }
 
     // Use the filter object to query the database
-    const appointments = await Appointment.find(filter).populate(
-      "patient",
-     
-    );
-
+    const appointments = await Appointment.find(filter)
+    appointments.forEach(async (map)=>{
+     const patient = await Patient.findById(map.patient)
+    // console.log(patient)
+     console.log(map.patient)
+     map.patient =patient
+    })
     res.status(200).json(appointments);
-    console.log(appointments)
+    //console.log(appointments)
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
 const viewPatients = asyncHandler(async (req, res) => {
-  const doctorId = req.query.doctorId;
+  const doctorId = req.user.id;
   const status = req.query.status;
   // console.log(doctorId)
   const registeredPatients = await RegisteredPatients.findOne({
@@ -141,7 +143,8 @@ console.log(patientMap,"map")
 });
 
 const viewPatient = asyncHandler(async (req, res) => {
-  const { doctorId, patientId } = req.query;
+  const {  patientId } = req.query;
+  const doctorId=req.user.id;
 
   const registeredPatients = await RegisteredPatients.findOne({
     doctor: doctorId,
@@ -192,7 +195,7 @@ const viewPatient = asyncHandler(async (req, res) => {
 });
 const viewMyInfo = asyncHandler(async (req,res)=>{
   try{
-    const id = req.query.id 
+    const id = req.user.id;
     const doctor = await Doctor.findById(id)
     if(doctor){
       res.status(200).send(doctor)
@@ -205,7 +208,8 @@ const viewMyInfo = asyncHandler(async (req,res)=>{
 })
 
 const writePerscription = asyncHandler(async (req, res) => {
-  const { patientId, doctorId } = req.query;
+  const { patientId } = req.query;
+  const doctorId = req.user.id;
   const description = req.body.description;
   const perscription = await Perscription.create({
     description: description,

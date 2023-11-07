@@ -1,19 +1,24 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link,useParams } from "react-router-dom";
 
 function DoctorDashboard() {
+  const {id} = useParams()
+
+
   return (
     <div>
       <nav>
         <ul>
           <li>
-            <Link to="/view-my-info">View My Info</Link>
+            <Link to={`/doctor/view-my-info/${id}`}>View My Info</Link>
           </li>
           <li>
-            <Link to="/view-my-appointments">View My Appointments</Link>
+            <Link to={`/doctor/view-my-appointments/${id}`}>
+              View My Appointments
+            </Link>
           </li>
           <li>
-            <Link to="/view-patients">View Patients</Link>
+            <Link to={`/doctor/view-my-patients/${id}`}>View Patients</Link>
           </li>
         </ul>
       </nav>

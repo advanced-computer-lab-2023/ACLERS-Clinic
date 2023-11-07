@@ -1,7 +1,9 @@
 // AddHealthPackage.js
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const AddHealthPackage = () => {
+  const navigate = useNavigate()
  const[type,setType]=useState('')
  const[Price,setPrice]=useState('')
  const[doctorDiscount,setDoctorDiscount]=useState('')
@@ -33,7 +35,9 @@ const AddHealthPackage = () => {
 
   return (
     <div>
+       <button onClick={() => navigate(-1)}>Go Back</button>
       <h2>Add Health Package</h2>
+       
       <form onSubmit={handleSubmit}>
         <div>
           <label>Name:</label>

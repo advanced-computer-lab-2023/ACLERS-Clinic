@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import "./adminremove.css";
+import { useNavigate } from "react-router-dom";
 
 function AdminRemove() {
   // Define state variable to store the user ID
   const [userId, setUserId] = useState("");
+  const navigate = useNavigate()
 
   // Function to handle the "Remove User" button click
   const handleRemoveUser = () => {
@@ -16,6 +18,7 @@ function AdminRemove() {
 
   return (
     <div>
+       <button onClick={() => navigate(-1)}>Go Back</button>
       <h1>Remove User</h1>
       <div>
         <label htmlFor="userId">User ID:</label>

@@ -17,9 +17,14 @@ import DoctorDashboard from "./dashboard/DoctorDashboard";
 import DoctorInfo from "./doctor/DoctorInfo";
 import DoctorAppointments from "./doctor/DoctorAppointments";
 import DoctorPatients from "./doctor/DoctorPatients";
-import PatientInfo from "./doctor/patientInfo"; // Import the new component
-
+import PatientInfo from "./doctor/patientInfo";
 import PatientDashBoard from "./dashboard/PatientDashboard";
+import PatientPerscriptions from "./patient/viewPerscriptions";
+import PatientFamilyMembers from "./patient/familymembers";
+import DoctorSignUpPage from "./signup/SignUpdoctor";
+import ViewApplicants from "./admin/viewapplicants/viewapplicants";
+import PatientDoctors from "./patient/viewdoctors";
+import PatientAppointments from "./patient/appointments";
 const App = () => {
   return (
     <>
@@ -28,6 +33,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/signuppage" element={<SignUpPage />} />
         <Route path="/signuppage/patient" element={<PatinetSignUpPage />} />
+        <Route path="/signuppage/doctor" element={<DoctorSignUpPage />} />
         <Route path="/admin" element={<AdminHome />} />
         <Route path="/admin/adminadd" element={<AdminAdd />} />
         <Route path="/admin/adminremove" element={<AdminRemove />} />
@@ -47,19 +53,31 @@ const App = () => {
           element={<EditHealthPackage />}
         />
         <Route path="/admin/Dashboard" element={<AdminDashboard />} />
-        <Route path="/doctor/Dashboard" element={<DoctorDashboard />} />
-        <Route path="/doctor/view-my-info/:doctorId" element={<DoctorInfo />} />
+        <Route path="/doctor/Dashboard/:id" element={<DoctorDashboard />} />
+        <Route path="/doctor/view-my-info/:id" element={<DoctorInfo />} />
         <Route
           path="/doctor/view-my-appointments/:doctorId"
           element={<DoctorAppointments />}
         />
         <Route
-          path="/doctor/view-my-patients/:doctorId"
+          path="/doctor/view-my-patients/:id"
           element={<DoctorPatients />}
         />
-         <Route path="/doctor/view-patient/:patientId/:doctorId" element={<PatientInfo />} />
-         
-        <Route path="/patient/Dashboard" element={<PatientDashBoard />} />
+       
+        <Route path="/patient/dashboard/:id" element={<PatientDashBoard />} />
+        <Route
+          path="/patient/view-perscriptions/:id"
+          element={<PatientPerscriptions />}
+        />
+        <Route
+          path="/patient/familymembers/:id"
+          element={<PatientFamilyMembers />}
+        />
+        <Route path="/admin/view-applicants" element={<ViewApplicants />} />
+        <Route path="/patient/viewdoctors/:id" element={<PatientDoctors />} />
+        <Route path="/patient/appointments/:id" element={<PatientAppointments />} />
+        <Route path="/doctor/view-patient/:patientId/:doctorId" element={<PatientInfo />} />
+
       </Routes>
     </>
   );

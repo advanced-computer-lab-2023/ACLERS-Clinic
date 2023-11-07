@@ -1,8 +1,9 @@
 // HealthPackageList.js
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 const HealthPackageList = () => {
   const [healthPackages, setHealthPackages] = useState([]);
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchPackages = async () => {
@@ -45,6 +46,7 @@ const HealthPackageList = () => {
   };
   return (
     <div>
+       <button onClick={() => navigate(-1)}>Go Back</button>
       <h2>Health Packages</h2>
       <table>
         <thead>
@@ -68,7 +70,7 @@ const HealthPackageList = () => {
               <td>
               <Link
   to={{
-    pathname: 'admin/edit-HealthPackage',
+    pathname: '/admin/edit-HealthPackage',
     search: `?id=${packag._id}`,
   }}
 >

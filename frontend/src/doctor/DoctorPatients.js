@@ -1,52 +1,57 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
+
 
 const DoctorPatients = () => {
- const { doctorId } = useParams();
+  const navigate=useNavigate();
+  const { doctorId } = useParams();
   const [patients, setPatients] = useState([]);
   const [filteredPatients, setFilteredPatients] = useState([]);
-  const [appointmentStatus, setAppointmentStatus] = useState(''); // Default: no filter
-  const [searchName, setSearchName] = useState(''); // Add state for search
-
+  const [appointmentStatus, setAppointmentStatus] = useState(""); // Default: no filter
+  const [searchName, setSearchName] = useState(""); // Add state for search
 
   // Fetch the list of patients initially
   useEffect(() => {
     // Replace with your API call to fetch patients registered with the doctor
-    console.log(doctorId)
-    fetch(`http://localhost:8000/Doctor-Home/view-patients?doctorId=${doctorId}`)
+    console.log(doctorId);
+    fetch(
+      `http://localhost:8000/Doctor-Home/view-patients?doctorId=${doctorId}`
+    )
       .then((response) => response.json())
       .then((data) => {
         setPatients(data);
-        console.log(data)
-        console.log(patients)
+        console.log(data, "data");
+        console.log(patients, "patients");
         setFilteredPatients(data);
-        console.log(filteredPatients) // Initialize filteredPatients with all patients
+        console.log(filteredPatients, "filtered 1"); // Initialize filteredPatients with all patients
       })
       .catch((error) => {
-        console.error('Error fetching patients:', error);
+        console.error("Error fetching patients:", error);
       });
   }, []);
 
   // Function to filter patients based on appointment status
   // Function to filter patients based on appointment status
-// Function to filter patients based on appointment status
-const handleFilter = () => {
+  // Function to filter patients based on appointment status
+  const handleFilter = () => {
     if (appointmentStatus) {
       // Filter patients by appointment status
-      fetch(`http://localhost:8000/Doctor-Home/view-patients?doctorId=${doctorId}&status=${appointmentStatus}`)
+      fetch(
+        `http://localhost:8000/Doctor-Home/view-patients?doctorId=${doctorId}&status=${appointmentStatus}`
+      )
         .then((response) => response.json())
         .then((data) => {
-          console.log('API response:', data); // Log the API response
+          console.log("API response:", data); // Log the API response
           if (Array.isArray(data)) {
             // Check if the response data is an array before setting it as filteredPatients
             setFilteredPatients(data);
           } else {
-            console.error('API response is not an array:', data);
+            console.error("API response is not an array:", data);
           }
         })
         .catch((error) => {
-          console.error('Error fetching and filtering patients:', error);
+          console.error("Error fetching and filtering patients:", error);
         });
     } else {
       // If no status is selected, show all patients
@@ -55,23 +60,28 @@ const handleFilter = () => {
   };
 
   const handleSearch = () => {
-    
-    const filteredPatientsByName = filteredPatients.filter((patient) =>
-    {
-    if(patient.patient){
+    // Convert the search name to lowercase for a case-insensitive search
+    const searchNameLower = searchName.toLowerCase();
 
-      patient.patient.name.toLowerCase().includes(searchName.toLowerCase())
-    }
- } );
+    // Filter the patients based on the search criteria
+    const filteredPatientsByName = patients.filter((patient) => {
+      if (
+        patient.patient &&
+        patient.patient.name.toLowerCase().includes(searchNameLower)
+      ) {
+        return true;
+      }
+      return false;
+    });
+
+    // Update the state with the filtered results
     setFilteredPatients(filteredPatientsByName);
-    
   };
-  
-  
 
- 
   return (
     <div>
+        <button onClick={() => navigate(-1)}>Go Back</button>
+
       <h1>Doctor's Patients</h1>
       <div>
         <label>
@@ -107,8 +117,10 @@ const handleFilter = () => {
                 <div>
                   <h3>Patient Information</h3>
                   <p>
-                    Name:{' '}
-                    <Link to={`/doctor/view-patient/${item.patient._id}/${doctorId}`}>
+                    Name:{" "}
+                    <Link
+                      to={`/doctor/view-patient/${item.patient._id}/${doctorId}`}
+                    >
                       {item.patient.name}
                     </Link>
                   </p>

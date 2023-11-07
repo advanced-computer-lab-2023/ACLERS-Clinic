@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams,useNavigate } from "react-router-dom";
 
-const DoctorAppointments = () => {
-  const navigate=useNavigate();
-  const { doctorId } = useParams();
+const PatientAppointments = () => {
+  const navigate = useNavigate()
+
+  const {id } = useParams();
   const [appointments, setAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [filterBy, setFilterBy] = useState("date"); // Default filter by date
@@ -13,7 +14,7 @@ const DoctorAppointments = () => {
   useEffect(() => {
     // Replace with your API call to fetch doctor's appointments
     fetch(
-      `http://localhost:8000/Doctor-Home/view-appointments?doctorId=${doctorId}`
+      `http://localhost:8000/Patient-Home/appointments?patientId=${id}`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -23,10 +24,8 @@ const DoctorAppointments = () => {
       })
       .catch((error) => {
         console.error("Error fetching doctor appointments:", error);
-        setAppointments([]); // Set appointments as an empty array in case of an error
-        setFilteredAppointments([]);
       });
-  }, [doctorId]);
+  }, [id]);
 
   // Function to handle filtering appointments
   const handleFilter = () => {
@@ -50,7 +49,7 @@ const DoctorAppointments = () => {
     <div>
              <button onClick={() => navigate(-1)}>Go Back</button>
 
-      <h1>Doctor Appointments</h1>
+      <h1>Patient Appointments</h1>
       <div>
         <label>
           Filter by:
@@ -70,15 +69,15 @@ const DoctorAppointments = () => {
       <table>
         <thead>
           <tr>
-            <th>Patient</th>
+            <th>Doctor</th>
             <th>Date</th>
             <th>Status</th>
           </tr>
         </thead>
         <tbody>
-          {filteredAppointments && filteredAppointments.map((appointment) => (
+          {filteredAppointments.map((appointment) => (
             <tr key={appointment.id}>
-              <td>{appointment.patient}</td>
+              <td>{appointment.doctor}</td>
               <td>{appointment.date}</td>
               <td>{appointment.status}</td>
             </tr>
@@ -89,4 +88,4 @@ const DoctorAppointments = () => {
   );
 };
 
-export default DoctorAppointments;
+export default PatientAppointments;

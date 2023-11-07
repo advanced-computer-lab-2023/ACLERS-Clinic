@@ -3,8 +3,41 @@ const bcrypt = require('bcrypt');
 const Doctor = require('../models/Doctor')
 const Patient = require('../models/Patient');
 const  Applicant = require('../models/Applicant');
+const jwt = require('jsonwebtoken')
+const blacklistedTokens = require('../middleware/blackListedTokens');
 
 
+const login= asyncHandler(async (req,res)=>{
+   const {email,password}= req.body;
+   const patient = await Patient.findOne({email})
+   
+   const doctor = await Doctor.findOne({email})
+   if(patient && (await bcrypt.compare(password,patient.password))){
+    return res.json({
+         token:generateToken(patient._id,"patient")
+      })
+   }
+if(doctor && await bcrypt.compare(password,doctor.password)){
+ return res.json({
+    token: generateToken(doctor._id,"doctor")
+ })
+}
+  return res.status(400).send("invalid credentials") 
+})
+
+const logout = (asyncHandler(async (req,res)=>{
+  const token = req.headers.authorization.split(' ')[1];
+
+    // Add the token to the blacklistedTokens list
+    blacklistedTokens.push(token)
+
+    res.status(200).json({ message: 'Logout successful' });
+}))
+
+const generateToken = (id,role)=>{
+
+  return jwt.sign({id,role},process.env.JWT_SECRET,{expiresIn:"2h"})
+}
 const registerPatient = asyncHandler(async (req,res)=>{
 
     // if (Patient.findOne({email:req.body.email}).exists){
@@ -55,4 +88,4 @@ const registerDoctor = asyncHandler(async (req, res) => {
   }
   
   });
-  module.exports = {registerPatient,registerDoctor}
+  module.exports = {registerPatient,registerDoctor,login,logout}

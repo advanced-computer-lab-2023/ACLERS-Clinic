@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const DoctorInfo = () => {
+  const navigate=useNavigate();
   const [doctor, setDoctor] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedInfo, setEditedInfo] = useState({
@@ -63,6 +64,8 @@ const DoctorInfo = () => {
 
   return (
     <div>
+             <button onClick={() => navigate(-1)}>Go Back</button>
+
       <h1>Doctor Information</h1>
       {doctor ? (
         <div>
