@@ -7,8 +7,9 @@ const PatientHealthPackage = require("../models/PatientHealthPackage");
 const HealthPackage = require("../models/healthPackage");
 const RegisteredPatients = require("../models/RegisteredPatients");
 const PatientHealthRecord = require("../models/PatientHealthRecord");
-
 const Perscription = require("../models/Perscription");
+const multer = require("multer");
+const path = require("path");
 
 const addFamilyMember = asyncHandler(async (req, res) => {
   try {
@@ -136,7 +137,7 @@ const viewMyPerscriptions = asyncHandler(async (req, res) => {
     const filter = {};
     if (date) {
       filter.date = new Date(date);
-      console.log(filter.date)
+      console.log(filter.date);
     }
     if (doctorId) {
       filter.doctor = doctorId;
@@ -158,8 +159,8 @@ const viewMyPerscriptions = asyncHandler(async (req, res) => {
 const filterAppointments = asyncHandler(async (req, res) => {
   try {
     const { patientId, status, date } = req.query;
-   console.log(date)
-   console.log(patientId)
+    console.log(date);
+    console.log(patientId);
     // Define a filter object to build the query dynamically
     const filter = { patient: patientId };
 
@@ -175,7 +176,7 @@ const filterAppointments = asyncHandler(async (req, res) => {
 
     // Use the filter object to query the database
     const appointments = await Appointment.find(filter);
-    console.log(appointments)
+    console.log(appointments);
 
     res.status(200).json(appointments);
   } catch (error) {
@@ -394,6 +395,7 @@ const selectPresc = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
 const searchForDoctor = asyncHandler(async (req, res) => {
   const { name, speciality } = req.query;
 
@@ -412,6 +414,52 @@ const searchForDoctor = asyncHandler(async (req, res) => {
   res.send(doctors);
 });
 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/"); // Define the destination folder where files will be saved
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname)); // Rename the file with a timestamp and original extension
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  fileFilter: function (req, file, cb) {
+    const extname = path.extname(file.originalname);
+    if (
+      extname === ".pdf" ||
+      extname === ".jpeg" ||
+      extname === ".jpg" ||
+      extname === ".png"
+    ) {
+      return cb(null, true);
+    }
+    cb(new Error("File type not supported"));
+  },
+});
+
+function handleUpload(req, res) {
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+
+  // Here, you can save the file details to your database
+  const fileDetails = {
+    originalName: req.file.originalname,
+    filename: req.file.filename,
+    path: req.file.path,
+    // Add more details as needed
+  };
+
+  // Simulate saving to a database (you should use your database logic here)
+  // For demonstration purposes, we're using an array to store file details
+  // uploadedFiles.push(fileDetails);
+
+  // Return a success response
+  res.status(200).json({ fileDetails });
+}
+
 module.exports = {
   searchForDoctor,
   selectPresc,
@@ -424,4 +472,6 @@ module.exports = {
   viewHealthPackages,
   subscribeHealthPackage,
   viewDoctor,
+  upload,
+  handleUpload,
 };
