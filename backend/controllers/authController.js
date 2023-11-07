@@ -6,7 +6,8 @@ const  Applicant = require('../models/Applicant');
 const jwt = require('jsonwebtoken')
 const blacklistedTokens = require('../middleware/blackListedTokens');
 const Admin = require('../models/Admin');
-
+const nodemailer = require('nodemailer');
+const randomstring = require('randomstring')
 
 const login= asyncHandler(async (req,res)=>{
    const {email,password}= req.body;
@@ -123,6 +124,62 @@ const changePassword = asyncHandler (async (req, res) => {
 });
 
 
+const otpStorage = {};
+const sendOTPEmail = asyncHandler(async(req,res) => {
+  console.log(req.user)
+  const emailService = req.user.email.split('@')[1];
+
+  const serviceConfigurations = {
+    "gmail.com": {
+      service: 'Gmail',
+      auth: {
+        user: req.user.email,
+        pass: req.user.password,
+      },tls: {
+        rejectUnauthorized: false,
+      },
+    },
+    "yahoo.com": {
+      service: 'Yahoo',
+      auth: {
+        user: req.user.email,
+        pass: req.user.password,
+      },
+    },
+    "hotmail.com": {
+      service: 'Outlook', // Hotmail uses Outlook
+      auth: {
+        user: req.user.email,
+        pass: req.user.password,
+      },
+    },
+  };
+
+  if (serviceConfigurations[emailService]) {
+    const transporter = nodemailer.createTransport(serviceConfigurations[emailService]);
+
+    const otp = randomstring.generate(6); // Generate a 6-digit OTP
+    const mailOptions = {
+      from: 'omarfarag200261@gmail.com', // Replace with your sender email
+      to: req.user.email,
+      subject: 'Password Reset OTP',
+      text: `Your OTP for password reset is: ${otp}`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log('Error sending OTP email: ' + error);
+      } else {
+        console.log('OTP email sent: ' + info.response);
+        otpStorage[req.user.email] = otp;
+      }
+    });
+  } else {
+    console.log('Unrecognized email service');
+  }
+}
+
+)
 
 
 
@@ -156,4 +213,4 @@ const registerDoctor = asyncHandler(async (req, res) => {
   }
   
   });
-  module.exports = {registerPatient,registerDoctor,login,logout,changePassword}
+  module.exports = {registerPatient,registerDoctor,login,logout,changePassword,sendOTPEmail}

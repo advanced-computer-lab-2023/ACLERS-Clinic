@@ -5,10 +5,13 @@ const {registerDoctor} = require('../controllers/authController')
 const {login,logout} = require('../controllers/authController')
 const {changePassword} = require('../controllers/authController')
 const {protect} = require('../middleware/authMiddleware')
+const {sendOTPEmail} = require('../controllers/authController')
 
 router.post('/change-password',protect,changePassword);
 router.post('/register-patient',registerPatient)
 router.post('/logout',logout)
 router.post('/register-doctor',registerDoctor)
 router.post('/login',login)
+router.post('/sendOTPEmail',protect,sendOTPEmail)
+
 module.exports = router
