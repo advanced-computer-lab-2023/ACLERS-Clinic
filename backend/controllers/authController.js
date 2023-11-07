@@ -5,6 +5,7 @@ const Patient = require('../models/Patient');
 const  Applicant = require('../models/Applicant');
 const jwt = require('jsonwebtoken')
 const blacklistedTokens = require('../middleware/blackListedTokens');
+const Admin = require('../models/Admin');
 
 
 const login= asyncHandler(async (req,res)=>{
@@ -63,6 +64,73 @@ const registerPatient = asyncHandler(async (req,res)=>{
 })
 
 
+const changePassword = asyncHandler (async (req, res) => {
+  try {
+    const {  oldPassword, newPassword } = req.body;
+    const userId = req.user.id
+   
+  
+
+   
+    // Extract the user's role from the authenticated JWT token
+    const userRole = req.role;
+
+    // Check if the user has the permission to change their password based on their role
+    if (userRole !== 'doctor' && userRole !== 'patient' && userRole !== 'admin') {
+      return res.status(403).json({ message: 'Permission denied' });
+    }
+
+    // Check if the old password matches
+    const isPasswordValid = await bcrypt.compare(oldPassword, req.user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Incorrect old password' });
+    }
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{4,}$/;
+
+
+    if (!newPassword.match(passwordRegex)) {
+      return res.status(400).json({
+        message: 'Password must contain at least 1 capital letter, 1 small letter, 1 special character, and 1 number',
+      });
+    }
+
+    // Hash and update the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+   
+
+    if ( userRole == 'doctor'){
+      const doctor = await Doctor.findById(userId);
+      doctor.password=hashedPassword
+      await doctor.save();
+    }
+    if ( userRole == 'patient'){
+      const patient = await Patient.findById(userId) ;
+      patient.password = hashedPassword ;
+      await patient.save();
+    }
+    if ( userRole == 'admin'){
+      const admin = await Admin.findById(userId);
+      admin.password = hashedPassword;
+      await admin.save();
+    }
+
+    res.status(200).json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+
+
+
+
+
+
+
+
 const registerDoctor = asyncHandler(async (req, res) => {
     try {
       const saltRounds = await bcrypt.genSalt(10); // You can adjust the number of salt rounds for security
@@ -88,4 +156,4 @@ const registerDoctor = asyncHandler(async (req, res) => {
   }
   
   });
-  module.exports = {registerPatient,registerDoctor,login,logout}
+  module.exports = {registerPatient,registerDoctor,login,logout,changePassword}

@@ -15,9 +15,9 @@ if(req.headers.authorization && req.headers.authorization.startsWith("Bearer")){
     }
      const decoded = jwt.verify(token,process.env.JWT_SECRET)
      if(decoded.role == "patient"){
-         user = await Patient.findById(decoded.id).select('-password')
+         user = await Patient.findById(decoded.id)
      }else{
-        user = await Doctor.findById(decoded.id).select('-password')
+        user = await Doctor.findById(decoded.id)
      }
      req.user = user
      console.log(req.user)
