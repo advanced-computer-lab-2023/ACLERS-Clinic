@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const {upload,handleUpload,searchForDoctor,selectPresc,viewMyPerscriptions,viewDoctor,viewHealthPackages,subscribeHealthPackage,viewDoctors,filterAppointments,addFamilyMember,viewFamilyMembers,setAppointment}= require('../controllers/patientController')
+const {upload,handleUpload,searchForDoctor,selectPresc,viewMyPerscriptions,viewDoctor,getPatientBalance,viewHealthPackages,subscribeHealthPackage,viewDoctors,filterAppointments,addFamilyMember,viewFamilyMembers,setAppointment, viewMyHealthRecords}= require('../controllers/patientController')
 const {protect,checkRole} = require('../middleware/authMiddleware')
 router.post('/add-family-member',protect,checkRole('patient'),addFamilyMember)
 router.get('/view-fam-member',protect,checkRole('patient'),viewFamilyMembers)
@@ -15,4 +15,8 @@ router.get('/view-perscriptions',protect,checkRole('patient'),viewMyPerscription
 router.get('/view-perscription',protect,checkRole('patient'),selectPresc)
 router.get('/search',protect,checkRole('patient'),searchForDoctor)
 router.post('/upload',upload.single('document'),handleUpload)
+router.get('/viewMyHealthRecords',protect,checkRole('patient'),viewMyHealthRecords)
+router.get('/viewMyBalance',protect,checkRole('patient'),getPatientBalance)
+
+
 module.exports = router

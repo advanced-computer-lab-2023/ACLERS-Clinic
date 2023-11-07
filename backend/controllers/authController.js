@@ -58,6 +58,11 @@ const registerPatient = asyncHandler(async (req,res)=>{
     emergencyContact:req.body.emergencyContact,
      
   })
+
+  const wallet = await Wallet.create({
+    userId: doctor._id, // Set the userId to the doctor's ID
+    balance: 0, // Set an initial balance
+  });
  
   res.status(200).json(patient)
 })
@@ -78,7 +83,8 @@ const registerDoctor = asyncHandler(async (req, res) => {
       hourlyRate:req.body.hourlyRate,
       affiliation:req.body.affiliation,
       educationalBackground:req.body.educationalBackground,
-      status:'Pending'
+      speciality:req.body.speciality,
+      status:'pending'
     })
    
     res.status(200).json(doctor)

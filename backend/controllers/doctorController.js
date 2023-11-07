@@ -6,6 +6,10 @@ const PatientHealthRecord = require("../models/PatientHealthRecord");
 const Appointment = require("../models/Appointment");
 const Patient = require("../models/Patient");
 const Perscription = require("../models/Perscription");
+const DoctorSlot = require('../models/FreeSlots'); // Import the DoctorSlot model
+const Wallet = require('../models/Wallet');
+
+
 
 const editEmail = asyncHandler(async (req, res) => {
   const doctorID = req.user.id;
@@ -13,6 +17,7 @@ const editEmail = asyncHandler(async (req, res) => {
   const newEmail = req.body.email;
   const newHourlyRate = req.body.hourlyRate;
   const newAffiliation = req.body.affiliation;
+
 
   try {
     const doctor = await Doctor.findById(doctorID);
@@ -234,6 +239,75 @@ const searchForPatient = asyncHandler(async (req, res) => {
   const patient = await Patient.find(filter);
   res.send(patient);
 });
+
+const addFreeSlot=asyncHandler( async (req, res) => {
+  const { date, startTime, endTime } = req.body;
+  const doctorId = req.user.id;
+
+
+  if (!doctorId || !date || !startTime || !endTime) {
+    return res.status(400).json({ error: 'Please provide doctorId, date, start time, and end time.' });
+  }
+
+  try {
+    const newDoctorSlot = await DoctorSlot.create({ doctorId, date, startTime, endTime });
+    res.status(201).json(newDoctorSlot);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to create a doctor slot.' });
+  }
+});
+
+const viewPatientHealthRecords = asyncHandler(async (req, res) => {
+  const doctorId = req.user.id; // Assuming you have authenticated the doctor
+  const patientId = req.params.patientId;
+
+  // Check if the doctor has permission to access the patient's records (you might need to implement your own logic here)
+
+  // Retrieve the health records associated with the patient's ID
+  const patientHealthRecords = await PatientHealthRecord.find({ patient: patientId });
+
+  res.json(patientHealthRecords);
+});
+
+const getDoctorBalance = asyncHandler(async (req, res) => {
+  const doctorId = req.user.id; // Assuming you have authenticated the doctor
+
+  try {
+    // Find the wallet associated with the doctor's user ID
+    const wallet = await Wallet.findOne({ userId: doctorId });
+
+    if (!wallet) {
+      res.json({ balance: 0 }); // Default balance if wallet not found
+    } else {
+      res.json({ balance: wallet.balance });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to retrieve doctor balance.' });
+  }
+});
+
+const addHealthRecord = asyncHandler(async (req, res) => {
+  const doctorId = req.user.id; // Assuming you have authenticated the doctor
+  const patientId = req.query.patientId; // Assuming you have a patient ID in the request body
+  const healthRecordText = req.body.healthRecordText; // Assuming you have health record data in the request body
+
+  try {
+   
+    const newHealthRecord = await PatientHealthRecord.create({
+      patient: patientId,
+      healthRecord: healthRecordText,
+    });
+
+    return res.status(201).json(newHealthRecord);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to add a new health record.' });
+  }
+});
+
+
 module.exports = {
   writePerscription,
   editEmail,
@@ -241,5 +315,9 @@ module.exports = {
   viewPatients,
   viewPatient,
   searchForPatient,
-  viewMyInfo
+  viewMyInfo,
+  addFreeSlot,
+  viewPatientHealthRecords,
+  getDoctorBalance,
+  addHealthRecord
 };

@@ -10,6 +10,8 @@ const PatientHealthRecord = require("../models/PatientHealthRecord");
 const multer = require('multer');
 const path = require('path');
 const Perscription = require("../models/Perscription");
+const Wallet = require('../models/Wallet');
+
 
 const addFamilyMember = asyncHandler(async (req, res) => {
   try {
@@ -454,6 +456,31 @@ function handleUpload(req, res) {
   res.status(200).json({ fileDetails });
 };
 
+const viewMyHealthRecords = asyncHandler(async (req, res) => {
+  const patientId = req.user.id;
+  const patientHealthRecords = await PatientHealthRecord.find({ patient: patientId });
+
+  res.json(patientHealthRecords);
+});
+
+const getPatientBalance = asyncHandler(async (req, res) => {
+  const patientId = req.user.id; // Assuming you have authenticated the doctor
+
+  try {
+    // Find the wallet associated with the doctor's user ID
+    const wallet = await Wallet.findOne({ userId: patientId });
+
+    if (!wallet) {
+      res.json({ balance: 0 }); // Default balance if wallet not found
+    } else {
+      res.json({ balance: wallet.balance });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to retrieve patient balance.' });
+  }
+});
+
 
 
 
@@ -470,5 +497,7 @@ module.exports = {
   viewHealthPackages,
   subscribeHealthPackage,
   viewDoctor,
-  upload,handleUpload
+  upload,handleUpload,
+  viewMyHealthRecords
+  ,getPatientBalance
 };

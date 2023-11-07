@@ -264,6 +264,10 @@ const approveDoctorRequest = asyncHandler(async (req, res) => {
     educationalBackground: applicant.educationalBackground,
     speciality: applicant.speciality
   });
+  const wallet = await Wallet.create({
+    userId: doctor._id, // Set the userId to the doctor's ID
+    balance: 0, // Set an initial balance
+  });
   await Applicant.findByIdAndDelete(applicantId);
   return res.status(200).send(doctor);
 });

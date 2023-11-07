@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 const DoctorPatients = () => {
   const navigate=useNavigate();
-  const { doctorId } = useParams();
+  const { id } = useParams();
   const [patients, setPatients] = useState([]);
   const [filteredPatients, setFilteredPatients] = useState([]);
   const [appointmentStatus, setAppointmentStatus] = useState(""); // Default: no filter
@@ -14,9 +14,9 @@ const DoctorPatients = () => {
   // Fetch the list of patients initially
   useEffect(() => {
     // Replace with your API call to fetch patients registered with the doctor
-    console.log(doctorId);
+    //console.log(doctorId);
     fetch(
-      `http://localhost:8000/Doctor-Home/view-patients?doctorId=${doctorId}`
+      `http://localhost:8000/Doctor-Home/view-patients?doctorId=${id}`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -38,7 +38,7 @@ const DoctorPatients = () => {
     if (appointmentStatus) {
       // Filter patients by appointment status
       fetch(
-        `http://localhost:8000/Doctor-Home/view-patients?doctorId=${doctorId}&status=${appointmentStatus}`
+        `http://localhost:8000/Doctor-Home/view-patients?doctorId=${id}&status=${appointmentStatus}`
       )
         .then((response) => response.json())
         .then((data) => {
@@ -119,7 +119,7 @@ const DoctorPatients = () => {
                   <p>
                     Name:{" "}
                     <Link
-                      to={`/doctor/view-patient/${item.patient._id}/${doctorId}`}
+                      to={`/doctor/view-patient/${item.patient._id}/${id}`}
                     >
                       {item.patient.name}
                     </Link>
