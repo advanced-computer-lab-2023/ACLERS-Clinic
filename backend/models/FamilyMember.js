@@ -5,6 +5,11 @@ const familyMemberSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Patient",
   },
+  memberId:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Patient",
+
+  },
   name: {
     type: String,
     required: true,

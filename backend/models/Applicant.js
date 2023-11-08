@@ -49,6 +49,14 @@ const applicantSchema = new mongoose.Schema({
      speciality:{
       type: String,
       required:true
+     },
+     idDocument:{
+      type:String
+     },medicalLicense:{
+      type:String
+     },
+     medicalDegree:{
+      type:String
      }
     })
 

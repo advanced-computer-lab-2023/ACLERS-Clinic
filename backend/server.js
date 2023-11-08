@@ -4,13 +4,16 @@ const connectDB = require('./config/db')
 const { urlencoded } = require('body-parser')
 const port = process.env.PORT 
 const cors = require('cors')
-
+const multer = require('multer');
+const path = require('path');
 
 connectDB()
 
 const app = express()
 
 app.use(express.json())
+
+const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY)
 //app.use(express.urlencoded({extended : false}))
 app.use(cors())
 app.get('/',(req,res)=>{
