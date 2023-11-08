@@ -7,6 +7,8 @@ const Patient = require("../models/Patient");
 const healthPackage = require("../models/healthPackage");
 const Applicant = require("../models/Applicant");
 const { Types } = require("mongoose");
+const Contract = require('../models/Contract'); // Import the EmploymentContract model
+
 
 const addAdmin = asyncHandler(async (req, res) => {
   const username = req.body.username;
@@ -249,28 +251,25 @@ const deleteHealthPackage = asyncHandler(async (req, res) => {
 
 const approveDoctorRequest = asyncHandler(async (req, res) => {
   const applicantId = req.query.applicantId;
+  const contractDescription=req.body.description;
+  
   var applicant = await Applicant.findById(applicantId);
   if (!applicant) {
     return res.status(404).json({ message: "Applicant not found" });
   }
-  const doctor = await Doctor.create({
-    username: applicant.username,
-    name: applicant.name,
-    email: applicant.email,
-    password: applicant.password,
-    dateOfBirth: applicant.dateOfBirth,
-    hourlyRate: applicant.hourlyRate,
-    affiliation: applicant.affiliation,
-    educationalBackground: applicant.educationalBackground,
-    speciality: applicant.speciality
+
+const contract =await Contract.create({
+  
+    doctor: applicantId,
+    description: contractDescription,
+    status: 'pending',
   });
-  const wallet = await Wallet.create({
-    userId: doctor._id, // Set the userId to the doctor's ID
-    balance: 0, // Set an initial balance
-  });
-  await Applicant.findByIdAndDelete(applicantId);
-  return res.status(200).send(doctor);
-});
+  return res.send(contract);
+
+})
+
+
+
 
 const disapproveDoctorRequest = asyncHandler(async (req, res) => {
   const applicantId = req.query.applicantId;

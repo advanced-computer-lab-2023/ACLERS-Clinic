@@ -480,12 +480,34 @@ const getPatientBalance = asyncHandler(async (req, res) => {
     res.status(500).json({ error: 'Failed to retrieve patient balance.' });
   }
 });
+const viewSubscribedHealthPackage = asyncHandler(async (req, res) => {
+  const patientId = "651f3324fa0441d0e58c0706"; // Get patientId from req.user.id (assuming you have authenticated the patient)
+
+  try {
+    // Find the patient's subscribed health package
+    const subscription = await PatientHealthPackage.findOne({ patient: patientId })
+      .populate('healthPackage');
+
+    if (!subscription) {
+      return res.status(404).json({ message: 'No subscribed health package found' });
+    }
+
+    // Extract the health package details from the subscription
+    const healthPackage = subscription.healthPackage;
+
+    res.status(200).json(healthPackage);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch subscribed health package' });
+  }
+});
 
 
 
 
 
 module.exports = {
+  viewSubscribedHealthPackage,
   searchForDoctor,
   selectPresc,
   viewMyPerscriptions,

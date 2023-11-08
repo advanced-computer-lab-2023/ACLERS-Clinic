@@ -12,6 +12,7 @@ const login= asyncHandler(async (req,res)=>{
    const patient = await Patient.findOne({email})
    
    const doctor = await Doctor.findOne({email})
+   const applicant=await Applicant.findOne({email})
    if(patient && (await bcrypt.compare(password,patient.password))){
     return res.json({
          token:generateToken(patient._id,"patient")
@@ -20,7 +21,11 @@ const login= asyncHandler(async (req,res)=>{
 if(doctor && await bcrypt.compare(password,doctor.password)){
  return res.json({
     token: generateToken(doctor._id,"doctor")
- })
+ })}
+ if(applicant && await bcrypt.compare(password,applicant.password)){
+  return res.json({
+     token: generateToken(applicant._id,"applicant")
+  })
 }
   return res.status(400).send("invalid credentials") 
 })
