@@ -25,61 +25,41 @@ import DoctorSignUpPage from "./signup/SignUpdoctor";
 import ViewApplicants from "./admin/viewapplicants/viewapplicants";
 import PatientDoctors from "./patient/viewdoctors";
 import PatientAppointments from "./patient/appointments";
+import Healthrecords from "./doctor/Healthrecords.js";
+import ViewHealthRecords from "./doctor/ViewHealthRecords";
+
 const App = () => {
   return (
-    <>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signuppage" element={<SignUpPage />} />
-        <Route path="/signuppage/patient" element={<PatinetSignUpPage />} />
-        <Route path="/signuppage/doctor" element={<DoctorSignUpPage />} />
-        <Route path="/admin" element={<AdminHome />} />
-        <Route path="/admin/adminadd" element={<AdminAdd />} />
-        <Route path="/admin/adminremove" element={<AdminRemove />} />
-        <Route path="/admin/viewadmins" element={<ViewAdmins />} />
-        <Route path="/admin/viewdoctors" element={<ViewDoctors />} />
-        <Route path="/admin/viewpatients" element={<ViewPatients />} />
-        <Route
-          path="/admin/add-health-package"
-          element={<AddHealthPackage />}
-        />
-        <Route
-          path="/admin/view-HealthPackages"
-          element={<HealthPackageList />}
-        />
-        <Route
-          path="/admin/edit-HealthPackage/"
-          element={<EditHealthPackage />}
-        />
-        <Route path="/admin/Dashboard" element={<AdminDashboard />} />
-        <Route path="/doctor/Dashboard/:id" element={<DoctorDashboard />} />
-        <Route path="/doctor/view-my-info/:id" element={<DoctorInfo />} />
-        <Route
-          path="/doctor/view-my-appointments/:doctorId"
-          element={<DoctorAppointments />}
-        />
-        <Route
-          path="/doctor/view-my-patients/:id"
-          element={<DoctorPatients />}
-        />
-       
-        <Route path="/patient/dashboard/:id" element={<PatientDashBoard />} />
-        <Route
-          path="/patient/view-perscriptions/:id"
-          element={<PatientPerscriptions />}
-        />
-        <Route
-          path="/patient/familymembers/:id"
-          element={<PatientFamilyMembers />}
-        />
-        <Route path="/admin/view-applicants" element={<ViewApplicants />} />
-        <Route path="/patient/viewdoctors/:id" element={<PatientDoctors />} />
-        <Route path="/patient/appointments/:id" element={<PatientAppointments />} />
-                <Route path="/doctor/view-patient/:patientId/:doctorId" element={<PatientInfo />} />
-
-      </Routes>
-    </>
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signuppage" element={<SignUpPage />} />
+      <Route path="/signuppage/patient" element={<PatinetSignUpPage />} />
+      <Route path="/signuppage/doctor" element={<DoctorSignUpPage />} />
+      <Route path="/admin" element={<AdminHome />} />
+      <Route path="/admin/adminadd" element={<AdminAdd />} />
+      <Route path="/admin/adminremove" element={<AdminRemove />} />
+      <Route path="/admin/viewadmins" element={<ViewAdmins />} />
+      <Route path="/admin/viewdoctors" element={<ViewDoctors />} />
+      <Route path="/admin/viewpatients" element={<ViewPatients />} />
+      <Route path="/admin/add-health-package" element={<AddHealthPackage />} />
+      <Route path="/admin/view-HealthPackages" element={<HealthPackageList />} />
+      <Route path="/admin/edit-HealthPackage/" element={<EditHealthPackage />} />
+      <Route path="/admin/Dashboard" element={<AdminDashboard />} />
+      <Route path="/doctor/Dashboard/:id" element={<DoctorDashboard />} />
+      <Route path="/doctor/view-my-info/:id" element={<DoctorInfo />} />
+      <Route path="/doctor/view-my-appointments/:doctorId" element={<DoctorAppointments />} />
+      <Route path="/doctor/healthrecords/:patientId" element={<Healthrecords />} />
+      <Route path="/doctor/view-my-patients/:id" element={<DoctorPatients />} />
+      <Route path="/patient/dashboard/:id" element={<PatientDashBoard />} />
+      <Route path="/patient/view-perscriptions/:id" element={<PatientPerscriptions />} />
+      <Route path="/patient/familymembers/:id" element={<PatientFamilyMembers />} />
+      <Route path="/admin/view-applicants" element={<ViewApplicants />} />
+      <Route path="/patient/viewdoctors/:id" element={<PatientDoctors />} />
+      <Route path="/patient/appointments/:id" element={<PatientAppointments />} />
+      <Route path="/doctor/view-patient/:patientId/:doctorId" element={<PatientInfo />} />
+      <Route path="/doctor/viewhealthrecords/:patientId" element={<ViewHealthRecords />} />
+    </Routes>
   );
 };
 
