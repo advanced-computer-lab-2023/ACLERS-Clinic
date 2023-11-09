@@ -14,6 +14,15 @@ const patientHealthPackageSchema = new mongoose.Schema({
     dateOfSubscription:{
         type:Date
     }
+    ,status:{
+        type:String
+    },
+    renewalDate:{
+        type:Date
+    },
+    endDate:{
+        type:Date
+    }
 })
 
 module.exports = mongoose.model('PatientHealthPackage',patientHealthPackageSchema)

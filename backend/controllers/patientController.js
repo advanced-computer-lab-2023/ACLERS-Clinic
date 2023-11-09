@@ -332,10 +332,15 @@ const subscribeHealthPackage = asyncHandler(async (req, res) => {
 
     // Create a new patient health package subscription
     const subscriptionDate = new Date();
+    const renewalDate = new Date(subscriptionDate);
+    renewalDate.setFullYear(renewalDate.getFullYear() + 1);
+
     const patientHealthPackage = await PatientHealthPackage.create({
       patient: patientId,
       healthPackage: healthPackageId,
       dateOfSubscription: subscriptionDate,
+      renewalDate: renewalDate,
+      status: "subscribed", // Set the status to "subscribed"
     });
 
     res.status(200).json({ patientHealthPackage });
