@@ -7,13 +7,14 @@ const PatientHealthPackage = require("../models/PatientHealthPackage");
 const HealthPackage = require("../models/healthPackage");
 const RegisteredPatients = require("../models/RegisteredPatients");
 const PatientHealthRecord = require("../models/PatientHealthRecord");
+const multer = require('multer');
+const path = require('path');
 const Perscription = require("../models/Perscription");
-const multer = require("multer");
-const path = require("path");
+const PatientMedicalHistory = require("../models/PatientMedicalHistory")
 
 const addFamilyMember = asyncHandler(async (req, res) => {
   try {
-    const patientId = req.query.patientId;
+    const patientId = req.user.id;
 
     const familyMember = await FamilyMember.create({
       patient: patientId,
@@ -40,7 +41,7 @@ const addFamilyMember = asyncHandler(async (req, res) => {
 
 const viewFamilyMembers = asyncHandler(async (req, res) => {
   try {
-    const patientId = req.query.patientId;
+    const patientId = req.user.id;
 
     // Find the patient by ID
     // const patient = await Patient.findById(patientId);
@@ -62,7 +63,7 @@ const viewFamilyMembers = asyncHandler(async (req, res) => {
 });
 
 const setAppointment = asyncHandler(async (req, res) => {
-  const patientId = req.query.patientId;
+  const patientId = req.user.id;
   const doctorId = req.query.doctorId;
 
   const date = new Date(req.body.date);
@@ -137,7 +138,7 @@ const viewMyPerscriptions = asyncHandler(async (req, res) => {
     const filter = {};
     if (date) {
       filter.date = new Date(date);
-      console.log(filter.date);
+      console.log(filter.date)
     }
     if (doctorId) {
       filter.doctor = doctorId;
@@ -158,9 +159,10 @@ const viewMyPerscriptions = asyncHandler(async (req, res) => {
 
 const filterAppointments = asyncHandler(async (req, res) => {
   try {
-    const { patientId, status, date } = req.query;
-    console.log(date);
-    console.log(patientId);
+    const { status, date } = req.query;
+    const patientId = req.user.id;
+    console.log(date)
+    console.log(patientId)
     // Define a filter object to build the query dynamically
     const filter = { patient: patientId };
 
@@ -176,7 +178,7 @@ const filterAppointments = asyncHandler(async (req, res) => {
 
     // Use the filter object to query the database
     const appointments = await Appointment.find(filter);
-    console.log(appointments);
+    console.log(appointments)
 
     res.status(200).json(appointments);
   } catch (error) {
@@ -186,8 +188,8 @@ const filterAppointments = asyncHandler(async (req, res) => {
 });
 const viewDoctors = asyncHandler(async (req, res) => {
   try {
-    var { patientId, speciality, date, time } = req.query;
-
+    var { speciality, date, time } = req.query;
+    const patientId = req.user.id;
     // Create an initial query object for doctors
     const doctorQuery = {};
     var doctorsWithSessionPrices = [];
@@ -309,8 +311,8 @@ const viewDoctors = asyncHandler(async (req, res) => {
 });
 const subscribeHealthPackage = asyncHandler(async (req, res) => {
   try {
-    const { patientId, healthPackageId } = req.query;
-
+    const { healthPackageId } = req.query;
+    const patientId = req.user.id;
     // Check if the patient has an existing subscription
     const existingSubscription = await PatientHealthPackage.findOne({
       patient: patientId,
@@ -330,10 +332,15 @@ const subscribeHealthPackage = asyncHandler(async (req, res) => {
 
     // Create a new patient health package subscription
     const subscriptionDate = new Date();
+    const renewalDate = new Date(subscriptionDate);
+    renewalDate.setFullYear(renewalDate.getFullYear() + 1);
+
     const patientHealthPackage = await PatientHealthPackage.create({
       patient: patientId,
       healthPackage: healthPackageId,
       dateOfSubscription: subscriptionDate,
+      renewalDate: renewalDate,
+      status: "subscribed", // Set the status to "subscribed"
     });
 
     res.status(200).json({ patientHealthPackage });
@@ -342,6 +349,17 @@ const subscribeHealthPackage = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+const viewHealthPackage = asyncHandler(async(req,res)=>{
+  const healthPackageId= req.query;
+  try{
+    const healthpackage = await HealthPackage.findById(healthPackageId)
+    res.status(200).send(healthpackage);
+
+  }
+  catch(error){
+    res.status(400).send(error);
+  }
+})
 
 const viewHealthPackages = asyncHandler(async (req, res) => {
   try {
@@ -395,7 +413,6 @@ const selectPresc = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
-
 const searchForDoctor = asyncHandler(async (req, res) => {
   const { name, speciality } = req.query;
 
@@ -413,10 +430,9 @@ const searchForDoctor = asyncHandler(async (req, res) => {
   const doctors = await Doctor.find(filter);
   res.send(doctors);
 });
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/"); // Define the destination folder where files will be saved
+    cb(null, 'uploads/'); // Define the destination folder where files will be saved
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + path.extname(file.originalname)); // Rename the file with a timestamp and original extension
@@ -427,38 +443,163 @@ const upload = multer({
   storage: storage,
   fileFilter: function (req, file, cb) {
     const extname = path.extname(file.originalname);
-    if (
-      extname === ".pdf" ||
-      extname === ".jpeg" ||
-      extname === ".jpg" ||
-      extname === ".png"
-    ) {
+    if (extname === '.pdf' || extname === '.jpeg' || extname === '.jpg' || extname === '.png') {
       return cb(null, true);
     }
-    cb(new Error("File type not supported"));
+    cb(new Error('File type not supported'));
   },
 });
 
-function handleUpload(req, res) {
+async function handleUpload(req, res) {
   if (!req.file) {
-    return res.status(400).json({ message: "No file uploaded" });
+    return res.status(400).json({ message: 'No file uploaded' });
   }
 
-  // Here, you can save the file details to your database
-  const fileDetails = {
-    originalName: req.file.originalname,
-    filename: req.file.filename,
-    path: req.file.path,
-    // Add more details as needed
-  };
+  try {
+    // Find the patient's health record by the patient ID
+    let healthRecord = await PatientHealthRecord.findOne({ patient: req.user.id });
 
-  // Simulate saving to a database (you should use your database logic here)
-  // For demonstration purposes, we're using an array to store file details
-  // uploadedFiles.push(fileDetails);
+    // If no health record exists, create a new one
+    if (!healthRecord) {
+      healthRecord = new PatientHealthRecord({
+        patient: req.user.id,
+        attachments: [], // Initialize with an empty attachments array
+      });
+    }
 
-  // Return a success response
-  res.status(200).json({ fileDetails });
+    // Add the new attachment to the health record
+    const newAttachment = {
+      filename: req.file.originalname,
+      path: req.file.path, // Store the path to the uploaded file
+    };
+    healthRecord.attachments.push(newAttachment);
+
+    // Save the health record to the database
+    await healthRecord.save();
+
+    res.status(200).json({ message: 'File uploaded and medical history updated', health_record: healthRecord });
+  } catch (error) {
+    // Handle any errors
+    console.error(error);
+    res.status(500).json({ message: 'Error saving medical history' });
+  }
 }
+
+const removeHealthRecordAttachment = asyncHandler(async (req, res) => {
+  const filename = req.query.filename; // Get the filename from req.query
+
+  // Find the patient's health record
+  const healthRecord = await PatientHealthRecord.findOne({ patient: req.user.id });
+
+  if (!healthRecord) {
+    return res.status(404).json({ message: 'Health record not found' });
+  }
+
+  // Find the attachment with the provided filename and remove it
+  const attachmentToRemove = healthRecord.attachments.find(
+    (attachment) => attachment.filename === filename
+  );
+
+  if (!attachmentToRemove) {
+    return res.status(404).json({ message: 'Attachment not found in health record' });
+  }
+
+  // Remove the attachment from the array
+  healthRecord.attachments = healthRecord.attachments.filter(
+    (attachment) => attachment.filename !== filename
+  );
+
+  try {
+    // Save the updated health record
+    await healthRecord.save();
+
+    res.status(200).json({ message: 'Attachment removed', health_record: healthRecord });
+  } catch (error) {
+    // Handle any errors
+    console.error(error);
+    res.status(500).json({ message: 'Error removing attachment from health record' });
+  }
+});
+
+function calculateAge(birthdate) {
+  const birthDate = new Date(birthdate);
+  const currentDate = new Date();
+
+  const yearsDiff = currentDate.getFullYear() - birthDate.getFullYear();
+  const monthsDiff = currentDate.getMonth() - birthDate.getMonth();
+  const daysDiff = currentDate.getDate() - birthDate.getDate();
+
+  // Adjust age if birthdate has not occurred this year
+  if (monthsDiff < 0 || (monthsDiff === 0 && daysDiff < 0)) {
+    return yearsDiff - 1;
+  } else {
+    return yearsDiff;
+  }
+}
+const linkAccount = asyncHandler(async(req,res)=>{
+   const patientId= req.user.id
+   const{email,mobileNumber,relation} = req.body
+   let patient
+   if(email){
+    patient = await Patient.findOne({email})
+   }
+   if(mobileNumber){
+    patient = await Patient.findOne({mobileNumber})
+   }
+  
+   const member = await FamilyMember.create({
+    patient:patientId,
+    memberId:patient._id,
+    name:patient.name,
+    age:calculateAge(patient.dateOfBirth),
+    nationalId:30203130101014,
+    gender:patient.gender,
+    relationToPatient:relation
+
+
+
+   })
+  
+   return res.status(200).json(member)
+   
+})
+const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY)
+const payUsingStripe = asyncHandler(async (req,res)=>{
+try{
+  
+
+const product = await stripe.products.create({
+  name: req.body.name,
+  description: req.body.description,
+   // URL of the product image
+});
+const price = await stripe.prices.create({
+  product: product.id, // ID of the product created in step 1
+  unit_amount: 1000, // Amount in the smallest currency unit (e.g., cents)
+  currency: 'usd', // Currency code (e.g., USD)
+ 
+});
+console.log(product,price)
+
+  const session = await stripe.checkout.sessions.create({
+payment_method_types:['card'],
+line_items:[{
+price : price.id,
+ quantity:req.body.quantity
+}]
+,mode:'payment',
+success_url:'http://localhost:3000/payment-success',
+
+cancel_url:'http://localhost:3000/payment-cancel',
+
+  })
+  console.log(session)
+   return res.json({session:session.url})
+}catch(error){
+return res.send(error)
+}
+})
+
 
 module.exports = {
   searchForDoctor,
@@ -472,6 +613,5 @@ module.exports = {
   viewHealthPackages,
   subscribeHealthPackage,
   viewDoctor,
-  upload,
-  handleUpload,
+  upload,handleUpload,linkAccount,removeHealthRecordAttachment,payUsingStripe
 };

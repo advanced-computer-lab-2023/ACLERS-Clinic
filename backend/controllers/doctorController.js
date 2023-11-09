@@ -8,7 +8,7 @@ const Patient = require("../models/Patient");
 const Perscription = require("../models/Perscription");
 
 const editEmail = asyncHandler(async (req, res) => {
-  const doctorID = req.query.doctorID;
+  const doctorID = req.user.id;
   console.log(doctorID);
   const newEmail = req.body.email;
   const newHourlyRate = req.body.hourlyRate;
@@ -51,8 +51,8 @@ const editEmail = asyncHandler(async (req, res) => {
 
 const filterAppointments = asyncHandler(async (req, res) => {
   try {
-    const { doctorId, status, date } = req.query;
-
+    const {  status, date } = req.query;
+ const doctorId =req.user.id;
     // Define a filter object to build the query dynamically
     const filter = { doctor: doctorId };
 
@@ -82,7 +82,7 @@ const filterAppointments = asyncHandler(async (req, res) => {
   }
 });
 const viewPatients = asyncHandler(async (req, res) => {
-  const doctorId = req.query.doctorId;
+  const doctorId = req.user.id;
   const status = req.query.status;
   // console.log(doctorId)
   const registeredPatients = await RegisteredPatients.findOne({
@@ -143,7 +143,8 @@ console.log(patientMap,"map")
 });
 
 const viewPatient = asyncHandler(async (req, res) => {
-  const { doctorId, patientId } = req.query;
+  const {  patientId } = req.query;
+  const doctorId=req.user.id;
 
   const registeredPatients = await RegisteredPatients.findOne({
     doctor: doctorId,
@@ -194,7 +195,7 @@ const viewPatient = asyncHandler(async (req, res) => {
 });
 const viewMyInfo = asyncHandler(async (req,res)=>{
   try{
-    const id = req.query.id 
+    const id = req.user.id;
     const doctor = await Doctor.findById(id)
     if(doctor){
       res.status(200).send(doctor)
@@ -207,7 +208,8 @@ const viewMyInfo = asyncHandler(async (req,res)=>{
 })
 
 const writePerscription = asyncHandler(async (req, res) => {
-  const { patientId, doctorId } = req.query;
+  const { patientId } = req.query;
+  const doctorId = req.user.id;
   const description = req.body.description;
   const perscription = await Perscription.create({
     description: description,

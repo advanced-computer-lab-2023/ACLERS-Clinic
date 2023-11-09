@@ -90,6 +90,9 @@ const App = () => {
           element={<PatientInfo />}
         />
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
+        <Route path="/patient/appointments/:id" element={<PatientAppointments />} />
+        <Route path="/doctor/view-patient/:patientId/:doctorId" element={<PatientInfo />} />
+
       </Routes>
     </>
   );
