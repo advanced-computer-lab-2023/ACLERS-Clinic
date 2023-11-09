@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import DatePicker from "react-datepicker";
 import { useParams, useNavigate } from "react-router-dom";
 import "./PatientAppointments.css";
+import "react-datepicker/dist/react-datepicker.css";
 
 const PatientAppointments = () => {
   const navigate = useNavigate();
@@ -9,7 +11,11 @@ const PatientAppointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [filterBy, setFilterBy] = useState("date"); // Default filter by date
-  const [filterValue, setFilterValue] = useState("");
+  const [filterValue, setFilterValue] = useState(null); // Initialize with null
+  const [filterValueDate, setFilterValueDate] = useState(
+    new Date(2023, 0, 1, 14, 30)
+  ); // Initialize with null
+  const [showDateInput, setShowDateInput] = useState(false);
 
   // Fetch patient's appointments based on patientId
   useEffect(() => {
@@ -29,13 +35,13 @@ const PatientAppointments = () => {
   // Function to handle filtering appointments
   const handleFilter = () => {
     if (filterBy === "date") {
-      // Filter appointments by date
+      // Filter appointments by user-entered date
       const filtered = appointments.filter((appointment) =>
-        appointment.date.includes(filterValue)
+        appointment.date.includes(filterValueDate)
       );
       setFilteredAppointments(filtered);
     } else if (filterBy === "status") {
-      // Filter appointments by status
+      // Show a dropdown for filtering by status
       const filtered = appointments.filter(
         (appointment) => appointment.status === filterValue
       );
@@ -54,19 +60,39 @@ const PatientAppointments = () => {
             Filter by:
             <select
               className="filter-select"
-              onChange={(e) => setFilterBy(e.target.value)}
+              onChange={(e) => {
+                setFilterBy(e.target.value);
+                setShowDateInput(false); // Hide the date input when changing the filter
+              }}
             >
               <option value="date">Date</option>
               <option value="status">Status</option>
             </select>
           </label>
-          <input
-            type="text"
-            className="filter-input"
-            placeholder={`Filter by ${filterBy}`}
-            value={filterValue}
-            onChange={(e) => setFilterValue(e.target.value)}
-          />
+          {filterBy === "date" && (
+            <DatePicker
+              selected={filterValueDate}
+              onChange={(date) => setFilterValueDate(date)}
+              showTimeSelect
+              timeFormat="HH:mm"
+              timeIntervals={15}
+              timeCaption="Time"
+              dateFormat="MM/dd/yyyy h:mm aa"
+              className="filter-input"
+              placeholderText="Select a date and time"
+            />
+          )}
+          {filterBy === "status" && (
+            <select
+              className="filter-select"
+              value={filterValue}
+              onChange={(e) => setFilterValue(e.target.value)}
+            >
+              <option value="">Select status</option>
+              <option value="UpComing">UpComing</option>
+              <option value="Done">Done</option>
+            </select>
+          )}
           <button className="filter-button" onClick={handleFilter}>
             Filter
           </button>
