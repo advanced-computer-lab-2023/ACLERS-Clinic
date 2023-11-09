@@ -7,12 +7,13 @@ const PatientHealthPackage = require("../models/PatientHealthPackage");
 const HealthPackage = require("../models/healthPackage");
 const RegisteredPatients = require("../models/RegisteredPatients");
 const PatientHealthRecord = require("../models/PatientHealthRecord");
-
+const multer = require('multer');
+const path = require('path');
 const Perscription = require("../models/Perscription");
 
 const addFamilyMember = asyncHandler(async (req, res) => {
   try {
-    const patientId = req.query.patientId;
+    const patientId = req.user.id;
 
     const familyMember = await FamilyMember.create({
       patient: patientId,
@@ -39,7 +40,7 @@ const addFamilyMember = asyncHandler(async (req, res) => {
 
 const viewFamilyMembers = asyncHandler(async (req, res) => {
   try {
-    const patientId = req.query.patientId;
+    const patientId = req.user.id;
 
     // Find the patient by ID
     // const patient = await Patient.findById(patientId);
@@ -61,7 +62,7 @@ const viewFamilyMembers = asyncHandler(async (req, res) => {
 });
 
 const setAppointment = asyncHandler(async (req, res) => {
-  const patientId = req.query.patientId;
+  const patientId = req.user.id;
   const doctorId = req.query.doctorId;
 
   const date = new Date(req.body.date);
@@ -157,9 +158,10 @@ const viewMyPerscriptions = asyncHandler(async (req, res) => {
 
 const filterAppointments = asyncHandler(async (req, res) => {
   try {
-    const { patientId, status, date } = req.query;
-   console.log(date)
-   console.log(patientId)
+    const { status, date } = req.query;
+    const patientId = req.user.id;
+    console.log(date)
+    console.log(patientId)
     // Define a filter object to build the query dynamically
     const filter = { patient: patientId };
 
@@ -185,8 +187,8 @@ const filterAppointments = asyncHandler(async (req, res) => {
 });
 const viewDoctors = asyncHandler(async (req, res) => {
   try {
-    var { patientId, speciality, date, time } = req.query;
-
+    var { speciality, date, time } = req.query;
+    const patientId = req.user.id;
     // Create an initial query object for doctors
     const doctorQuery = {};
     var doctorsWithSessionPrices = [];
@@ -308,8 +310,8 @@ const viewDoctors = asyncHandler(async (req, res) => {
 });
 const subscribeHealthPackage = asyncHandler(async (req, res) => {
   try {
-    const { patientId, healthPackageId } = req.query;
-
+    const { healthPackageId } = req.query;
+    const patientId = req.user.id;
     // Check if the patient has an existing subscription
     const existingSubscription = await PatientHealthPackage.findOne({
       patient: patientId,
@@ -411,6 +413,50 @@ const searchForDoctor = asyncHandler(async (req, res) => {
   const doctors = await Doctor.find(filter);
   res.send(doctors);
 });
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // Define the destination folder where files will be saved
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname)); // Rename the file with a timestamp and original extension
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  fileFilter: function (req, file, cb) {
+    const extname = path.extname(file.originalname);
+    if (extname === '.pdf' || extname === '.jpeg' || extname === '.jpg' || extname === '.png') {
+      return cb(null, true);
+    }
+    cb(new Error('File type not supported'));
+  },
+});
+
+function handleUpload(req, res) {
+  if (!req.file) {
+    return res.status(400).json({ message: 'No file uploaded' });
+  }
+
+  // Here, you can save the file details to your database
+  const fileDetails = {
+    originalName: req.file.originalname,
+    filename: req.file.filename,
+    path: req.file.path,
+    // Add more details as needed
+  };
+
+  // Simulate saving to a database (you should use your database logic here)
+  // For demonstration purposes, we're using an array to store file details
+ // uploadedFiles.push(fileDetails);
+
+  // Return a success response
+  res.status(200).json({ fileDetails });
+};
+
+
+
+
 
 module.exports = {
   searchForDoctor,
@@ -424,4 +470,5 @@ module.exports = {
   viewHealthPackages,
   subscribeHealthPackage,
   viewDoctor,
+  upload,handleUpload
 };
