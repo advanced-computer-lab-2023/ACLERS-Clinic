@@ -36,15 +36,12 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 export default function SignInSide() {
-  const [userType, setUserType] = useState(""); // State to hold the selected user type
-
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log({
       email: data.get("email"),
       password: data.get("password"),
-      userType: data.get("userType"), // Include the selected user type
     });
   };
 
@@ -119,20 +116,7 @@ export default function SignInSide() {
                 id="password"
                 autoComplete="current-password"
               />
-              <TextField
-                margin="normal"
-                select // Use the select attribute for a dropdown
-                required
-                fullWidth
-                id="userType"
-                label="User Type"
-                name="userType"
-                value={userType}
-                onChange={(e) => setUserType(e.target.value)}
-              >
-                <MenuItem value="patient">Patient</MenuItem>
-                <MenuItem value="doctor">Doctor</MenuItem>
-              </TextField>
+
               <FormControlLabel
                 control={<Checkbox value="remember" color="primary" />}
                 label="Remember me"
