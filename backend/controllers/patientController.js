@@ -12,12 +12,33 @@ const path = require('path');
 const Perscription = require("../models/Perscription");
 const PatientMedicalHistory = require("../models/PatientMedicalHistory")
 
+function calculateBirthdate(age) {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const birthYear = currentYear - age;
+  const birthdate = new Date(birthYear, currentDate.getMonth(), currentDate.getDate());
+  return birthdate;
+}
 const addFamilyMember = asyncHandler(async (req, res) => {
   try {
     const patientId = req.user.id;
+   const user = await Patient.findById(patientId)
 
+    const patient = await Patient.create({
+      username:req.body.name,
+      dateOfBirth:calculateBirthdate(req.body.age),
+      email:user.body.name + '@gmail.com',
+      gender:req.body.gender,
+      name:req.body.name,
+      mobileNumber:user.mobileNumber,
+      emergencyContact:user.emergencyContact,
+      password:user.password
+
+
+    })
     const familyMember = await FamilyMember.create({
       patient: patientId,
+      memberId:patient._id,
       name: req.body.name,
       nationalId: req.body.nationalId,
       age: req.body.age,
@@ -309,6 +330,49 @@ const viewDoctors = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+const subscribeHealthPackageFamMember = asyncHandler(async (req, res) => {
+  try {
+    const { healthPackageId, familyMemberId, relation } = req.query;
+    const patientId = req.user.id;
+
+    // Check if the patient has an existing subscription
+    const existingSubscription = await PatientHealthPackage.findOne({
+      patient: familyMemberId,
+    });
+
+    if (existingSubscription) {
+      // Check if a year has passed since the last subscription
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+      if (existingSubscription.renewalDate > oneYearAgo) {
+        return res.status(400).json({
+          message: "Patient is not eligible for a new subscription yet",
+        });
+      }
+    }
+
+    // Create a new patient health package subscription for the family member
+    const subscriptionDate = new Date();
+    const renewalDate = new Date(subscriptionDate);
+    renewalDate.setFullYear(renewalDate.getFullYear() + 1);
+
+    const familyMemberHealthPackage = await PatientHealthPackage.create({
+      patient: familyMemberId,
+      healthPackage: healthPackageId,
+      dateOfSubscription: subscriptionDate,
+      renewalDate: renewalDate,
+      status: "subscribed",
+       // Set the relation to the provided value
+    });
+
+    res.status(200).json({ familyMemberHealthPackage });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 const subscribeHealthPackage = asyncHandler(async (req, res) => {
   try {
     const { healthPackageId } = req.query;
@@ -613,5 +677,5 @@ module.exports = {
   viewHealthPackages,
   subscribeHealthPackage,
   viewDoctor,
-  upload,handleUpload,linkAccount,removeHealthRecordAttachment,payUsingStripe
+  upload,handleUpload,linkAccount,removeHealthRecordAttachment,payUsingStripe,subscribeHealthPackageFamMember
 };
