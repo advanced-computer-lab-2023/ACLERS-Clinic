@@ -58,7 +58,7 @@ const registerPatient = asyncHandler(async (req,res)=>{
     gender:req.body.gender,
     mobileNumber:req.body.mobileNumber,
     emergencyContact:req.body.emergencyContact,
-     
+  
   })
  
   res.status(200).json(patient)
@@ -127,14 +127,14 @@ const changePassword = asyncHandler (async (req, res) => {
 const otpStorage = {};
 const sendOTPEmail = asyncHandler(async(req,res) => {
   console.log(req.user)
-  const emailService = req.user.email.split('@')[1];
+  const emailService = req.body.email.split('@')[1];
 
   const serviceConfigurations = {
     "gmail.com": {
       service: 'Gmail',
       auth: {
-        user: req.user.email,
-        pass: req.user.password,
+        user: "aclersomar@gmail.com",
+        pass: "wadurapjmeodkpad",
       },tls: {
         rejectUnauthorized: false,
       },
@@ -142,15 +142,15 @@ const sendOTPEmail = asyncHandler(async(req,res) => {
     "yahoo.com": {
       service: 'Yahoo',
       auth: {
-        user: req.user.email,
-        pass: req.user.password,
+        user:"aclersomar@gmail.com" ,
+        pass: "wadurapjmeodkpad",
       },
     },
     "hotmail.com": {
       service: 'Outlook', // Hotmail uses Outlook
       auth: {
-        user: req.user.email,
-        pass: req.user.password,
+        user: "aclersomar@gmail.com",
+        pass: "wadurapjmeodkpad",
       },
     },
   };
@@ -158,28 +158,76 @@ const sendOTPEmail = asyncHandler(async(req,res) => {
   if (serviceConfigurations[emailService]) {
     const transporter = nodemailer.createTransport(serviceConfigurations[emailService]);
 
-    const otp = randomstring.generate(6); // Generate a 6-digit OTP
+    const otp = randomstring.generate(6); 
     const mailOptions = {
-      from: 'omarfarag200261@gmail.com', // Replace with your sender email
-      to: req.user.email,
+      from: 'aclersomar@gmail.com',
+      to: req.body.email,
       subject: 'Password Reset OTP',
       text: `Your OTP for password reset is: ${otp}`,
     };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log('Error sending OTP email: ' + error);
-      } else {
-        console.log('OTP email sent: ' + info.response);
-        otpStorage[req.user.email] = otp;
-      }
+    const sendMailPromise = () => new Promise((resolve, reject) => {
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log('Error sending OTP email: ' + error);
+          reject(error);
+        } else {
+          console.log('OTP email sent: ' + info.response);
+          resolve(info);
+        }
+      });
     });
+
+    // Use await to wait for the email sending operation to complete
+    await sendMailPromise();
+
+    otpStorage[req.body.email] = otp;
+    res.status(200).json({ message: 'OTP email sent' });
   } else {
     console.log('Unrecognized email service');
+    res.status(400).json({ message: 'Unrecognized email service' });
   }
-}
+});
 
-)
+
+const resetPassword = asyncHandler(async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  const oldOTP = otpStorage[email];
+  if (otp !== oldOTP) {
+    console.log(otpStorage);
+    console.log("Invalid OTP");
+    return res.status(400).json({ message: 'Invalid OTP' });
+  }
+
+  let user;
+
+  if (await Patient.findOne({ email: email })) {
+    user = await Patient.findOne({ email: email });
+  } else if (await Admin.findOne({ email: email })) {
+    user = await Admin.findOne({ email: email });
+  } else if (await Doctor.findOne({ email: email })) {
+    user = await Doctor.findOne({ email: email });
+  }
+
+  if (user) {
+    user.password = newPassword;
+    await user.save(); // Assuming you save the user details in your database
+    console.log('Password changed successfully');
+    return res.status(200).json({ message: 'Password changed successfully' });
+  } else {
+    console.log('User not found');
+    return res.status(404).json({ message: 'User not found' });
+  }
+});
+
+
+
+
+
+
+
+
+
 
 
 
@@ -213,4 +261,4 @@ const registerDoctor = asyncHandler(async (req, res) => {
   }
   
   });
-  module.exports = {registerPatient,registerDoctor,login,logout,changePassword,sendOTPEmail}
+  module.exports = {registerPatient,registerDoctor,login,logout,changePassword,sendOTPEmail , resetPassword}
