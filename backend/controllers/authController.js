@@ -8,6 +8,7 @@ const blacklistedTokens = require('../middleware/blackListedTokens');
 const multer = require('multer'); // Import Multer
 //const upload = multer({ dest: 'uploads/' });
 const path = require('path');
+const Wallet = require('../models/Wallet')
 const login= asyncHandler(async (req,res)=>{
    const {email,password}= req.body;
    const patient = await Patient.findOne({email})
@@ -66,7 +67,7 @@ const registerPatient = asyncHandler(async (req,res)=>{
   })
 
   const wallet = await Wallet.create({
-    userId: doctor._id, // Set the userId to the doctor's ID
+    userId: patient._id, // Set the userId to the doctor's ID
     balance: 0, // Set an initial balance
   });
  
@@ -118,16 +119,11 @@ const registerDoctor = asyncHandler(async (req, res) => {
       hourlyRate:req.body.hourlyRate,
       affiliation:req.body.affiliation,
       educationalBackground:req.body.educationalBackground,
-<<<<<<< HEAD
-      speciality:req.body.speciality,
-      status:'pending'
-=======
       status:'pending',
       speciality:req.body.speciality,
      idDocument: idDocumentPath, // Store the path to the uploaded ID document
      medicalLicense: medicalLicensePath, // Store the path to the uploaded medical license
      medicalDegree: medicalDegreePath,
->>>>>>> omar
     })
     console.log(doctor)
     res.status(200).json(doctor)

@@ -18,6 +18,10 @@ const freeSlotSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  status :{
+    type :String,
+    
+  }
 });
 
 const FreeSlot = mongoose.model('FreeSlot', freeSlotSchema);

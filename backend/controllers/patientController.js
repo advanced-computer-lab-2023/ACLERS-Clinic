@@ -10,10 +10,11 @@ const PatientHealthRecord = require("../models/PatientHealthRecord");
 const multer = require('multer');
 const path = require('path');
 const Perscription = require("../models/Perscription");
-
+const axios = require('axios');
 const Wallet = require('../models/Wallet');
-
-const PatientMedicalHistory = require("../models/PatientMedicalHistory")
+const FreeSlots = require('../models/FreeSlots')
+const PatientMedicalHistory = require("../models/PatientMedicalHistory");
+const healthPackage = require("../models/healthPackage");
 
 function calculateBirthdate(age) {
   const currentDate = new Date();
@@ -86,34 +87,185 @@ const viewFamilyMembers = asyncHandler(async (req, res) => {
   }
 });
 
+
+const setAppointmentFamMem = asyncHandler(async (req, res) => {
+  const patientId = req.user.id;
+  const doctorId = req.query.doctorId;
+  const slotId = req.query.slotId;
+ const paymentMethod = req.body.paymentMethod;
+  const sessionPrice = req.body.sessionPrice;
+  const slot = await FreeSlots.findById(slotId)
+ const familyMemId=req.query.familyMemId
+
+  if (paymentMethod === 'wallet') {
+    // Check if the patient's wallet balance is sufficient
+    
+   let wallet = await Wallet.findOne({userId:familyMemId})
+   if(!wallet){
+    wallet = await Wallet.create({
+      userId : familyMemId,
+      balance :0
+    })
+   }
+
+    const balance = wallet.balance// Replace with the actual model
+    if (balance < sessionPrice) {
+      return res.status(400).json({ message: "Insufficient wallet balance" });
+    }
+    else{
+      wallet.balance-=sessionPrice;
+      wallet.save();
+    }
+  }else{
+   
+    // Define any other necessary data here
+const name = "Doctor Appointment"
+const description = "Doctor Appointment"
+const quantity = 1
+let body={
+name:name,
+description:description,
+quantity:quantity,
+price:sessionPrice
+}
+try{
+  
+  const response = await axios.post('http://localhost:8000/Patient-Home/pay', body, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': req.headers.authorization
+    }
+  });
+  console.log(response.data)
+  res.json({url:response.data.session.url})
+    
+   // return res.json(stripeResponse)
+  }catch(error){
+    console.log(error)
+  }
+  }
+
+
+  
+  
+    const appointment = await Appointment.create({
+      patient: familyMemId,
+      doctor: doctorId,
+      date: slot.date,
+      startTime:slot.startTime,
+      endTime:slot.endTime,
+      status: "UpComing",
+    });
+
+    var patientHealthRecord = await PatientHealthRecord.findOne({
+      patient: familyMemId,
+    });
+    var patientHealthRecordId;
+    if (patientHealthRecord) {
+      patientHealthRecordId = patientHealthRecord._id;
+    } else {
+      var patientHealthRecord2 = await PatientHealthRecord.create({
+        patient: familyMemId,
+        healthRecord: "no health record yet",
+      });
+      patientHealthRecordId = patientHealthRecord2._id;
+    }
+    var registeredPatients = await RegisteredPatients.findOne({
+      doctor: doctorId,
+    });
+
+    if (registeredPatients) {
+      var isPatientAlreadyAdded = registeredPatients.patients.includes(
+        patientHealthRecordId
+      );
+
+      if (!isPatientAlreadyAdded) {
+        registeredPatients.patients.push(patientHealthRecordId);
+
+        await registeredPatients.save();
+
+        console.log(
+          `Patient with ID ${patientIdToAdd} added to RegisteredPatients.`
+        );
+      }
+    } else {
+      await RegisteredPatients.create({
+        doctor: doctorId,
+        patients: [patientHealthRecordId],
+      });
+    }
+    res.status(200).send(appointment);
+  }
+);
+
+
 const setAppointment = asyncHandler(async (req, res) => {
   const patientId = req.user.id;
   const doctorId = req.query.doctorId;
+  const slotId = req.query.slotId;
+ const paymentMethod = req.body.paymentMethod;
+  const sessionPrice = req.body.sessionPrice;
+  const slot = await FreeSlots.findById(slotId)
 
-  const date = new Date(req.body.date);
-  const date2 = await Appointment.find({ date: date, doctor: doctorId });
 
-  var status = "UpComing";
-  if (date2.length != 0) {
-    return res
-      .status(400)
-      .json({ message: "No appointments available at this time" });
+  if (paymentMethod === 'wallet') {
+    // Check if the patient's wallet balance is sufficient
+    
+   let wallet = await Wallet.findOne({userId:patientId})
+   if(!wallet){
+    wallet = await Wallet.create({
+      userId : patientId,
+      balance :0
+    })
+   }
+
+    const balance = wallet.balance// Replace with the actual model
+    if (balance < sessionPrice) {
+      return res.status(400).json({ message: "Insufficient wallet balance" });
+    }
+    else{
+      wallet.balance-=sessionPrice;
+      wallet.save();
+    }
+  }else{
+   
+    // Define any other necessary data here
+const name = "Doctor Appointment"
+const description = "Doctor Appointment"
+const quantity = 1
+let body={
+name:name,
+description:description,
+quantity:quantity,
+price:sessionPrice
+}
+try{
+  
+  const response = await axios.post('http://localhost:8000/Patient-Home/pay', body, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': req.headers.authorization
+    }
+  });
+  console.log(response.data)
+  res.json({url:response.data.session.url})
+    
+   // return res.json(stripeResponse)
+  }catch(error){
+    console.log(error)
   }
-  const now = new Date();
+  }
 
-  if (date < now) {
-    res
-      .status(400)
-      .json({ message: "you cant book an appointment in the past" });
-  } else if (date > now) {
-    status = "UpComing";
 
-    console.log("i am adding");
-    const Appointment2 = await Appointment.create({
+  
+  
+    const appointment = await Appointment.create({
       patient: patientId,
       doctor: doctorId,
-      date: date,
-      status: status,
+      date: slot.date,
+      startTime:slot.startTime,
+      endTime:slot.endTime,
+      status: "UpComing",
     });
 
     var patientHealthRecord = await PatientHealthRecord.findOne({
@@ -153,9 +305,9 @@ const setAppointment = asyncHandler(async (req, res) => {
         patients: [patientHealthRecordId],
       });
     }
-    res.status(200).send(Appointment2);
+    res.status(200).send(appointment);
   }
-});
+);
 const viewMyPerscriptions = asyncHandler(async (req, res) => {
   try {
     const { patientId, date, doctorId, status } = req.query;
@@ -277,7 +429,7 @@ const viewDoctors = asyncHandler(async (req, res) => {
             username: doctor.username,
             name: doctor.name,
             speciality: doctor.speciality, // Add the speciality field as needed
-            sessionPrice: doctor.sessionPrice,
+            sessionPrice: sessionPrice,
             educationalBackground: doctor.educationalBackground,
             affiliation: doctor.affiliation,
           };
@@ -337,22 +489,79 @@ const subscribeHealthPackageFamMember = asyncHandler(async (req, res) => {
   try {
     const { healthPackageId, familyMemberId, relation } = req.query;
     const patientId = req.user.id;
-
+    const paymentMethod = req.body.paymentMethod
+    const patientHealthPack = await PatientHealthPackage.findOne({
+      patient: patientId,status:"susbcribed"
+    });
+    const healthPackage1 = await HealthPackage.findById(patientHealthPack.healthPackage)
+    let discountAmount= 0;
+    if(healthPackage1){
+     discountAmount =(healthPackage1.subscriptionDiscount/100);
+    }
     // Check if the patient has an existing subscription
     const existingSubscription = await PatientHealthPackage.findOne({
       patient: familyMemberId,
     });
 
-    if (existingSubscription) {
+    if (existingSubscription && existingSubscription.status === "subscribed") {
       // Check if a year has passed since the last subscription
       const oneYearAgo = new Date();
       oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-
-      if (existingSubscription.renewalDate > oneYearAgo) {
+      console.log(existingSubscription. dateOfSubscription+">"+oneYearAgo)
+     console.log(existingSubscription. dateOfSubscription > oneYearAgo)
+      if (existingSubscription. dateOfSubscription > oneYearAgo) {
         return res.status(400).json({
           message: "Patient is not eligible for a new subscription yet",
         });
       }
+    }
+    const healthPackage = await HealthPackage.findById(healthPackageId)
+    if (paymentMethod === 'wallet') {
+      // Check if the patient's wallet balance is sufficient
+      
+     let wallet = await Wallet.findOne({userId:familyMemberId})
+     if(!wallet){
+      wallet = await Wallet.create({
+        userId : familyMemberId,
+        balance :0
+      })
+     }
+
+      const balance = wallet.balance// Replace with the actual model
+      if (balance < (healthPackage.Price-(healthPackage.Price*discountAmount))) {
+        return res.status(400).json({ message: "Insufficient wallet balance" });
+      }
+      else{
+        wallet.balance-=(healthPackage.Price-(healthPackage.Price*discountAmount));
+        wallet.save();
+      }
+    }else{
+     
+      // Define any other necessary data here
+  const name = healthPackage.type
+  const description = healthPackage.type+" package"
+  const quantity = 1
+ let body={
+ name:name,
+ description:description,
+ quantity:quantity,
+ price:(healthPackage.Price-(healthPackage.Price*discountAmount))
+ }
+  try{
+    
+    const response = await axios.post('http://localhost:8000/Patient-Home/pay', body, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': req.headers.authorization
+      }
+    });
+    console.log(response.data)
+    res.json({url:response.data.session.url})
+      
+     // return res.json(stripeResponse)
+    }catch(error){
+      console.log(error)
+    }
     }
 
     // Create a new patient health package subscription for the family member
@@ -386,18 +595,66 @@ const subscribeHealthPackage = asyncHandler(async (req, res) => {
       patient: patientId,
     });
 
-    if (existingSubscription) {
+    if (existingSubscription && existingSubscription.status === "subscribed") {
       // Check if a year has passed since the last subscription
       const oneYearAgo = new Date();
       oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-      if (existingSubscription.subscriptionDate > oneYearAgo) {
+      if (existingSubscription. dateOfSubscription > oneYearAgo) {
         return res.status(400).json({
           message: "Patient is not eligible for a new subscription yet",
         });
       }
     }
-   
+   const healthPackage = await HealthPackage.findById(healthPackageId)
+    if (paymentMethod === 'wallet') {
+      // Check if the patient's wallet balance is sufficient
+      
+     let wallet = await Wallet.findOne({userId:patientId})
+     if(!wallet){
+      wallet = await Wallet.create({
+        userId : patientId,
+        balance :0
+      })
+     }
+      const balance = wallet.balance// Replace with the actual model
+      if (balance < healthPackage.Price) {
+        return res.status(400).json({ message: "Insufficient wallet balance" });
+      }
+      else{
+        wallet.balance-=healthPackage.Price;
+        wallet.save();
+      }
+    }else{
+     
+      // Define any other necessary data here
+  const name = healthPackage.type
+  const description = healthPackage.type+" package"
+  const quantity = 1
+ let body={
+ name:name,
+ description:description,
+ quantity:quantity,
+ price:healthPackage.Price
+ }
+  try{
+    
+    const response = await axios.post('http://localhost:8000/Patient-Home/pay', body, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': req.headers.authorization
+      }
+    });
+    console.log(response.data)
+    res.json({url:response.data.session.url})
+      
+     // return res.json(stripeResponse)
+    }catch(error){
+      console.log(error)
+    }
+    }
+    
+    
     // Create a new patient health package subscription
     const subscriptionDate = new Date();
     const renewalDate = new Date(subscriptionDate);
@@ -411,7 +668,7 @@ const subscribeHealthPackage = asyncHandler(async (req, res) => {
       status: "subscribed", // Set the status to "subscribed"
     });
 
-    res.status(200).json({ patientHealthPackage });
+   // res.status(200).json({ patientHealthPackage });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
@@ -429,6 +686,30 @@ const viewHealthPackage = asyncHandler(async(req,res)=>{
   }
 })
 
+const viewAppointmentsOfDr = asyncHandler(async (req, res) => {
+  const doctorId = req.query.doctorId;
+  try {
+    const slots = await FreeSlots.find({ doctorId: doctorId });
+
+    if (!slots || slots.length === 0) {
+      return res.status(404).send("No appointments available");
+    }
+
+    // Filter slots by status: "free"
+    const freeSlots = slots.filter((slot) => slot.status === "free");
+
+    if (freeSlots.length === 0) {
+      return res.status(404).send("No free appointments available");
+    }
+
+    return res.json({ slots: freeSlots });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Internal server error");
+  }
+});
+
+
 const viewHealthPackages = asyncHandler(async (req, res) => {
   try {
     const healthPackages = await HealthPackage.find();
@@ -440,7 +721,7 @@ const viewHealthPackages = asyncHandler(async (req, res) => {
 const viewDoctor = asyncHandler(async (req, res) => {
   try {
     const doctorId = req.query.doctorId;
-
+    const sessionPrice = req.body.sessionPrice
     // Retrieve the doctor from the database
     const doctor = await Doctor.findById(doctorId);
 
@@ -460,6 +741,7 @@ const viewDoctor = asyncHandler(async (req, res) => {
       affiliation: doctor.affiliation,
       educationalBackground: doctor.educationalBackground,
       speciality: doctor.speciality,
+      sessionPrice:sessionPrice
       // Include other attributes as needed
     };
 
@@ -653,7 +935,7 @@ const viewMyHealthRecords = asyncHandler(async (req, res) => {
   return res.json(patientHealthRecords);
 })
 const viewSubscribedHealthPackage = asyncHandler(async (req, res) => {
-  const patientId = "651f3324fa0441d0e58c0706"; // Get patientId from req.user.id (assuming you have authenticated the patient)
+  const patientId = req.user.id; // Get patientId from req.user.id (assuming you have authenticated the patient)
 
   try {
     // Find the patient's subscribed health package
@@ -667,21 +949,88 @@ const viewSubscribedHealthPackage = asyncHandler(async (req, res) => {
     // Extract the health package details from the subscription
     const healthPackage = subscription.healthPackage;
 
-    res.status(200).json(healthPackage);
+    res.status(200).json(subscription);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch subscribed health package' });
   }
 });
 
+const viewSubscribedHealthPackageFamMem = asyncHandler(async (req, res) => {
+  const patientId = req.user.id; // Get patientId from req.user.id (assuming you have authenticated the patient)
+  const FamMemId= req.query
+  try {
+    // Find the patient's subscribed health package
+    const subscription = await PatientHealthPackage.findOne({ patient: FamMemId })
+      .populate('healthPackage');
 
+    if (!subscription) {
+      return res.status(404).json({ message: 'No subscribed health package found' });
+    }
 
+    // Extract the health package details from the subscription
+    const healthPackage = subscription.healthPackage;
+
+    res.status(200).json(subscription);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to fetch subscribed health package' });
+  }
+});
+const cancelSubscription = asyncHandler(async(req,res)=>{
+ const patientId =req.user.id
+ try {
+  // Find the patient's subscribed health package
+  const subscription = await PatientHealthPackage.findOne({ patient: patientId })
+    .populate('healthPackage');
+
+  if (!subscription) {
+    return res.status(404).json({ message: 'No subscribed health package found' });
+  }
+
+  // Extract the health package details from the subscription
+  subscription.status="cancelled"
+  subscription.endDate = new Date()
+  subscription.save();
+
+  res.status(200).json(subscription);
+} catch (error) {
+  console.error(error);
+  res.status(500).json({ error: 'Failed to fetch subscribed health package' });
+}
+
+})
+const cancelSubscriptionFamMem = asyncHandler(async(req,res)=>{
+  const patientId =req.user.id
+  const FamMemId= req.query
+
+  try {
+   // Find the patient's subscribed health package
+   const subscription = await PatientHealthPackage.findOne({ patient: FamMemId })
+     .populate('healthPackage');
  
+   if (!subscription) {
+     return res.status(404).json({ message: 'No subscribed health package found' });
+   }
+ 
+   // Extract the health package details from the subscription
+   subscription.status="cancelled"
+   subscription.endDate = new Date()
+   subscription.save();
+ 
+   res.status(200).json(subscription);
+ } catch (error) {
+   console.error(error);
+   res.status(500).json({ error: 'Failed to fetch subscribed health package' });
+ }
+ 
+ })
+  
 const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY)
 const payUsingStripe = asyncHandler(async (req,res)=>{
 try{
   
-
+console.log(req.body)
 const product = await stripe.products.create({
   name: req.body.name,
   description: req.body.description,
@@ -689,11 +1038,11 @@ const product = await stripe.products.create({
 });
 const price = await stripe.prices.create({
   product: product.id, // ID of the product created in step 1
-  unit_amount: 1000, // Amount in the smallest currency unit (e.g., cents)
+  unit_amount: req.body.price *100, // Amount in the smallest currency unit (e.g., cents)
   currency: 'usd', // Currency code (e.g., USD)
  
 });
-console.log(product,price)
+//console.log(product,price)
 
   const session = await stripe.checkout.sessions.create({
 payment_method_types:['card'],
@@ -707,8 +1056,9 @@ success_url:'http://localhost:3000/payment-success',
 cancel_url:'http://localhost:3000/payment-cancel',
 
   })
-  console.log(session)
-   return res.json({session:session.url})
+ // console.log(session)
+  
+   return res.json({session:session})
 }catch(error){
 return res.send(error)
 }
@@ -728,10 +1078,11 @@ module.exports = {
   viewHealthPackages,
   subscribeHealthPackage,
   viewDoctor,
-
- 
+  viewSubscribedHealthPackageFamMem,
+ viewAppointmentsOfDr,
   viewMyHealthRecords
   ,getPatientBalance,
-
+cancelSubscription,cancelSubscriptionFamMem,
+setAppointmentFamMem,
   upload,handleUpload,linkAccount,removeHealthRecordAttachment,payUsingStripe,subscribeHealthPackageFamMember
 };
