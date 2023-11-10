@@ -43,15 +43,15 @@ export default function DoctorSignUp() {
     data.append("medicalDegree", medicalDegree);
 
     const newDoctor = {
-      username: data.get("username"),
-      name: data.get("name"),
-      email: data.get("email"),
-      password: data.get("password"),
-      dateOfBirth: data.get("dateOfBirth"),
-      hourlyRate: data.get("hourlyRate"),
-      affiliation: data.get("affiliation"),
-      educationalBackground: data.get("educationalBackground"),
-      speciality: data.get("speciality"),
+      username,
+      name,
+      email,
+      password,
+      dateOfBirth,
+      hourlyRate,
+      affiliation,
+      educationalBackground,
+      speciality,
     };
 
     console.log({ newDoctor });
@@ -67,7 +67,7 @@ export default function DoctorSignUp() {
       .then((data) => {
         console.log(data);
         // Redirect to a different page after successful registration
-        window.location.href = "/login";
+        // window.location.href = "/login";
       })
       .catch((err) => {
         console.log(err);

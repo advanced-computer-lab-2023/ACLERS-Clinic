@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { useParams,useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 function AddFamilyMember() {
-  const navigate = useNavigate()
-
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  console.log("token:", token);
   const [formData, setFormData] = useState({
     name: "",
     nationalId: "",
@@ -11,7 +12,7 @@ function AddFamilyMember() {
     gender: "Male",
     relationToPatient: "wife",
   });
-  const {id}= useParams()
+  const { id } = useParams();
 
   const [familyMembers, setFamilyMembers] = useState([]);
   const [showFamilyMembers, setShowFamilyMembers] = useState(false);
@@ -27,12 +28,11 @@ function AddFamilyMember() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-  
-
     const requestOptions = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         ...formData,
@@ -61,10 +61,16 @@ function AddFamilyMember() {
   };
 
   const handleViewFamilyMembers = () => {
-    const patientId = "651f32fffa0441d0e58c0704"; // Replace with the actual patient ID
-
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
     fetch(
-      `http://localhost:8000/Patient-home/view-fam-member?patientId=${id}`
+      `http://localhost:8000/Patient-home/view-fam-member?patientId=${id}`,
+      requestOptions
     )
       .then((response) => response.json())
       .then((data) => {
@@ -83,7 +89,7 @@ function AddFamilyMember() {
 
   return (
     <div>
-             <button onClick={() => navigate(-1)}>Go Back</button>
+      <button onClick={() => navigate(-1)}>Go Back</button>
 
       <h2>Add Family Member</h2>
       <form onSubmit={handleSubmit}>
@@ -159,11 +165,10 @@ function AddFamilyMember() {
           <ul>
             {familyMembers.map((familyMember) => (
               <div>
-              <li key={familyMember._id}>{familyMember.name}</li>
-              <li>{familyMember.nationalId}</li>
-              <li>{familyMember.age}</li>
-              <li>{familyMember.relationToPatient}</li>
-             
+                <li key={familyMember._id}>{familyMember.name}</li>
+                <li>{familyMember.nationalId}</li>
+                <li>{familyMember.age}</li>
+                <li>{familyMember.relationToPatient}</li>
               </div>
             ))}
           </ul>

@@ -12,13 +12,13 @@ const DoctorInfo = () => {
     affiliation: '',
     // Add more fields as needed
   });
-  const { doctorId } = useParams(); 
+  const { id } = useParams(); 
 
   // Fetch doctor information based on the ID when the component mounts
   useEffect(() => {
     // Replace this with your actual API call to get the doctor's info by ID
-    console.log(doctorId)
-    fetch(`http://localhost:8000/Doctor-Home/view-my-info?id=${doctorId}`)
+   // console.log(doctorId)
+    fetch(`http://localhost:8000/Doctor-Home/view-my-info?id=${id}`)
       .then((response) => response.json())
       .then((data) => {
         setDoctor(data);
@@ -28,7 +28,7 @@ const DoctorInfo = () => {
       .catch((error) => {
         console.error('Error fetching doctor info:', error);
       });
-  }, [doctorId]);
+  }, [id]);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -44,8 +44,8 @@ const DoctorInfo = () => {
 
   const handleSaveClick = async () => {
     // Perform the API call to update the doctor's information here
-    console.log(doctorId)
-    const response = await fetch(`http://localhost:8000/Doctor-Home/editDocEmail?doctorID=${doctorId}`, {
+   
+    const response = await fetch(`http://localhost:8000/Doctor-Home/editDocEmail?doctorID=${id}`, {
       method: 'PUT', // Use the appropriate HTTP method (e.g., PUT or POST)
       headers: {
         'Content-Type': 'application/json',

@@ -16,8 +16,16 @@ const Patient = require('./Patient')
     date:{
         type:Date,
         required:true
-    }
-    ,status:{
+    },
+    startTime: {
+        type: String,
+        required: true,
+      },
+      endTime: {
+        type: String,
+        required: true,
+      },
+    status:{
         type:String,
         
 enum:['UpComing','Done']

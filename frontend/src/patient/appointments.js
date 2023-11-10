@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import { useParams, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import "./PatientAppointments.css";
 import "react-datepicker/dist/react-datepicker.css";
 
 const PatientAppointments = () => {
-  const navigate = useNavigate();
+  const location = useLocation();
+  const id = location.state?.id;
 
-  const { id } = useParams();
+  const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [filterBy, setFilterBy] = useState("date"); // Default filter by date

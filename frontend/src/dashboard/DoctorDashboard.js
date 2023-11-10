@@ -2,7 +2,12 @@ import React from "react";
 import { Link, useParams } from "react-router-dom";
 
 function DoctorDashboard() {
+<<<<<<< HEAD
   const { id } = useParams();
+=======
+  const {id} = useParams()
+  console.log(id)
+>>>>>>> ab6b1d98d45df051ef0fd24b61e71c7a5370de6f
 
   return (
     <div>

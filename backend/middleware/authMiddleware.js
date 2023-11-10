@@ -3,6 +3,7 @@ const asyncHandler = require('express-async-handler')
 const Patient = require('../models/Patient')
 const Doctor = require('../models/Doctor')
 const blacklistedTokens = require('./blackListedTokens');
+const Applicant = require('../models/Applicant');
 
 const protect = asyncHandler(async (req,res,next)=>{
 let token 
@@ -15,10 +16,20 @@ if(req.headers.authorization && req.headers.authorization.startsWith("Bearer")){
     }
      const decoded = jwt.verify(token,process.env.JWT_SECRET)
      if(decoded.role == "patient"){
-         user = await Patient.findById(decoded.id).select('-password')
-     }else{
+         user = await Patient.findById(decoded.id)
+     
+        
+     }else if (decoded.role=="doctor"){
         user = await Doctor.findById(decoded.id).select('-password')
      }
+     else if (decoded.role=="applicant"){
+        user = await Applicant.findById(decoded.id).select('-password')
+
+     }else if(decoded.role == "admin"){
+        user = await Admin.findById(decoded.id).select('-password')
+     }
+
+     
      req.user = user
      console.log(req.user)
      req.role = decoded.role
