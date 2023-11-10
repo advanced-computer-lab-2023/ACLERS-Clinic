@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import jwt from "jsonwebtoken-promisified";
 
 function AddFamilyMember() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const { id } = useParams();
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const id = decodedtoken.id;
 
   const [formData, setFormData] = useState({
     name: "",

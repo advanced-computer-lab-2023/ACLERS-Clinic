@@ -3,13 +3,14 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { useParams, useNavigate } from "react-router-dom";
 import { Link, useLocation } from "react-router-dom";
+import jwt from "jsonwebtoken-promisified";
 
 function DoctorSearch() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  console.log("token:", token);
-  const location = useLocation();
-  const id = location.state?.id;
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const id = decodedtoken.id;
   const [name, setName] = useState("");
   const [speciality, setSpeciality] = useState("");
   const [searchResults, setSearchResults] = useState([]);

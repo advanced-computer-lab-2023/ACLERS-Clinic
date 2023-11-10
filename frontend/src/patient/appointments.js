@@ -4,12 +4,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Link, useLocation } from "react-router-dom";
 import "./PatientAppointments.css";
 import "react-datepicker/dist/react-datepicker.css";
+import jwt from "jsonwebtoken-promisified";
 
 const PatientAppointments = () => {
   const location = useLocation();
-  const id = location.state?.id;
   const token = localStorage.getItem("token");
-  console.log("token:", token);
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const id = decodedtoken.id;
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);

@@ -72,13 +72,13 @@ const App = () => {
           element={<PatientPerscriptions />}
         />
         <Route
-          path="/patient/familymembers/:id"
+          path="/patient/familymembers"
           element={<PatientFamilyMembers />}
         />
         <Route path="/admin/view-applicants" element={<ViewApplicants />} />
-        <Route path="/patient/viewdoctors/:id" element={<PatientDoctors />} />
+        <Route path="/patient/viewdoctors/" element={<PatientDoctors />} />
         <Route
-          path="/patient/appointments/:id"
+          path="/patient/appointments/"
           element={<PatientAppointments />}
         />
         <Route
