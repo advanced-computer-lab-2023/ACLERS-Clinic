@@ -29,19 +29,18 @@ export default function DoctorSignUp() {
   const [affiliation, setAffiliation] = useState("");
   const [educationalBackground, setEducationalBackground] = useState("");
   const [speciality, setspeciality] = useState("");
+  const [idDocument, setIdDocument] = useState(null);
+  const [medicalLicense, setMedicalLicense] = useState(null);
+  const [medicalDegree, setMedicalDegree] = useState(null);
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const username = data.get("username");
-    const name = data.get("name");
-    const email = data.get("email");
-    const password = data.get("password");
-    const dateOfBirth = data.get("dateOfBirth");
-    const hourlyRate = data.get("hourlyRate");
-    const affiliation = data.get("affiliation");
-    const educationalBackground = data.get("educationalBackground");
-    const speciality = data.get("speciality");
+
+    // Add the file data to the form data
+    data.append("idDocument", idDocument);
+    data.append("medicalLicense", medicalLicense);
+    data.append("medicalDegree", medicalDegree);
 
     const newDoctor = {
       username,
@@ -52,12 +51,10 @@ export default function DoctorSignUp() {
       hourlyRate,
       affiliation,
       educationalBackground,
-      speciality
+      speciality,
     };
 
-    console.log({
-      newDoctor,
-    });
+    console.log({ newDoctor });
 
     fetch("/auth/register-doctor", {
       method: "POST",
@@ -70,11 +67,23 @@ export default function DoctorSignUp() {
       .then((data) => {
         console.log(data);
         // Redirect to a different page after successful registration
-       // window.location.href = "/login";
+        // window.location.href = "/login";
       })
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  const handleIdDocumentChange = (event) => {
+    setIdDocument(event.target.files[0]);
+  };
+
+  const handleMedicalLicenseChange = (event) => {
+    setMedicalLicense(event.target.files[0]);
+  };
+
+  const handleMedicalDegreeChange = (event) => {
+    setMedicalDegree(event.target.files[0]);
   };
 
   return (
@@ -111,7 +120,6 @@ export default function DoctorSignUp() {
             onSubmit={handleSubmit}
             sx={{ mt: 3 }}
           >
-            {/* Doctor Registration Fields */}
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextField
@@ -197,9 +205,36 @@ export default function DoctorSignUp() {
                   required
                   fullWidth
                   name="speciality"
-                  label="speciality"
+                  label="Speciality"
                   id="speciality"
                 />
+              </Grid>
+              <Grid item xs={12}>
+                <input
+                  type="file"
+                  name="idDocument"
+                  accept=".pdf, .jpg, .jpeg, .png"
+                  onChange={handleIdDocumentChange}
+                />
+                <label htmlFor="idDocument">Upload Your Medical ID</label>
+              </Grid>
+              <Grid item xs={12}>
+                <input
+                  type="file"
+                  name="medicalLicense"
+                  accept=".pdf, .jpg, .jpeg, .png"
+                  onChange={handleMedicalLicenseChange}
+                />
+                <label htmlFor="medicalLicense">Upload Medical License</label>
+              </Grid>
+              <Grid item xs={12}>
+                <input
+                  type="file"
+                  name="medicalDegree"
+                  accept=".pdf, .jpg, .jpeg, .png"
+                  onChange={handleMedicalDegreeChange}
+                />
+                <label htmlFor="medicalDegree">Upload Medical Degree</label>
               </Grid>
             </Grid>
             <Button

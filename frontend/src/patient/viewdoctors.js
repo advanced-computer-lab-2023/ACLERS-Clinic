@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import { useParams,useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import jwt from "jsonwebtoken-promisified";
 
 function DoctorSearch() {
-  const navigate = useNavigate()
-
-  const {id}= useParams()
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const id = decodedtoken.id;
   const [name, setName] = useState("");
   const [speciality, setSpeciality] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -17,36 +21,49 @@ function DoctorSearch() {
   const [filterDate, setFilterDate] = useState("");
   const [filterTime, setFilterTime] = useState("");
 
-
-  useEffect(()=>{
-   const fetchDoctors =  async ()=>{
-    fetch(`http://localhost:8000/Patient-home/view-doctors?patientID=${id}`)
-    .then((response) => response.json())
-    .then((data) => {
-      setDoctors(data);
-    })
-    .catch((error) => {
-      console.error("Error fetching doctor data:", error);
-      setDoctors(null);
-    });
-
-   }
-   fetchDoctors()
-  },[])
+  useEffect(() => {
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const fetchDoctors = async () => {
+      fetch(
+        `http://localhost:8000/Patient-home/view-doctors?patientID=${id}`,
+        requestOptions
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          setDoctors(data);
+        })
+        .catch((error) => {
+          console.error("Error fetching doctor data:", error);
+          setDoctors(null);
+        });
+    };
+    fetchDoctors();
+  }, []);
   const handleSearch = () => {
     // Prepare the query parameters
     const queryParams = new URLSearchParams();
     if (name) queryParams.append("name", name);
     if (speciality) queryParams.append("speciality", speciality);
-
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
     // Combine the base URL with the query parameters
     const url = `http://localhost:8000/Patient-home/search?${queryParams.toString()}`;
 
-    fetch(url)
+    fetch(url, requestOptions)
       .then((response) => response.json())
       .then((data) => {
         setDoctors(data);
-        
       })
       .catch((error) => {
         console.error("Error searching for doctors:", error);
@@ -54,7 +71,17 @@ function DoctorSearch() {
   };
 
   const handleSelectDoctor = (doctorId) => {
-    fetch(`http://localhost:8000/Patient-home/view-doctor?doctorId=${doctorId}`)
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    fetch(
+      `http://localhost:8000/Patient-home/view-doctor?doctorId=${doctorId}`,
+      requestOptions
+    )
       .then((response) => response.json())
       .then((data) => {
         setSelectedDoctor(data);
@@ -65,13 +92,20 @@ function DoctorSearch() {
       });
   };
 
-  
-
   const handleFilterDoctors = () => {
     // Construct the query string for filters
     const query = `speciality=${filterSpeciality}&date=${filterDate}&time=${filterTime}`;
-
-    fetch(`http://localhost:8000/Patient-home/view-doctors?${query}`)
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    fetch(
+      `http://localhost:8000/Patient-home/view-doctors?${query}`,
+      requestOptions
+    )
       .then((response) => response.json())
       .then((data) => {
         setDoctors(data);
@@ -84,7 +118,7 @@ function DoctorSearch() {
 
   return (
     <div>
-             <button onClick={() => navigate(-1)}>Go Back</button>
+      <button onClick={() => navigate(-1)}>Go Back</button>
 
       <h1>Doctor Search</h1>
       <label htmlFor="doctorName">Doctor Name:</label>
@@ -104,7 +138,7 @@ function DoctorSearch() {
       />
 
       <button onClick={handleSearch}>Search</button>
-    
+
       <div>
         <h2>Filter Doctors:</h2>
         <TextField
@@ -138,7 +172,6 @@ function DoctorSearch() {
           Filter
         </Button>
       </div>
-     
 
       {selectedDoctor && (
         <div>
@@ -151,8 +184,6 @@ function DoctorSearch() {
           <p>Educational Background: {selectedDoctor.educationalBackground}</p>
         </div>
       )}
-
-     
 
       {doctors ? (
         <div>
@@ -169,16 +200,11 @@ function DoctorSearch() {
                 Select Doctor
               </button>
             </div>
-            
           ))}
         </div>
       ) : (
         <p></p>
       )}
-
-      
-
-      
     </div>
   );
 }

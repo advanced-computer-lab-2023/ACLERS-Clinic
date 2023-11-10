@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const ViewApplicants = () => {
   const [applicants, setApplicants] = useState(null);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchApplicants = async () => {
       const response = await fetch("/admin/view-applicants");
@@ -35,7 +35,7 @@ const ViewApplicants = () => {
   const handleReject = (applicantId) => {
     // Send a POST request to "/admin/reject-doctor?applicantId=<applicantId>"
     fetch(`/admin/reject-doctor?applicantId=${applicantId}`, {
-      method: "POST",
+      method: "DELETE",
     })
       .then((response) => response.json())
       .then((data) => {
@@ -49,7 +49,7 @@ const ViewApplicants = () => {
 
   return (
     <div className="applicantviewer">
-       <button onClick={() => navigate(-1)}>Go Back</button>
+      <button onClick={() => navigate(-1)}>Go Back</button>
       <h1>Applicants</h1>
       {applicants &&
         applicants.map((applicant) => (

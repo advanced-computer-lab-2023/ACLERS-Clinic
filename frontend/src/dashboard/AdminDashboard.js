@@ -25,6 +25,9 @@ class AdminDashboard extends Component {
             <li>
               <Link to="/admin/view-HealthPackages">View Health Packages</Link>
             </li>
+            <li>
+              <Link to={`/`}>Logout</Link>
+            </li>
           </ul>
         </nav>
         {/* Add content for each section here */}

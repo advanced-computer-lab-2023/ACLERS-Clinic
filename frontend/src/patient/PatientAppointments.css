@@ -1,0 +1,140 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  color: #114b5f;
+  background-color: #114b5f;
+}
+.page-title {
+  color: #114b5f; /* Change the page title text color */
+  font-size: 24px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center;
+}
+
+.filter-section {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.filter-label {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.filter-select {
+  width: 120px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.filter-input {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.filter-button {
+  background-color: #114b5f; /* Change the filter button background color */
+  color: #fff; /* Change the filter button text color */
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.custom-table {
+  border-collapse: collapse;
+  width: 75%;
+  margin-bottom: 20px;
+}
+
+.table-container {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  height: 100%; /* Ensure the container takes up the full height */
+  margin-top: 20px;
+}
+.appointments-container {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  height: 100%; /* Ensure the container takes up the full height */
+}
+
+.custom-th {
+  background-color: #007bff; /* Change the table header background color */
+  color: #fff; /* Change the table header text color */
+  padding: 10px;
+  text-align: center;
+}
+.custom-table-header thead .custom-th-row {
+  background-color: #1a936f; /* Replace 'your-color' with your desired color */
+}
+.custom-th-row {
+  background-color: #1a936f; /* Replace 'your-color' with your desired color */
+}
+
+.wallet-payment {
+  color: green; /* Green color for Wallet */
+  margin-right: 10px;
+  --c: #88d498; /* the color*/
+
+  box-shadow: 0 0 0 0.1em inset var(--c);
+  --_g: linear-gradient(var(--c) 0 0) no-repeat;
+  background: var(--_g) calc(var(--_p, 0%) - 100%) 0%,
+    var(--_g) calc(200% - var(--_p, 0%)) 0%,
+    var(--_g) calc(var(--_p, 0%) - 100%) 100%,
+    var(--_g) calc(200% - var(--_p, 0%)) 100%;
+  background-size: 50.5% calc(var(--_p, 0%) / 2 + 0.5%);
+  outline-offset: 0.1em;
+  transition: background-size 0.4s, background-position 0s 0.4s;
+}
+
+.wallet-payment:hover {
+  --_p: 100%;
+  transition: background-position 0.4s, background-size 0s;
+}
+.wallet-payment:active {
+  box-shadow: 0 0 9e9Q inset #0009;
+  background-color: var(--c);
+  color: #fff;
+}
+.credit-card-payment {
+  color: #114b5f; /* Green color for Wallet */
+  margin-right: 0px;
+  --c: #21708a; /* the color*/
+
+  box-shadow: 0 0 0 0.1em inset var(--c);
+  --_g: linear-gradient(var(--c) 0 0) no-repeat;
+  background: var(--_g) calc(var(--_p, 0%) - 100%) 0%,
+    var(--_g) calc(200% - var(--_p, 0%)) 0%,
+    var(--_g) calc(var(--_p, 0%) - 100%) 100%,
+    var(--_g) calc(200% - var(--_p, 0%)) 100%;
+  background-size: 50.5% calc(var(--_p, 0%) / 2 + 0.5%);
+  outline-offset: 0.1em;
+  transition: background-size 0.4s, background-position 0s 0.4s;
+}
+
+.credit-card-payment:hover {
+  --_p: 100%;
+  transition: background-position 0.4s, background-size 0s;
+}
+.credit-card-payment:active {
+  box-shadow: 0 0 9e9Q inset #0009;
+  background-color: var(--c);
+  color: #fff;
+}
+
+.custom-td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+}
+
+/* Add more custom styles as needed */

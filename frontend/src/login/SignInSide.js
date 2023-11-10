@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -12,8 +14,7 @@ import Grid from "@mui/material/Grid";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import MenuItem from "@mui/material/MenuItem"; // Import MenuItem
-
+import jwt from "jsonwebtoken-promisified";
 function Copyright(props) {
   return (
     <Typography
@@ -36,16 +37,56 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 export default function SignInSide() {
-  const [userType, setUserType] = useState(""); // State to hold the selected user type
+  const [loginSuccess, setLoginSuccess] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
+
+    const loginData = {
       email: data.get("email"),
       password: data.get("password"),
-      userType: data.get("userType"), // Include the selected user type
-    });
+    };
+    try {
+      // Send a POST request to your API
+      const response = await fetch("http://localhost:8000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(loginData),
+      });
+      if (response.ok) {
+        // Login successful
+        setLoginSuccess(true);
+        const data = await response.json();
+        const token = data.token;
+        localStorage.setItem("token", token);
+        console.log("Login successful");
+        console.log("Token:", token);
+
+        const decodedToken = jwt.decode(token);
+        console.log("decoded Token:", decodedToken);
+        console.log("hello");
+
+        if (decodedToken.role === "patient") {
+          // Redirect to patient home page
+          navigate("/patient/dashboard", {
+            state: { id: decodedToken.id },
+          });
+        } else if (decodedToken.role === "doctor") {
+          // Redirect to doctor home page
+          navigate("/doctor/dashboard", { state: { id: decodedToken.id } });
+        }
+      } else {
+        // Login failed
+        console.error("Login failed");
+        setLoginSuccess(false);
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+    }
   };
 
   return (
@@ -119,20 +160,7 @@ export default function SignInSide() {
                 id="password"
                 autoComplete="current-password"
               />
-              <TextField
-                margin="normal"
-                select // Use the select attribute for a dropdown
-                required
-                fullWidth
-                id="userType"
-                label="User Type"
-                name="userType"
-                value={userType}
-                onChange={(e) => setUserType(e.target.value)}
-              >
-                <MenuItem value="patient">Patient</MenuItem>
-                <MenuItem value="doctor">Doctor</MenuItem>
-              </TextField>
+
               <FormControlLabel
                 control={<Checkbox value="remember" color="primary" />}
                 label="Remember me"

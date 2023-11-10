@@ -21,12 +21,14 @@ import PatientInfo from "./doctor/patientInfo";
 import PatientDashBoard from "./dashboard/PatientDashboard";
 import PatientPerscriptions from "./patient/viewPerscriptions";
 import PatientFamilyMembers from "./patient/familymembers";
+import PatientMedicalHistory from "./patient/medicalhistory";
 import DoctorSignUpPage from "./signup/SignUpdoctor";
 import ViewApplicants from "./admin/viewapplicants/viewapplicants";
 import PatientDoctors from "./patient/viewdoctors";
 import PatientAppointments from "./patient/appointments";
 import Viewhealthpackages from "./patient/HealthPackageList";
 import Handlesubscription from "./patient/handlesubscribe";
+import ForgotPassword from "./login/forgotpassword";
 const App = () => {
   return (
     <>
@@ -66,22 +68,40 @@ const App = () => {
           element={<DoctorPatients />}
         />
 
-        <Route path="/patient/dashboard/:id" element={<PatientDashBoard />} />
+        <Route path="/patient/dashboard" element={<PatientDashBoard />} />
         <Route
           path="/patient/view-perscriptions/:id"
           element={<PatientPerscriptions />}
         />
         <Route
-          path="/patient/familymembers/:id"
+          path="/patient/familymembers"
           element={<PatientFamilyMembers />}
         />
         <Route path="/admin/view-applicants" element={<ViewApplicants />} />
-        <Route path="/patient/viewdoctors/:id" element={<PatientDoctors />} />
-        <Route path="/patient/appointments/:id" element={<PatientAppointments />} />
-        <Route path="/doctor/view-patient/:patientId/:doctorId" element={<PatientInfo />} />
+        <Route path="/patient/viewdoctors/" element={<PatientDoctors />} />
+        <Route
+          path="/patient/appointments/"
+          element={<PatientAppointments />}
+        />
+        <Route
+          path="/patient/medicalhistory/:id"
+          element={<PatientMedicalHistory />}
+        />
+        <Route
+          path="/doctor/view-patient/:patientId/:doctorId"
+          element={<PatientInfo />}
+        />
+        <Route path="/ForgotPassword" element={<ForgotPassword />} />
+        <Route
+          path="/patient/appointments/:id"
+          element={<PatientAppointments />}
+        />
+        <Route
+          path="/doctor/view-patient/:patientId/:doctorId"
+          element={<PatientInfo />}
+        />
         <Route path="/patient/Viewhealthpackages/:id" element={<Viewhealthpackages />}/>
         <Route path="/patient/Handlesubscription/:id1/:id2" element={<Handlesubscription/>}/>
-
       </Routes>
     </>
   );

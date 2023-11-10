@@ -1,9 +1,9 @@
 import React from "react";
-import { Link,useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 function DoctorDashboard() {
-  const {id} = useParams()
-  console.log(id)
+  const { id } = useParams();
+  console.log(id);
 
   return (
     <div>
@@ -19,6 +19,9 @@ function DoctorDashboard() {
           </li>
           <li>
             <Link to={`/doctor/view-my-patients/${id}`}>View Patients</Link>
+          </li>
+          <li>
+            <Link to={`/`}>Logout</Link>
           </li>
         </ul>
       </nav>

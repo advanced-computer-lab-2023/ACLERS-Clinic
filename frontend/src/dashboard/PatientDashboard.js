@@ -1,23 +1,37 @@
 import React from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function PatientDashboard() {
-  const {id} = useParams()
+  const location = useLocation();
+  const id = location.state?.id;
+  if (!id) {
+    // Handle the case where id is not available
+    return <div>No user ID found</div>;
+  }
+
   return (
     <div>
       <nav>
         <ul>
           <li>
-          <Link to={`/patient/familymembers/${id}`}>Family Members</Link>
+            <Link to={`/patient/familymembers`}>Family Members</Link>
           </li>
           <li>
-            <Link to={`/patient/appointments/${id}`}>View My Appointments</Link>
+            <Link to={`/patient/appointments/`}>View My Appointments</Link>
           </li>
           <li>
-            <Link to={`/patient/viewdoctors/${id}`}>View Doctors</Link>
+            <Link to={`/patient/viewdoctors/`}>View Doctors</Link>
           </li>
           <li>
-            <Link to={`/patient/view-perscriptions/${id}`}>View perscriptions</Link>
+            <Link to={`/patient/view-perscriptions/${id}`}>
+              View perscriptions
+            </Link>
+          </li>
+          <li>
+            <Link to={`/patient/medicalhistory/${id}`}>Medical History</Link>
+          </li>
+          <li>
+            <Link to={`/`}>Logout</Link>
           </li>
         </ul>
       </nav>
