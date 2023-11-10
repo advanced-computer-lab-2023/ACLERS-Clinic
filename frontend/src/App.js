@@ -63,7 +63,7 @@ const App = () => {
           path="/doctor/view-my-patients/:id"
           element={<DoctorPatients />}
         />
-       
+
         <Route path="/patient/dashboard/:id" element={<PatientDashBoard />} />
         <Route
           path="/patient/view-perscriptions/:id"

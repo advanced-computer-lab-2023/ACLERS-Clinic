@@ -6,6 +6,14 @@ const PatientHealthRecord = require("../models/PatientHealthRecord");
 const Appointment = require("../models/Appointment");
 const Patient = require("../models/Patient");
 const Perscription = require("../models/Perscription");
+const DoctorSlot = require('../models/FreeSlots'); // Import the DoctorSlot model
+const Wallet = require('../models/Wallet');
+const Contract = require('../models/Contract'); // Import the EmploymentContract model
+const Applicant= require('../models/Applicant');
+const FreeSlot=require('../models/FreeSlots');
+
+
+
 
 const editEmail = asyncHandler(async (req, res) => {
   const doctorID = req.user.id;
@@ -13,6 +21,7 @@ const editEmail = asyncHandler(async (req, res) => {
   const newEmail = req.body.email;
   const newHourlyRate = req.body.hourlyRate;
   const newAffiliation = req.body.affiliation;
+
 
   try {
     const doctor = await Doctor.findById(doctorID);
@@ -234,6 +243,192 @@ const searchForPatient = asyncHandler(async (req, res) => {
   const patient = await Patient.find(filter);
   res.send(patient);
 });
+
+const addFreeSlot=asyncHandler( async (req, res) => {
+  const { date, startTime, endTime } = req.body;
+  const doctorId = req.user.id;
+
+
+  if (!doctorId || !date || !startTime || !endTime) {
+    return res.status(400).json({ error: 'Please provide doctorId, date, start time, and end time.' });
+  }
+
+  try {
+    const newDoctorSlot = await DoctorSlot.create({ doctorId, date, startTime, endTime });
+    res.status(201).json(newDoctorSlot);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to create a doctor slot.' });
+  }
+});
+
+const viewPatientHealthRecords = asyncHandler(async (req, res) => {
+  const doctorId = req.user.id; // Assuming you have authenticated the doctor
+  const patientId = req.params.patientId;
+
+  // Check if the doctor has permission to access the patient's records (you might need to implement your own logic here)
+
+  // Retrieve the health records associated with the patient's ID
+  const patientHealthRecords = await PatientHealthRecord.find({ patient: patientId });
+
+  res.json(patientHealthRecords);
+});
+
+const getDoctorBalance = asyncHandler(async (req, res) => {
+  const doctorId = req.user.id; // Assuming you have authenticated the doctor
+
+  try {
+    // Find the wallet associated with the doctor's user ID
+    const wallet = await Wallet.findOne({ userId: doctorId });
+
+    if (!wallet) {
+      res.json({ balance: 0 }); // Default balance if wallet not found
+    } else {
+      res.json({ balance: wallet.balance });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to retrieve doctor balance.' });
+  }
+});
+
+const addHealthRecord = asyncHandler(async (req, res) => {
+  const doctorId = req.user.id; // Assuming you have authenticated the doctor
+  const patientId = req.query.patientId; // Assuming you have a patient ID in the request body
+  const healthRecordText = req.body.healthRecordText; // Assuming you have health record data in the request body
+
+  try {
+   
+    const newHealthRecord = await PatientHealthRecord.create({
+      patient: patientId,
+      healthRecord: healthRecordText,
+    });
+
+    return res.status(201).json(newHealthRecord);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to add a new health record.' });
+  }
+});
+
+const ViewMyContract = asyncHandler(async (req, res) => {
+  const doctorId = req.user.id;
+
+  try {
+    const contract = await Contract.findOne({ doctor: doctorId });
+
+    if (!contract) {
+      res.json({ message: 'No contract' });
+    } else {
+      res.send({ description: contract.description });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to retrieve contract' });
+  }
+});
+const acceptContract = asyncHandler( async (req,res) => {
+  const doctorId=req.user.id;
+  try {
+    // Find the contract by its ID
+    const contract = await Contract.findOne({doctor : doctorId});
+    
+    if (!contract) {
+      res.json({message:'Contract not found'});
+    }
+
+    // Update the contract's status to 'accepted'
+    contract.status = 'accepted';
+    const applicantId = req.user.id;
+     
+    var applicant = await Applicant.findById(applicantId);
+
+    const doctor = await Doctor.create({
+      username: applicant.username,
+      name: applicant.name,
+      email: applicant.email,
+      password: applicant.password,
+      dateOfBirth: applicant.dateOfBirth,
+      hourlyRate: applicant.hourlyRate,
+      affiliation: applicant.affiliation,
+      educationalBackground: applicant.educationalBackground,
+      speciality: applicant.speciality
+    });
+    const wallet = await Wallet.create({
+      userId: doctor._id, // Set the userId to the doctor's ID
+      balance: 0, // Set an initial balance
+    });
+    await Applicant.findByIdAndDelete(applicantId);
+  
+  
+  
+
+    // Save the updated contract
+    await contract.save();
+
+    return res.status(200).send(doctor);
+
+  } catch (error) {
+    throw error;
+  }
+});
+
+
+const denyContract = asyncHandler( async (req,res) => {
+  doctorId=req.user.id;
+  try {
+    // Find the contract by its ID
+    const contract = await Contract.findOne({doctor : doctorId});
+    
+    if (!contract) {
+      throw new Error('Contract not found');
+    }
+
+    // Update the contract's status to 'rejected'
+    contract.status = 'rejected';
+
+    // Save the updated contract
+    await contract.save();
+
+    return res.send(contract);
+  } catch (error) {
+    throw error;
+  }
+});
+
+const setAppointmentORFollowup = asyncHandler(async (req, res) => {
+  const patientId = req.query.patientId; // Get patientId from the query
+  const { freeSlotId } = req.body; // Get freeSlotId from the request body
+
+  try {
+    // Find the free slot by its ID
+    const freeSlot = await FreeSlot.findById(freeSlotId);
+
+    if (!freeSlot) {
+      return res.status(404).json({ message: 'Free slot not found' });
+    }
+
+    // Create an appointment using the doctor from the free slot, the patient ID, the date, start time, and end time from the free slot
+    const newAppointment = new Appointment({
+      doctor: freeSlot.doctorId,
+      patient: patientId,
+      date: freeSlot.date,
+      startTime: freeSlot.startTime,
+      endTime: freeSlot.endTime,
+      status: 'UpComing', // You can set the initial status as needed
+    });
+
+    // Save the new appointment to the database
+    await newAppointment.save();
+
+    res.status(201).json(newAppointment);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to set the appointment' });
+  }
+});
+
+
 module.exports = {
   writePerscription,
   editEmail,
@@ -241,5 +436,12 @@ module.exports = {
   viewPatients,
   viewPatient,
   searchForPatient,
-  viewMyInfo
+  viewMyInfo,
+  addFreeSlot,
+  viewPatientHealthRecords,
+  getDoctorBalance,
+  addHealthRecord,
+  ViewMyContract,
+  acceptContract,
+  denyContract, setAppointmentORFollowup
 };
