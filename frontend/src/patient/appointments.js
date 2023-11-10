@@ -8,7 +8,8 @@ import "react-datepicker/dist/react-datepicker.css";
 const PatientAppointments = () => {
   const location = useLocation();
   const id = location.state?.id;
-
+  const token = localStorage.getItem("token");
+  console.log("token:", token);
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
@@ -22,7 +23,18 @@ const PatientAppointments = () => {
   // Fetch patient's appointments based on patientId
   useEffect(() => {
     // Replace with your API call to fetch patient's appointments
-    fetch(`http://localhost:8000/Patient-Home/appointments?patientId=${id}`)
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    fetch(
+      `http://localhost:8000/Patient-Home/appointments?patientId=${id}`,
+      requestOptions
+    )
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
@@ -49,6 +61,39 @@ const PatientAppointments = () => {
       );
       setFilteredAppointments(filtered);
     }
+  };
+
+  const handlePayment = (
+    patientId,
+    doctorId,
+    slotId,
+    paymentMethod,
+    sessionPrice
+  ) => {
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        patientId,
+        doctorId,
+        slotId,
+        paymentMethod,
+        sessionPrice,
+      }),
+    };
+
+    fetch("http://localhost:8000/Patient-Home/pay", requestOptions)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Payment successful:", data);
+        // You may want to update the state or perform other actions upon successful payment
+      })
+      .catch((error) => {
+        console.error("Error making payment:", error);
+      });
   };
 
   return (
@@ -117,8 +162,32 @@ const PatientAppointments = () => {
                 <td className="custom-td">{appointment.date}</td>
                 <td className="custom-td">{appointment.status}</td>
                 <td className="custom-td">
-                  <button className="wallet-payment">💵 Wallet 💵</button>
-                  <button className="credit-card-payment">
+                  <button
+                    className="wallet-payment"
+                    onClick={() =>
+                      handlePayment(
+                        id,
+                        appointment.doctorId,
+                        appointment.slotId,
+                        "wallet",
+                        appointment.sessionPrice
+                      )
+                    }
+                  >
+                    💵 Wallet 💵
+                  </button>
+                  <button
+                    className="credit-card-payment"
+                    onClick={() =>
+                      handlePayment(
+                        id,
+                        appointment.doctorId,
+                        appointment.slotId,
+                        "credit-card",
+                        appointment.sessionPrice
+                      )
+                    }
+                  >
                     💳 Credit Card 💳
                   </button>
                 </td>

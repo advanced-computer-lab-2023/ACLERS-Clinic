@@ -892,9 +892,12 @@ const linkAccount = asyncHandler(async(req,res)=>{
    let patient
    if(email){
     patient = await Patient.findOne({email})
+    console.log("email found");
    }
    if(mobileNumber){
     patient = await Patient.findOne({mobileNumber})
+        console.log("mobile number found");
+
    }
   
    const member = await FamilyMember.create({

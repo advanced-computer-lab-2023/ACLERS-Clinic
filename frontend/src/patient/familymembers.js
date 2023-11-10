@@ -4,7 +4,8 @@ import { useParams, useNavigate } from "react-router-dom";
 function AddFamilyMember() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  console.log("token:", token);
+  const { id } = useParams();
+
   const [formData, setFormData] = useState({
     name: "",
     nationalId: "",
@@ -12,7 +13,12 @@ function AddFamilyMember() {
     gender: "Male",
     relationToPatient: "wife",
   });
-  const { id } = useParams();
+
+  const [linkFormData, setLinkFormData] = useState({
+    email: "",
+    mobileNumber: "",
+    relation: "wife",
+  });
 
   const [familyMembers, setFamilyMembers] = useState([]);
   const [showFamilyMembers, setShowFamilyMembers] = useState(false);
@@ -21,6 +27,14 @@ function AddFamilyMember() {
     const { name, value } = e.target;
     setFormData({
       ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleLinkChange = (e) => {
+    const { name, value } = e.target;
+    setLinkFormData({
+      ...linkFormData,
       [name]: value,
     });
   };
@@ -60,6 +74,39 @@ function AddFamilyMember() {
       });
   };
 
+  const handleLinkSubmit = (e) => {
+    e.preventDefault();
+
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        ...linkFormData,
+      }),
+    };
+    console.log("linkFormData:", linkFormData);
+    fetch(
+      `http://localhost:8000/Patient-home/link-fam-member?patientId=${id}`,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Family member linked:", data);
+        // Reset the form fields
+        setLinkFormData({
+          email: "",
+          mobileNumber: "",
+          relation: "wife",
+        });
+      })
+      .catch((error) => {
+        console.error("Error linking family member:", error);
+      });
+  };
+
   const handleViewFamilyMembers = () => {
     const requestOptions = {
       method: "GET",
@@ -68,6 +115,7 @@ function AddFamilyMember() {
         Authorization: `Bearer ${token}`,
       },
     };
+
     fetch(
       `http://localhost:8000/Patient-home/view-fam-member?patientId=${id}`,
       requestOptions
@@ -153,6 +201,46 @@ function AddFamilyMember() {
           </select>
         </div>
         <button type="submit">Add Family Member</button>
+      </form>
+
+      <h2>Link Family Member</h2>
+      <form onSubmit={handleLinkSubmit}>
+        <div>
+          <label htmlFor="email">Email:</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={linkFormData.email}
+            onChange={handleLinkChange}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="mobileNumber">Phone Number:</label>
+          <input
+            type="tel"
+            id="mobileNumber"
+            name="mobileNumber"
+            value={linkFormData.mobileNumber}
+            onChange={handleLinkChange}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="relation">Relation to Patient:</label>
+          <select
+            id="relation"
+            name="relation"
+            value={linkFormData.relation}
+            onChange={handleLinkChange}
+          >
+            <option value="wife">Wife</option>
+            <option value="husband">Husband</option>
+            <option value="children">Children</option>
+          </select>
+        </div>
+        <button type="submit">Link Family Member</button>
       </form>
 
       <div style={{ marginTop: "50px" }}>

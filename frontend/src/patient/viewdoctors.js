@@ -6,7 +6,8 @@ import { Link, useLocation } from "react-router-dom";
 
 function DoctorSearch() {
   const navigate = useNavigate();
-
+  const token = localStorage.getItem("token");
+  console.log("token:", token);
   const location = useLocation();
   const id = location.state?.id;
   const [name, setName] = useState("");
@@ -20,8 +21,18 @@ function DoctorSearch() {
   const [filterTime, setFilterTime] = useState("");
 
   useEffect(() => {
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
     const fetchDoctors = async () => {
-      fetch(`http://localhost:8000/Patient-home/view-doctors?patientID=${id}`)
+      fetch(
+        `http://localhost:8000/Patient-home/view-doctors?patientID=${id}`,
+        requestOptions
+      )
         .then((response) => response.json())
         .then((data) => {
           setDoctors(data);
@@ -38,11 +49,17 @@ function DoctorSearch() {
     const queryParams = new URLSearchParams();
     if (name) queryParams.append("name", name);
     if (speciality) queryParams.append("speciality", speciality);
-
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
     // Combine the base URL with the query parameters
     const url = `http://localhost:8000/Patient-home/search?${queryParams.toString()}`;
 
-    fetch(url)
+    fetch(url, requestOptions)
       .then((response) => response.json())
       .then((data) => {
         setDoctors(data);
@@ -53,7 +70,17 @@ function DoctorSearch() {
   };
 
   const handleSelectDoctor = (doctorId) => {
-    fetch(`http://localhost:8000/Patient-home/view-doctor?doctorId=${doctorId}`)
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    fetch(
+      `http://localhost:8000/Patient-home/view-doctor?doctorId=${doctorId}`,
+      requestOptions
+    )
       .then((response) => response.json())
       .then((data) => {
         setSelectedDoctor(data);
@@ -67,8 +94,17 @@ function DoctorSearch() {
   const handleFilterDoctors = () => {
     // Construct the query string for filters
     const query = `speciality=${filterSpeciality}&date=${filterDate}&time=${filterTime}`;
-
-    fetch(`http://localhost:8000/Patient-home/view-doctors?${query}`)
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    fetch(
+      `http://localhost:8000/Patient-home/view-doctors?${query}`,
+      requestOptions
+    )
       .then((response) => response.json())
       .then((data) => {
         setDoctors(data);
