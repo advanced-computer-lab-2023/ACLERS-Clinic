@@ -1,0 +1,24 @@
+.health-package-list-container {
+    margin: 20px; /* Add some space around the container */
+  }
+  
+  .table-container {
+    background-color: white; /* Set the table background color to white */
+    padding: 20px; /* Add some padding to the table container */
+  }
+  
+  .health-package-table {
+    width: 100%; /* Make the table fill the container */
+    border-collapse: collapse; /* Collapse table borders */
+  }
+  
+  .health-package-table th, .health-package-table td {
+    padding: 8px; /* Add padding to table cells */
+    border: 1px solid #ccc; /* Add borders to table cells */
+  }
+  
+  .health-package-table th {
+    background-color: #f0f0f0; /* Set header background color */
+    font-weight: bold;
+  }
+  
