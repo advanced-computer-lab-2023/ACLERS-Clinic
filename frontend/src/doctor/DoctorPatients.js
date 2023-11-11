@@ -1,23 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-
+import jwt from "jsonwebtoken-promisified";
 
 const DoctorPatients = () => {
-  const navigate=useNavigate();
-  const { id } = useParams();
+  const navigate = useNavigate();
   const [patients, setPatients] = useState([]);
   const [filteredPatients, setFilteredPatients] = useState([]);
   const [appointmentStatus, setAppointmentStatus] = useState(""); // Default: no filter
   const [searchName, setSearchName] = useState(""); // Add state for search
 
-  // Fetch the list of patients initially
+  const token = localStorage.getItem("token");
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const id = decodedtoken.id;
+
   useEffect(() => {
-    // Replace with your API call to fetch patients registered with the doctor
-    //console.log(doctorId);
-    fetch(
-      `http://localhost:8000/Doctor-Home/view-patients?doctorId=${id}`
-    )
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    fetch(`http://localhost:8000/Doctor-Home/view-patients`, requestOptions)
       .then((response) => response.json())
       .then((data) => {
         setPatients(data);
@@ -32,13 +39,19 @@ const DoctorPatients = () => {
   }, []);
 
   // Function to filter patients based on appointment status
-  // Function to filter patients based on appointment status
-  // Function to filter patients based on appointment status
   const handleFilter = () => {
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
     if (appointmentStatus) {
       // Filter patients by appointment status
       fetch(
-        `http://localhost:8000/Doctor-Home/view-patients?doctorId=${id}&status=${appointmentStatus}`
+        `http://localhost:8000/Doctor-Home/view-patients?doctorId=${id}&status=${appointmentStatus}`,
+        requestOptions
       )
         .then((response) => response.json())
         .then((data) => {
@@ -77,10 +90,13 @@ const DoctorPatients = () => {
     // Update the state with the filtered results
     setFilteredPatients(filteredPatientsByName);
   };
-
+  if (!token) {
+    // Handle the case where id is not available
+    return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
+  }
   return (
     <div>
-        <button onClick={() => navigate(-1)}>Go Back</button>
+      <button onClick={() => navigate(-1)}>Go Back</button>
 
       <h1>Doctor's Patients</h1>
       <div>
@@ -118,9 +134,7 @@ const DoctorPatients = () => {
                   <h3>Patient Information</h3>
                   <p>
                     Name:{" "}
-                    <Link
-                      to={`/doctor/view-patient/${item.patient._id}/${id}`}
-                    >
+                    <Link to={`/doctor/view-patient/${item.patient._id}/${id}`}>
                       {item.patient.name}
                     </Link>
                   </p>

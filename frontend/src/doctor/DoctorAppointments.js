@@ -1,23 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import jwt from "jsonwebtoken-promisified";
 
 const DoctorAppointments = () => {
-  const navigate=useNavigate();
-  const { doctorId } = useParams();
+  const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [filterBy, setFilterBy] = useState("date"); // Default filter by date
   const [filterValue, setFilterValue] = useState("");
 
+  const token = localStorage.getItem("token");
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const doctorId = decodedtoken.id;
+
   // Fetch doctor's appointments based on doctorId
   useEffect(() => {
-    // Replace with your API call to fetch doctor's appointments
-    fetch(
-      `http://localhost:8000/Doctor-Home/view-appointments?doctorId=${doctorId}`
-    )
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    fetch(`http://localhost:8000/Doctor-Home/view-appointments`, requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data)
+        console.log(data);
         setAppointments(data);
         setFilteredAppointments(data); // Initialize filteredAppointments with all appointments
       })
@@ -41,14 +50,17 @@ const DoctorAppointments = () => {
       const filtered = appointments.filter(
         (appointment) => appointment.status === filterValue
       );
-      
+
       setFilteredAppointments(filtered);
     }
   };
-
+  if (!token) {
+    // Handle the case where id is not available
+    return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
+  }
   return (
     <div>
-             <button onClick={() => navigate(-1)}>Go Back</button>
+      <button onClick={() => navigate(-1)}>Go Back</button>
 
       <h1>Doctor Appointments</h1>
       <div>
@@ -76,13 +88,14 @@ const DoctorAppointments = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredAppointments && filteredAppointments.map((appointment) => (
-            <tr key={appointment.id}>
-              <td>{appointment.patient}</td>
-              <td>{appointment.date}</td>
-              <td>{appointment.status}</td>
-            </tr>
-          ))}
+          {filteredAppointments &&
+            filteredAppointments.map((appointment) => (
+              <tr key={appointment.id}>
+                <td>{appointment.patient}</td>
+                <td>{appointment.date}</td>
+                <td>{appointment.status}</td>
+              </tr>
+            ))}
         </tbody>
       </table>
     </div>
