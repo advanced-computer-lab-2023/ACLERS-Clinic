@@ -19,7 +19,7 @@ const login = asyncHandler(async (req, res) => {
 
   const doctor = await Doctor.findOne({ email });
   const applicant = await Applicant.findOne({ email });
-  const admin = await Admin.findOne({ email });
+  const admin = await Admin.findOne({ username: email });
   if (patient && (await bcrypt.compare(password, patient.password))) {
     return res.json({
       token: generateToken(patient._id, "patient"),
