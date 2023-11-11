@@ -1,12 +1,39 @@
-import React, { Component } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import jwt from "jsonwebtoken-promisified";
 
 function AdminDashboard() {
-  const location = useLocation();
-  const id = location.state?.id;
-  if (!id) {
-    return <div>No user ID found</div>;
+  const token = localStorage.getItem("token");
+  const decodedToken = jwt.decode(token);
+  console.log("decoded Token:", decodedToken);
+
+  const navigate = useNavigate();
+
+  if (!token) {
+    // Handle the case where id is not available
+    return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
   }
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("http://localhost:8000/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        // Successfully logged out
+        localStorage.removeItem("token");
+        navigate("/"); // Redirect to the login or home page
+      } else {
+        console.error("Logout failed");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
   return (
     <div>
       <nav>
@@ -30,7 +57,7 @@ function AdminDashboard() {
             <Link to="/admin/view-HealthPackages">View Health Packages</Link>
           </li>
           <li>
-            <Link to={`/`}>Logout</Link>
+            <button onClick={handleLogout}>Logout</button>
           </li>
         </ul>
       </nav>

@@ -57,16 +57,13 @@ const App = () => {
           element={<EditHealthPackage />}
         />
         <Route path="/admin/Dashboard" element={<AdminDashboard />} />
-        <Route path="/doctor/Dashboard/:id" element={<DoctorDashboard />} />
-        <Route path="/doctor/view-my-info/:id" element={<DoctorInfo />} />
+        <Route path="/doctor/Dashboard" element={<DoctorDashboard />} />
+        <Route path="/doctor/view-my-info" element={<DoctorInfo />} />
         <Route
-          path="/doctor/view-my-appointments/:doctorId"
+          path="/doctor/view-my-appointments"
           element={<DoctorAppointments />}
         />
-        <Route
-          path="/doctor/view-my-patients/:id"
-          element={<DoctorPatients />}
-        />
+        <Route path="/doctor/view-my-patients" element={<DoctorPatients />} />
 
         <Route path="/patient/dashboard" element={<PatientDashBoard />} />
         <Route
@@ -96,10 +93,7 @@ const App = () => {
           path="/patient/appointments/:id"
           element={<PatientAppointments />}
         />
-        <Route
-          path="/doctor/view-patient/:patientId/:doctorId"
-          element={<PatientInfo />}
-        />
+
         <Route
           path="/patient/Viewhealthpackages/:id"
           element={<Viewhealthpackages />}
