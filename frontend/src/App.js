@@ -70,7 +70,7 @@ const App = () => {
 
         <Route path="/patient/dashboard" element={<PatientDashBoard />} />
         <Route
-          path="/patient/view-perscriptions/:id"
+          path="/patient/view-perscriptions"
           element={<PatientPerscriptions />}
         />
         <Route
@@ -84,7 +84,7 @@ const App = () => {
           element={<PatientAppointments />}
         />
         <Route
-          path="/patient/medicalhistory/:id"
+          path="/patient/medicalhistory/"
           element={<PatientMedicalHistory />}
         />
         <Route
@@ -100,8 +100,14 @@ const App = () => {
           path="/doctor/view-patient/:patientId/:doctorId"
           element={<PatientInfo />}
         />
-        <Route path="/patient/Viewhealthpackages/:id" element={<Viewhealthpackages />}/>
-        <Route path="/patient/Handlesubscription/:id1/:id2" element={<Handlesubscription/>}/>
+        <Route
+          path="/patient/Viewhealthpackages/:id"
+          element={<Viewhealthpackages />}
+        />
+        <Route
+          path="/patient/Handlesubscription/:id1/:id2"
+          element={<Handlesubscription />}
+        />
       </Routes>
     </>
   );

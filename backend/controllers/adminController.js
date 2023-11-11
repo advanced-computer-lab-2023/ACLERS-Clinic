@@ -7,8 +7,7 @@ const Patient = require("../models/Patient");
 const healthPackage = require("../models/healthPackage");
 const Applicant = require("../models/Applicant");
 const { Types } = require("mongoose");
-const Contract = require('../models/Contract'); // Import the EmploymentContract model
-
+const Contract = require("../models/Contract"); // Import the EmploymentContract model
 
 const addAdmin = asyncHandler(async (req, res) => {
   const username = req.body.username;
@@ -50,7 +49,7 @@ const ViewAdmins = asyncHandler(async (req, res) => {
     return res.status(400).send(error);
   }
 });
-const viewHealthPackges = asyncHandler(async (req,res)=>{
+const viewHealthPackges = asyncHandler(async (req, res) => {
   try {
     var healthPackagess = await healthPackage.find();
     if (!healthPackagess) {
@@ -60,7 +59,7 @@ const viewHealthPackges = asyncHandler(async (req,res)=>{
   } catch (error) {
     return res.status(400).send(error);
   }
-})
+});
 
 const ViewDoctors = asyncHandler(async (req, res) => {
   try {
@@ -91,7 +90,7 @@ const removeDoctor = asyncHandler(async (req, res) => {
 
   try {
     const doctor = await Doctor.findByIdAndDelete(doctorId);
-    console.log(doctor)
+    console.log(doctor);
 
     if (!doctor) {
       return res.status(404).send({ message: "Doctor not found" });
@@ -166,9 +165,9 @@ const addHealthPackage = asyncHandler(async (req, res) => {
   });
   return res.status(200).json(HealthPackage);
 });
-const viewPackage = asyncHandler(async(req,res)=>{
+const viewPackage = asyncHandler(async (req, res) => {
   try {
-    var healthPackage = await healthPackage.findById(req.query.id)
+    var healthPackage = await healthPackage.findById(req.query.id);
     if (!healthPackage) {
       return res.status(404).json({ message: "no packages were found" });
     }
@@ -176,7 +175,7 @@ const viewPackage = asyncHandler(async(req,res)=>{
   } catch (error) {
     return res.status(400).send(error);
   }
-})
+});
 const editHealthPackage = asyncHandler(async (req, res) => {
   try {
     const healthPackageId = req.query.healthPackageId;
@@ -251,25 +250,19 @@ const deleteHealthPackage = asyncHandler(async (req, res) => {
 
 const approveDoctorRequest = asyncHandler(async (req, res) => {
   const applicantId = req.query.applicantId;
-  const contractDescription=req.body.description;
-  
+  const contractDescription = req.body.description;
   var applicant = await Applicant.findById(applicantId);
   if (!applicant) {
     return res.status(404).json({ message: "Applicant not found" });
   }
 
-const contract =await Contract.create({
-  
+  const contract = await Contract.create({
     doctor: applicantId,
     description: contractDescription,
-    status: 'pending',
+    status: "pending",
   });
   return res.send(contract);
-
-})
-
-
-
+});
 
 const disapproveDoctorRequest = asyncHandler(async (req, res) => {
   const applicantId = req.query.applicantId;
@@ -293,7 +286,6 @@ const viewApplicants = asyncHandler(async (req, res) => {
   }
 });
 
-
 module.exports = {
   viewHealthPackges,
   viewApplicants,
@@ -309,5 +301,5 @@ module.exports = {
   ViewAdmins,
   ViewPatients,
   ViewDoctors,
-  viewPackage
+  viewPackage,
 };

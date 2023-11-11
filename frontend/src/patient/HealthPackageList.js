@@ -2,16 +2,33 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./HealthPackageList.css"; // Import the CSS file
 
+import jwt from "jsonwebtoken-promisified";
+
 const HealthPackageList = () => {
   const [healthPackages, setHealthPackages] = useState([]);
   const [subscriptionType, setSubscriptionType] = useState(""); // Added subscriptionType state
   const [familyMembers, setFamilyMembers] = useState([]);
-  const { id } = useParams();
+  const token = localStorage.getItem("token");
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const id = decodedtoken.id;
   const navigate = useNavigate();
+
+  const requestOptions = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  };
 
   useEffect(() => {
     // Fetch health packages data
-    fetch(`http://localhost:8000/Patient-Home/view-healthPackages?patientId=${id}`)
+
+    fetch(
+      `http://localhost:8000/Patient-Home/view-healthPackages?patientId=${id}`,
+      requestOptions
+    )
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
@@ -20,11 +37,13 @@ const HealthPackageList = () => {
       .catch((error) => {
         console.error("Error fetching health packages:", error);
       });
-
   }, [id]);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/Patient-Home/view-fam-member?patientId=${id}`)
+    fetch(
+      `http://localhost:8000/Patient-Home/view-fam-member?patientId=${id}`,
+      requestOptions
+    )
       .then((response) => response.json())
       .then((data) => {
         if (data.familyMembers && Array.isArray(data.familyMembers)) {
@@ -77,7 +96,10 @@ const HealthPackageList = () => {
                     >
                       <option value="Myself">Myself</option>
                       {familyMembers.map((familyMember) => (
-                        <option key={familyMember._id} value={familyMember.relationToPatient}>
+                        <option
+                          key={familyMember._id}
+                          value={familyMember.relationToPatient}
+                        >
                           {familyMember.name} - {familyMember.relationToPatient}
                         </option>
                       ))}
