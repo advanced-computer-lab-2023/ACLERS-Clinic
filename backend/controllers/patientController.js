@@ -96,7 +96,7 @@ const setAppointmentFamMem = asyncHandler(async (req, res) => {
   const sessionPrice = req.body.sessionPrice;
   const slot = await FreeSlots.findById(slotId)
  const familyMemId=req.query.familyMemId
-
+ let drWallet = await Wallet.findOne({userId:doctorId})
   if (paymentMethod === 'wallet') {
     // Check if the patient's wallet balance is sufficient
     
@@ -107,6 +107,7 @@ const setAppointmentFamMem = asyncHandler(async (req, res) => {
       balance :0
     })
    }
+  
 
     const balance = wallet.balance// Replace with the actual model
     if (balance < sessionPrice) {
@@ -115,6 +116,8 @@ const setAppointmentFamMem = asyncHandler(async (req, res) => {
     else{
       wallet.balance-=sessionPrice;
       wallet.save();
+      drWallet.balance+=sessionPrice;
+      drWallet.save();
     }
   }else{
    
@@ -138,7 +141,8 @@ try{
   });
   console.log(response.data)
   res.json({url:response.data.session.url})
-    
+  drWallet.balance+=sessionPrice;
+  drWallet.save();
    // return res.json(stripeResponse)
   }catch(error){
     console.log(error)
@@ -206,7 +210,7 @@ const setAppointment = asyncHandler(async (req, res) => {
  const paymentMethod = req.body.paymentMethod;
   const sessionPrice = req.body.sessionPrice;
   const slot = await FreeSlots.findById(slotId)
-
+  let drWallet = await Wallet.findOne({userId:doctorId})
 
   if (paymentMethod === 'wallet') {
     // Check if the patient's wallet balance is sufficient
@@ -226,6 +230,8 @@ const setAppointment = asyncHandler(async (req, res) => {
     else{
       wallet.balance-=sessionPrice;
       wallet.save();
+      drWallet.balance+=sessionPrice;
+      drWallet.save();
     }
   }else{
    
@@ -249,7 +255,8 @@ try{
   });
   console.log(response.data)
   res.json({url:response.data.session.url})
-    
+  drWallet.balance+=sessionPrice;
+  drWallet.save();
    // return res.json(stripeResponse)
   }catch(error){
     console.log(error)

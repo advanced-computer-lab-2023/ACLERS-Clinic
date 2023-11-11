@@ -2,17 +2,13 @@ const express = require('express')
 const router = express.Router()
 const {registerPatient} = require('../controllers/authController')
 const {registerDoctor} = require('../controllers/authController')
-<<<<<<< HEAD
 const {login,logout} = require('../controllers/authController')
 const {changePassword} = require('../controllers/authController')
 const {protect} = require('../middleware/authMiddleware')
 const {sendOTPEmail} = require('../controllers/authController')
 const {resetPassword} = require('../controllers/authController')
+const{upload}= require('../controllers/patientController')
 router.post('/change-password',protect,changePassword);
-=======
-const {login,logout,upload} = require('../controllers/authController')
-
->>>>>>> mergeOmarJoe
 router.post('/register-patient',registerPatient)
 router.post('/logout',logout)
 router.post('/register-doctor', upload.fields([
