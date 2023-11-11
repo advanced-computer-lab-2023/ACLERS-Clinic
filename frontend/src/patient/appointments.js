@@ -100,7 +100,10 @@ const PatientAppointments = () => {
         console.error("Error making payment:", error);
       });
   };
-
+  if (!token) {
+    // Handle the case where id is not available
+    return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
+  }
   return (
     <div>
       <button onClick={() => navigate(-1)}>Go Back</button>

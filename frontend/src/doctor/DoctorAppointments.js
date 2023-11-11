@@ -72,12 +72,12 @@ const DoctorAppointments = () => {
       },
       body: JSON.stringify({
         doctorId,
-        date: newSlot.date.toISOString(),
+        date: newSlot.date,
         startTime: newSlot.startTime.toISOString(),
         endTime: newSlot.endTime.toISOString(),
       }),
     };
-
+    console.log("request body:", requestOptions.body);
     fetch(
       "http://localhost:8000/Doctor-Home/add-doctor-time-slot",
       requestOptions

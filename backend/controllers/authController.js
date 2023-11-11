@@ -13,6 +13,7 @@ const multer = require("multer"); // Import Multer
 //const upload = multer({ dest: 'uploads/' });
 const path = require("path");
 const Wallet = require("../models/Wallet");
+
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const patient = await Patient.findOne({ email });

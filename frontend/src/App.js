@@ -29,6 +29,7 @@ import PatientAppointments from "./patient/appointments";
 import Viewhealthpackages from "./patient/HealthPackageList";
 import Handlesubscription from "./patient/handlesubscribe";
 import ForgotPassword from "./login/forgotpassword";
+import PatientSelectedDoctor from "./patient/viewselecteddoctor";
 const App = () => {
   return (
     <>
@@ -101,6 +102,10 @@ const App = () => {
         <Route
           path="/patient/Handlesubscription/:id1/:id2"
           element={<Handlesubscription />}
+        />
+        <Route
+          path="/patient/viewdoctors/selecteddoctor/:doctorId/:sessionPrice"
+          element={<PatientSelectedDoctor />}
         />
       </Routes>
     </>
