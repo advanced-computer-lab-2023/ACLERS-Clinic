@@ -25,6 +25,8 @@ import DoctorSignUpPage from "./signup/SignUpdoctor";
 import ViewApplicants from "./admin/viewapplicants/viewapplicants";
 import PatientDoctors from "./patient/viewdoctors";
 import PatientAppointments from "./patient/appointments";
+import AcceptContract from "./doctor/Contract";
+import Wallet from "./patient/wallet";
 const App = () => {
   return (
     <>
@@ -77,6 +79,8 @@ const App = () => {
         <Route path="/patient/viewdoctors/:id" element={<PatientDoctors />} />
         <Route path="/patient/appointments/:id" element={<PatientAppointments />} />
         <Route path="/doctor/view-patient/:patientId/:doctorId" element={<PatientInfo />} />
+        <Route path="contract" element={<AcceptContract />} />
+        <Route path="wallet" element={<Wallet/>} />
 
       </Routes>
     </>
