@@ -160,7 +160,6 @@ const PatientAppointments = () => {
               <th className="custom-th">Doctor</th>
               <th className="custom-th">Date</th>
               <th className="custom-th">Status</th>
-              <th className="custom-th">Payment</th>
             </tr>
           </thead>
           <tbody>
@@ -169,36 +168,6 @@ const PatientAppointments = () => {
                 <td className="custom-td">{appointment.doctor}</td>
                 <td className="custom-td">{appointment.date}</td>
                 <td className="custom-td">{appointment.status}</td>
-                <td className="custom-td">
-                  <button
-                    className="wallet-payment"
-                    onClick={() =>
-                      handlePayment(
-                        id,
-                        appointment.doctorId,
-                        appointment.slotId,
-                        "wallet",
-                        appointment.sessionPrice
-                      )
-                    }
-                  >
-                    💵 Wallet 💵
-                  </button>
-                  <button
-                    className="credit-card-payment"
-                    onClick={() =>
-                      handlePayment(
-                        id,
-                        appointment.doctorId,
-                        appointment.slotId,
-                        "credit-card",
-                        appointment.sessionPrice
-                      )
-                    }
-                  >
-                    💳 Credit Card 💳
-                  </button>
-                </td>
               </tr>
             ))}
           </tbody>

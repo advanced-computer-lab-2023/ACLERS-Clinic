@@ -3,6 +3,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
+import { format } from "date-fns";
+import { parse } from "date-fns";
+import { set } from "date-fns";
 
 const DoctorAppointments = () => {
   const navigate = useNavigate();
@@ -72,9 +75,9 @@ const DoctorAppointments = () => {
       },
       body: JSON.stringify({
         doctorId,
-        date: newSlot.date,
-        startTime: newSlot.startTime.toISOString(),
-        endTime: newSlot.endTime.toISOString(),
+        date: format(newSlot.date, "yyyy-MM-dd"),
+        startTime: format(newSlot.startTime, "HH:mm:ss"),
+        endTime: format(newSlot.endTime, "HH:mm:ss"),
       }),
     };
     console.log("request body:", requestOptions.body);
@@ -155,6 +158,7 @@ const DoctorAppointments = () => {
           timeIntervals={15}
           timeCaption="Time"
           dateFormat="h:mm aa"
+          timeFormat="HH:mm"
         />
         <DatePicker
           selected={newSlot.endTime}
@@ -164,6 +168,7 @@ const DoctorAppointments = () => {
           timeIntervals={15}
           timeCaption="Time"
           dateFormat="h:mm aa"
+          timeFormat="HH:mm"
         />
         <button onClick={handleAddTimeSlot}>Add Time Slot</button>
       </div>

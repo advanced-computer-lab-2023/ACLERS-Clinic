@@ -6,14 +6,11 @@ const PatientHealthRecord = require("../models/PatientHealthRecord");
 const Appointment = require("../models/Appointment");
 const Patient = require("../models/Patient");
 const Perscription = require("../models/Perscription");
-const DoctorSlot = require('../models/FreeSlots'); // Import the DoctorSlot model
-const Wallet = require('../models/Wallet');
-const Contract = require('../models/Contract'); // Import the EmploymentContract model
-const Applicant= require('../models/Applicant');
-const FreeSlot=require('../models/FreeSlots');
-
-
-
+const DoctorSlot = require("../models/FreeSlots"); // Import the DoctorSlot model
+const Wallet = require("../models/Wallet");
+const Contract = require("../models/Contract"); // Import the EmploymentContract model
+const Applicant = require("../models/Applicant");
+const FreeSlot = require("../models/FreeSlots");
 
 const editEmail = asyncHandler(async (req, res) => {
   const doctorID = req.user.id;
@@ -21,7 +18,6 @@ const editEmail = asyncHandler(async (req, res) => {
   const newEmail = req.body.email;
   const newHourlyRate = req.body.hourlyRate;
   const newAffiliation = req.body.affiliation;
-
 
   try {
     const doctor = await Doctor.findById(doctorID);
@@ -35,7 +31,9 @@ const editEmail = asyncHandler(async (req, res) => {
       const existingDoctor = await Doctor.findOne({ email: newEmail });
 
       if (existingDoctor && doctor._id == existingDoctor._id) {
-       return res.status(400).json({ exists: true, message: "Email already taken" });
+        return res
+          .status(400)
+          .json({ exists: true, message: "Email already taken" });
       } else {
         doctor.email = newEmail;
       }
@@ -60,8 +58,8 @@ const editEmail = asyncHandler(async (req, res) => {
 
 const filterAppointments = asyncHandler(async (req, res) => {
   try {
-    const {  status, date } = req.query;
- const doctorId =req.user.id;
+    const { status, date } = req.query;
+    const doctorId = req.user.id;
     // Define a filter object to build the query dynamically
     const filter = { doctor: doctorId };
 
@@ -76,13 +74,13 @@ const filterAppointments = asyncHandler(async (req, res) => {
     }
 
     // Use the filter object to query the database
-    const appointments = await Appointment.find(filter)
-    appointments.forEach(async (map)=>{
-     const patient = await Patient.findById(map.patient)
-    // console.log(patient)
-     console.log(map.patient)
-     map.patient =patient
-    })
+    const appointments = await Appointment.find(filter);
+    appointments.forEach(async (map) => {
+      const patient = await Patient.findById(map.patient);
+      // console.log(patient)
+      console.log(map.patient);
+      map.patient = patient;
+    });
     res.status(200).json(appointments);
     //console.log(appointments)
   } catch (error) {
@@ -97,22 +95,20 @@ const viewPatients = asyncHandler(async (req, res) => {
   const registeredPatients = await RegisteredPatients.findOne({
     doctor: doctorId,
   });
-   console.log(registeredPatients,"registered")
+  console.log(registeredPatients, "registered");
   if (!registeredPatients) {
-    return res
-      .status(404)
-      .json({
-        message: "RegisteredPatients document not found for the doctor.",
-      });
+    return res.status(404).json({
+      message: "RegisteredPatients document not found for the doctor.",
+    });
   }
 
   const patientHealthRecordIds = registeredPatients.patients;
-  console.log(registeredPatients.patients)
-console.log(patientHealthRecordIds,"ids")
+  console.log(registeredPatients.patients);
+  console.log(patientHealthRecordIds, "ids");
   const patientsHealthRecords = await PatientHealthRecord.find({
     _id: { $in: patientHealthRecordIds },
   });
-  console.log(patientsHealthRecords,"patient halth record")
+  console.log(patientsHealthRecords, "patient halth record");
   const patientIds = patientsHealthRecords.map((record) => record.patient);
 
   const patients = await Patient.find({ _id: { $in: patientIds } }).select(
@@ -120,7 +116,7 @@ console.log(patientHealthRecordIds,"ids")
   );
 
   var filteredPatients = patients;
-  console.log(patients,"patients")
+  console.log(patients, "patients");
   if (status) {
     filteredPatients = await Promise.all(
       filteredPatients.map(async (patient) => {
@@ -130,41 +126,39 @@ console.log(patientHealthRecordIds,"ids")
           status: status,
           doctor: doctorId,
         });
-      //  console.log(hasMatchingAppointment);
+        //  console.log(hasMatchingAppointment);
         return hasMatchingAppointment ? patient : null;
       })
     );
     filteredPatients = filteredPatients.filter((patient) => patient !== null);
-   console.log(filteredPatients);
+    console.log(filteredPatients);
   }
   const patientMap = filteredPatients.reduce((acc, patient) => {
     acc[patient._id.toString()] = patient;
     return acc;
   }, {});
-console.log(patientMap,"map")
+  console.log(patientMap, "map");
   const patientsWithHealthRecords = patientsHealthRecords.map((record) => ({
     patient: patientMap[record.patient.toString()],
     healthRecord: record.healthRecord,
   }));
-   console.log(patientsWithHealthRecords)
+  console.log(patientsWithHealthRecords);
   // Return the patients along with their health records
-  res.status(200).send( patientsWithHealthRecords );
+  res.status(200).send(patientsWithHealthRecords);
 });
 
 const viewPatient = asyncHandler(async (req, res) => {
-  const {  patientId } = req.query;
-  const doctorId=req.user.id;
+  const { patientId } = req.query;
+  const doctorId = req.user.id;
 
   const registeredPatients = await RegisteredPatients.findOne({
     doctor: doctorId,
   });
 
   if (!registeredPatients) {
-    return res
-      .status(404)
-      .json({
-        message: "RegisteredPatients document not found for the doctor.",
-      });
+    return res.status(404).json({
+      message: "RegisteredPatients document not found for the doctor.",
+    });
   }
 
   const patientHealthRecordIds = registeredPatients.patients;
@@ -202,19 +196,19 @@ const viewPatient = asyncHandler(async (req, res) => {
   // Return the patient along with their health record without the extra "patient" layer
   res.status(200).json(patientResponse);
 });
-const viewMyInfo = asyncHandler(async (req,res)=>{
-  try{
+const viewMyInfo = asyncHandler(async (req, res) => {
+  try {
     const id = req.user.id;
-    const doctor = await Doctor.findById(id)
-    if(doctor){
-      res.status(200).send(doctor)
-    }else{
-      res.status(404).json({message:'doctor not found'})
+    const doctor = await Doctor.findById(id);
+    if (doctor) {
+      res.status(200).send(doctor);
+    } else {
+      res.status(404).json({ message: "doctor not found" });
     }
-  }catch(error){
-    res.status(400).send(error)
+  } catch (error) {
+    res.status(400).send(error);
   }
-})
+});
 
 const writePerscription = asyncHandler(async (req, res) => {
   const { patientId } = req.query;
@@ -244,21 +238,30 @@ const searchForPatient = asyncHandler(async (req, res) => {
   res.send(patient);
 });
 
-const addFreeSlot=asyncHandler( async (req, res) => {
+const addFreeSlot = asyncHandler(async (req, res) => {
   const { date, startTime, endTime } = req.body;
   const doctorId = req.user.id;
 
-
   if (!doctorId || !date || !startTime || !endTime) {
-    return res.status(400).json({ error: 'Please provide doctorId, date, start time, and end time.' });
+    return res
+      .status(400)
+      .json({
+        error: "Please provide doctorId, date, start time, and end time.",
+      });
   }
 
   try {
-    const newDoctorSlot = await DoctorSlot.create({ doctorId, date, startTime, endTime });
+    const newDoctorSlot = await DoctorSlot.create({
+      doctorId,
+      date,
+      startTime,
+      endTime,
+      status: "free",
+    });
     res.status(201).json(newDoctorSlot);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to create a doctor slot.' });
+    res.status(500).json({ error: "Failed to create a doctor slot." });
   }
 });
 
@@ -269,7 +272,9 @@ const viewPatientHealthRecords = asyncHandler(async (req, res) => {
   // Check if the doctor has permission to access the patient's records (you might need to implement your own logic here)
 
   // Retrieve the health records associated with the patient's ID
-  const patientHealthRecords = await PatientHealthRecord.find({ patient: patientId });
+  const patientHealthRecords = await PatientHealthRecord.find({
+    patient: patientId,
+  });
 
   res.json(patientHealthRecords);
 });
@@ -288,7 +293,7 @@ const getDoctorBalance = asyncHandler(async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to retrieve doctor balance.' });
+    res.status(500).json({ error: "Failed to retrieve doctor balance." });
   }
 });
 
@@ -298,7 +303,6 @@ const addHealthRecord = asyncHandler(async (req, res) => {
   const healthRecordText = req.body.healthRecordText; // Assuming you have health record data in the request body
 
   try {
-   
     const newHealthRecord = await PatientHealthRecord.create({
       patient: patientId,
       healthRecord: healthRecordText,
@@ -307,7 +311,7 @@ const addHealthRecord = asyncHandler(async (req, res) => {
     return res.status(201).json(newHealthRecord);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to add a new health record.' });
+    res.status(500).json({ error: "Failed to add a new health record." });
   }
 });
 
@@ -318,29 +322,29 @@ const ViewMyContract = asyncHandler(async (req, res) => {
     const contract = await Contract.findOne({ doctor: doctorId });
 
     if (!contract) {
-      res.json({ message: 'No contract' });
+      res.json({ message: "No contract" });
     } else {
       res.send({ description: contract.description });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to retrieve contract' });
+    res.status(500).json({ error: "Failed to retrieve contract" });
   }
 });
-const acceptContract = asyncHandler( async (req,res) => {
-  const doctorId=req.user.id;
+const acceptContract = asyncHandler(async (req, res) => {
+  const doctorId = req.user.id;
   try {
     // Find the contract by its ID
-    const contract = await Contract.findOne({doctor : doctorId});
-    
+    const contract = await Contract.findOne({ doctor: doctorId });
+
     if (!contract) {
-      res.json({message:'Contract not found'});
+      res.json({ message: "Contract not found" });
     }
 
     // Update the contract's status to 'accepted'
-    contract.status = 'accepted';
+    contract.status = "accepted";
     const applicantId = req.user.id;
-     
+
     var applicant = await Applicant.findById(applicantId);
 
     const doctor = await Doctor.create({
@@ -352,40 +356,35 @@ const acceptContract = asyncHandler( async (req,res) => {
       hourlyRate: applicant.hourlyRate,
       affiliation: applicant.affiliation,
       educationalBackground: applicant.educationalBackground,
-      speciality: applicant.speciality
+      speciality: applicant.speciality,
     });
     const wallet = await Wallet.create({
       userId: doctor._id, // Set the userId to the doctor's ID
       balance: 0, // Set an initial balance
     });
     await Applicant.findByIdAndDelete(applicantId);
-  
-  
-  
 
     // Save the updated contract
     await contract.save();
 
     return res.status(200).send(doctor);
-
   } catch (error) {
     throw error;
   }
 });
 
-
-const denyContract = asyncHandler( async (req,res) => {
-  doctorId=req.user.id;
+const denyContract = asyncHandler(async (req, res) => {
+  doctorId = req.user.id;
   try {
     // Find the contract by its ID
-    const contract = await Contract.findOne({doctor : doctorId});
-    
+    const contract = await Contract.findOne({ doctor: doctorId });
+
     if (!contract) {
-      throw new Error('Contract not found');
+      throw new Error("Contract not found");
     }
 
     // Update the contract's status to 'rejected'
-    contract.status = 'rejected';
+    contract.status = "rejected";
 
     // Save the updated contract
     await contract.save();
@@ -405,7 +404,7 @@ const setAppointmentORFollowup = asyncHandler(async (req, res) => {
     const freeSlot = await FreeSlot.findById(freeSlotId);
 
     if (!freeSlot) {
-      return res.status(404).json({ message: 'Free slot not found' });
+      return res.status(404).json({ message: "Free slot not found" });
     }
 
     // Create an appointment using the doctor from the free slot, the patient ID, the date, start time, and end time from the free slot
@@ -415,7 +414,7 @@ const setAppointmentORFollowup = asyncHandler(async (req, res) => {
       date: freeSlot.date,
       startTime: freeSlot.startTime,
       endTime: freeSlot.endTime,
-      status: 'UpComing', // You can set the initial status as needed
+      status: "UpComing", // You can set the initial status as needed
     });
 
     // Save the new appointment to the database
@@ -424,10 +423,9 @@ const setAppointmentORFollowup = asyncHandler(async (req, res) => {
     res.status(201).json(newAppointment);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to set the appointment' });
+    res.status(500).json({ error: "Failed to set the appointment" });
   }
 });
-
 
 module.exports = {
   writePerscription,
@@ -443,5 +441,6 @@ module.exports = {
   addHealthRecord,
   ViewMyContract,
   acceptContract,
-  denyContract, setAppointmentORFollowup
+  denyContract,
+  setAppointmentORFollowup,
 };
