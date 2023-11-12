@@ -51,6 +51,12 @@ function DoctorDashboard() {
             <Link to={`/doctor/view-my-patients`}>View Patients</Link>
           </li>
           <li>
+            <Link to ={`/doctor/change-password`}>Change Password</Link>
+          </li>
+          <li>
+            <Link to ={`/doctor/MyWallet`}>My Wallet</Link>
+          </li>
+          <li>
             <button onClick={handleLogout}>Logout</button>
           </li>
         </ul>

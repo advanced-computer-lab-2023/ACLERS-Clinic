@@ -41,7 +41,7 @@ export default function DoctorSignUp() {
     data.append("idDocument", idDocument);
     data.append("medicalLicense", medicalLicense);
     data.append("medicalDegree", medicalDegree);
-
+ 
     const newDoctor = {
       username,
       name,
@@ -54,14 +54,14 @@ export default function DoctorSignUp() {
       speciality,
     };
 
-    console.log({ newDoctor });
+    console.log({ data });
 
     fetch("/auth/register-doctor", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(newDoctor),
+      body: JSON.stringify(data),
     })
       .then((res) => res.json())
       .then((data) => {

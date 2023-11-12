@@ -15,6 +15,7 @@
     "@types/jsonwebtoken": "^9.0.5",
     "ag-grid-community": "^30.2.0",
     "ag-grid-react": "^30.2.0",
+    "assert": "^2.1.0",
     "bootstrap": "^5.3.2",
     "buffer": "^6.0.3",
     "core-js": "^3.33.2",
@@ -61,5 +62,9 @@
   },
   "browser": {
     "crypto": false
+  },
+  "devDependencies": {
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
   }
 }

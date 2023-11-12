@@ -255,13 +255,17 @@ const approveDoctorRequest = asyncHandler(async (req, res) => {
   if (!applicant) {
     return res.status(404).json({ message: "Applicant not found" });
   }
-
+try{
   const contract = await Contract.create({
     doctor: applicantId,
     description: contractDescription,
     status: "pending",
   });
   return res.send(contract);
+}catch(error){
+  console.log(error)
+  return res.status(400).send(error)
+}
 });
 
 const disapproveDoctorRequest = asyncHandler(async (req, res) => {

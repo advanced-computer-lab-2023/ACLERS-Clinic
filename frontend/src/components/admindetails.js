@@ -1,4 +1,8 @@
+import jwt from "jsonwebtoken-promisified";
 const AdminDetails = ({ admin }) => {
+  const token = localStorage.getItem("token");
+  const decodedToken = jwt.decode(token);
+  console.log("decoded Token:", decodedToken);
   const handleClick = async () => {
     console.log("el button etdas");
     console.log(admin._id);
@@ -6,6 +10,10 @@ const AdminDetails = ({ admin }) => {
     const url = `/admin/remove-admin?adminId=${admin._id}`;
     const response = await fetch(url, {
       method: "DELETE",
+      headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
     });
 
     if (response.ok) {

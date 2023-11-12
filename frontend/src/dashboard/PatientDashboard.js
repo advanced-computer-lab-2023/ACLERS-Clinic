@@ -55,6 +55,12 @@ function PatientDashboard() {
             <Link to={`/patient/medicalhistory`}>Medical History</Link>
           </li>
           <li>
+          <Link to={`/patient/MyWallet`}>My Wallet</Link>
+          </li>
+          <li>
+            <Link to ={`/patient/change-password`}>Change Password</Link>
+          </li>
+          <li>
             <button onClick={handleLogout}>Logout</button>
           </li>
         </ul>

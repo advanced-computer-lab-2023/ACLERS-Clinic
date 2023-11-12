@@ -2,13 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+import jwt from "jsonwebtoken-promisified";
 const EditHealthPackage = () => {
   //const { id } = useParams(); // Get the ID from the URL
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get('id');
   const navigate = useNavigate()
-
+  const token = localStorage.getItem("token");
+  const decodedToken = jwt.decode(token);
+  console.log("decoded Token:", decodedToken);
   const [healthPackage, setHealthPackage] = useState({
     type: '',
     Price: 0,
@@ -20,7 +23,14 @@ const EditHealthPackage = () => {
   useEffect(() => {
     // Fetch the health package data based on the ID from the URL
     const fetchPackage = async () => {
-      const response = await fetch(`http://localhost:8000/admin/view-HealthPackage?id=${id}`);
+      const requestOptions = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await fetch(`http://localhost:8000/admin/view-HealthPackage?id=${id}`,requestOptions);
       const json = await response.json();
       
       if (response.ok) {
@@ -42,11 +52,13 @@ const EditHealthPackage = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+   
     // Send a PUT request to update the health package data
     const response = await fetch(`http://localhost:8000/admin/update-HealthPackage?healthPackageId=${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(healthPackage),
     });
@@ -59,7 +71,13 @@ const EditHealthPackage = () => {
       // Handle errors, e.g., show an error message
     }
   };
-
+  if (!token ) {
+    // Handle the case where id is not available
+    return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
+  }
+  if(decodedToken.role !=="admin"){
+    return <div>ACCESS DENIED, You are not authorized</div>;
+  }
   return (
     <div>
        <button onClick={() => navigate(-1)}>Go Back</button>

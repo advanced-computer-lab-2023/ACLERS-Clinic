@@ -1,4 +1,9 @@
+
+import jwt from "jsonwebtoken-promisified";
 const DoctorDetails = ({ doctor }) => {
+  const token = localStorage.getItem("token");
+  const decodedToken = jwt.decode(token);
+  console.log("decoded Token:", decodedToken);
   const handleClick = async () => {
     console.log("el button etdas");
     console.log(doctor._id);
@@ -6,6 +11,10 @@ const DoctorDetails = ({ doctor }) => {
     const url = `/admin/remove-doctor?id=${doctor._id}`;
     const response = await fetch(url, {
       method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (response.ok) {

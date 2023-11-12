@@ -1,13 +1,23 @@
 // HealthPackageList.js
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import jwt from "jsonwebtoken-promisified";
 const HealthPackageList = () => {
   const [healthPackages, setHealthPackages] = useState([]);
   const navigate = useNavigate()
-
+  const token = localStorage.getItem("token");
+  const decodedToken = jwt.decode(token);
+  console.log("decoded Token:", decodedToken);
   useEffect(() => {
     const fetchPackages = async () => {
-        const response = await fetch("http://localhost:8000/admin/view-HealthPackage");
+      const requestOptions = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+        const response = await fetch("http://localhost:8000/admin/view-HealthPackage",requestOptions);
         const json = await response.json();
          
         if (response.ok) {
@@ -20,8 +30,18 @@ const HealthPackageList = () => {
 
   const deletePackage = async (packageId) => {
     try {
+      const requestOptions = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
       const response = await fetch(`/admin/delete-HealthPackage?healthPackageId=${packageId}`, {
-        method: 'DELETE',
+        method: 'DELETE',headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (response.ok) {
@@ -37,13 +57,28 @@ const HealthPackageList = () => {
     }
   };
   const fetchPackages = async () => {
-    const response = await fetch("http://localhost:8000/admin/view-HealthPackage");
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await fetch("http://localhost:8000/admin/view-HealthPackage",requestOptions);
     const json = await response.json();
      
     if (response.ok) {
       setHealthPackages(json);
     }
   };
+
+  if (!token ) {
+    // Handle the case where id is not available
+    return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
+  }
+  if(decodedToken.role !=="admin"){
+    return <div>ACCESS DENIED, You are not authorized</div>;
+  }
   return (
     <div>
        <button onClick={() => navigate(-1)}>Go Back</button>

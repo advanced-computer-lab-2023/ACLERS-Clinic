@@ -27,7 +27,7 @@ const DoctorInfo = () => {
         Authorization: `Bearer ${token}`,
       },
     };
-    fetch(`http://localhost:8000/Doctor-Home`, requestOptions)
+    fetch(`http://localhost:8000/Doctor-Home/view-my-info`, requestOptions)
       .then((response) => response.json())
       .then((data) => {
         setDoctor(data);

@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import "./adminremove.css";
 import { useNavigate } from "react-router-dom";
-
+import jwt from "jsonwebtoken-promisified";
 function AdminRemove() {
   // Define state variable to store the user ID
   const [userId, setUserId] = useState("");
   const navigate = useNavigate()
-
+  const token = localStorage.getItem("token");
+  const decodedToken = jwt.decode(token);
+  console.log("decoded Token:", decodedToken);
   // Function to handle the "Remove User" button click
   const handleRemoveUser = () => {
     // You can add your logic here to remove the user based on the provided ID

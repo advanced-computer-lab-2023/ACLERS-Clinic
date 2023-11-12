@@ -1,27 +1,65 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./ForgotPassword.css";
-
+import jwt from "jsonwebtoken-promisified";
 function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isPasswordReset, setIsPasswordReset] = useState(false);
-
-  const handleSendOtp = () => {
+  const token = localStorage.getItem("token");
+  const decodedToken = jwt.decode(token);
+  console.log("decoded Token:", decodedToken);
+  const handleSendOtp = async() => {
     // Simulate sending OTP logic here
     // You can implement the email OTP sending functionality
     // This is just a placeholder to demonstrate the flow
-    setIsOtpSent(true);
+    const response = await fetch("http://localhost:8000/auth/sendOTPEmail", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+       
+       email
+      }),
+    });
+    if(response.ok){
+      alert("OTP is sent")
+      setIsOtpSent(true);
+    }else{
+      alert("Failed to send OTP")
+    }
+
+
+    
   };
 
-  const handleResetPassword = () => {
+  const handleResetPassword = async() => {
     // Reset the password using the OTP and the new password
     // You can implement the password reset logic here
     // This is just a placeholder to demonstrate the flow
-    console.log("Password reset with OTP:", otp, "New Password:", newPassword);
-    setIsPasswordReset(true);
+    const response = await fetch("http://localhost:8000/auth/resetPassword", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+       
+       email,otp,newPassword
+      }),
+    });
+    if(response.ok){
+      alert("Password reseted successfully")
+      setIsPasswordReset(true);
+    }else{
+      alert("Failed to reset password")
+    }
+    
+   
   };
 
   return (

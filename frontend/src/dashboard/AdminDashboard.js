@@ -57,6 +57,9 @@ function AdminDashboard() {
             <Link to="/admin/view-HealthPackages">View Health Packages</Link>
           </li>
           <li>
+            <Link to ={`/admin/change-password`}>Change Password</Link>
+          </li>
+          <li>
             <button onClick={handleLogout}>Logout</button>
           </li>
         </ul>

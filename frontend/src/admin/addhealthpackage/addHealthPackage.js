@@ -1,7 +1,7 @@
 // AddHealthPackage.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import jwt from "jsonwebtoken-promisified";
 const AddHealthPackage = () => {
   const navigate = useNavigate()
  const[type,setType]=useState('')
@@ -10,14 +10,20 @@ const AddHealthPackage = () => {
  const[medicineDiscount,setMedicineDiscount]=useState('')
  const[subscriptionDiscount,setSubscriptionDiscount]=useState('')
 
+ const token = localStorage.getItem("token");
+  const decodedToken = jwt.decode(token);
+  console.log("decoded Token:", decodedToken);
+
   const handleSubmit =async (e) => {
     e.preventDefault();
     const healthPackage = {type,Price,doctorDiscount,medicineDiscount,subscriptionDiscount}
     console.log(healthPackage)
-    const response = await fetch('/admin/add-HealthPackage',{
+    
+    const response = await fetch('http://localhost:8000/admin/add-HealthPackage',{
       method:'POST',
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(healthPackage),
     })
@@ -32,7 +38,13 @@ const AddHealthPackage = () => {
    }
     
   };
-
+  if (!token ) {
+    // Handle the case where id is not available
+    return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
+  }
+  if(decodedToken.role !=="admin"){
+    return <div>ACCESS DENIED, You are not authorized</div>;
+  }
   return (
     <div>
        <button onClick={() => navigate(-1)}>Go Back</button>

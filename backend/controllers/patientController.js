@@ -409,12 +409,12 @@ const viewDoctors = asyncHandler(async (req, res) => {
             patient: patientId,
           });
 
-          if (patientHealthPackages.length > 0) {
+          if (patientHealthPackages.length > 0 || patientHealthPackages[0].status=="subscribed") {
             const healthPackageId = patientHealthPackages[0].healthPackage;
             const healthPackage = await HealthPackage.findById(healthPackageId);
 
             // Calculate the session price based on the health package
-            if (healthPackage) {
+            if (healthPackage ) {
               sessionPrice +=
                 sessionPrice * 0.1 -
                 (healthPackage.doctorDiscount / 100) * doctor.hourlyRate;
@@ -451,7 +451,7 @@ const viewDoctors = asyncHandler(async (req, res) => {
             patient: patientId,
           });
 
-          if (patientHealthPackages.length > 0) {
+          if (patientHealthPackages.length > 0 || patientHealthPackages[0].status=="subscribed") {
             const healthPackageId = patientHealthPackages[0].healthPackage;
             const healthPackage = await HealthPackage.findById(healthPackageId);
 
@@ -694,7 +694,7 @@ const viewAppointmentsOfDr = asyncHandler(async (req, res) => {
     if (!slots || slots.length === 0) {
       return res.status(404).send("No appointments available");
     }
-
+ console.log(slots)
     // Filter slots by status: "free"
     const freeSlots = slots.filter((slot) => slot.status === "free");
 

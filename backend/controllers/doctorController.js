@@ -76,13 +76,14 @@ const filterAppointments = asyncHandler(async (req, res) => {
     }
 
     // Use the filter object to query the database
-    const appointments = await Appointment.find(filter)
+    const appointments = await Appointment.find(filter).populate('patient')
     appointments.forEach(async (map)=>{
      const patient = await Patient.findById(map.patient)
     // console.log(patient)
      console.log(map.patient)
      map.patient =patient
     })
+    
     res.status(200).json(appointments);
     //console.log(appointments)
   } catch (error) {
@@ -171,7 +172,7 @@ const viewPatient = asyncHandler(async (req, res) => {
 
   const patientsHealthRecords = await PatientHealthRecord.find({
     _id: { $in: patientHealthRecordIds },
-  });
+  }).populate('healthRecord');
 
   const patients = await Patient.find({ _id: patientId }).select("-password");
 
@@ -197,7 +198,9 @@ const viewPatient = asyncHandler(async (req, res) => {
   const patientResponse = {
     patient: patientMap[patientId],
     healthRecord: patientWithHealthRecord.healthRecord,
+    attachments :patientWithHealthRecord.attachments
   };
+  console.log(patientWithHealthRecord+"patientWithHealthRecord");
 
   // Return the patient along with their health record without the extra "patient" layer
   res.status(200).json(patientResponse);
@@ -295,16 +298,18 @@ const getDoctorBalance = asyncHandler(async (req, res) => {
 const addHealthRecord = asyncHandler(async (req, res) => {
   const doctorId = req.user.id; // Assuming you have authenticated the doctor
   const patientId = req.query.patientId; // Assuming you have a patient ID in the request body
-  const healthRecordText = req.body.healthRecordText; // Assuming you have health record data in the request body
-
+  const newHealthRecord = req.body.healthRecord; // Assuming you have health record data in the request body
+console.log(newHealthRecord+"decsription");
   try {
    
-    const newHealthRecord = await PatientHealthRecord.create({
+    const newHealthRecord1 = await PatientHealthRecord.findOne({
       patient: patientId,
-      healthRecord: healthRecordText,
+     
     });
+    newHealthRecord1.healthRecord=newHealthRecord;
+    await newHealthRecord1.save();
 
-    return res.status(201).json(newHealthRecord);
+    return res.status(201).json(newHealthRecord1);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to add a new health record.' });

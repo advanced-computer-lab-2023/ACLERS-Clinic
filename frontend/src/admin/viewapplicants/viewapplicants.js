@@ -1,39 +1,56 @@
-import React, { useEffect, useState } from "react";
+// ViewApplicants.js
+
 import ApplicantDetails from "../../components/applicantdetails.js";
 import { useNavigate } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
-
+import React, { useEffect, useState } from "react";
 const ViewApplicants = () => {
   const [applicants, setApplicants] = useState(null);
+  const [contractDetails, setContractDetails] = useState({});
   const navigate = useNavigate();
-  useEffect(() => {
-    const fetchApplicants = async () => {
-      const response = await fetch("/admin/view-applicants");
-      const json = await response.json();
-
-      if (response.ok) {
-        setApplicants(json);
-      }
-    };
-    fetchApplicants();
-  }, []);
-
   const token = localStorage.getItem("token");
+  const decodedToken = jwt.decode(token);
+useEffect(()=>{
+  fetchApplicants()
+},[])
+  const fetchApplicants = async () => {
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
 
-  if (!token) {
-    // Handle the case where id is not available
-    return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
-  }
+    const response = await fetch("http://localhost:8000/admin/view-applicants", requestOptions);
+    const json = await response.json();
+  console.log(json)
+    if (response.ok) {
+      setApplicants(json);
+    }
+  };
 
   const handleAccept = (applicantId) => {
-    // Send a POST request to "/admin/approve-doctor?applicantId=<applicantId>"
-    fetch(`/admin/approve-doctor?applicantId=${applicantId}`, {
+    const requestOptions = {
       method: "POST",
-    })
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        description: contractDetails[applicantId],
+      }),
+    };
+
+    fetch(`/admin/approve-doctor?applicantId=${applicantId}`, requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        // Handle the response, if needed
+        
         console.log("Doctor approved:", data);
+        // Refresh the list of applicants after approving
+        alert("Contract is sent")
+        fetchApplicants();
+        
       })
       .catch((error) => {
         console.error("Error approving doctor:", error);
@@ -41,19 +58,31 @@ const ViewApplicants = () => {
   };
 
   const handleReject = (applicantId) => {
-    // Send a POST request to "/admin/reject-doctor?applicantId=<applicantId>"
     fetch(`/admin/reject-doctor?applicantId=${applicantId}`, {
       method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     })
       .then((response) => response.json())
       .then((data) => {
-        // Handle the response, if needed
         console.log("Doctor rejected:", data);
+        // Refresh the list of applicants after rejecting
+        fetchApplicants();
       })
       .catch((error) => {
         console.error("Error rejecting doctor:", error);
       });
   };
+
+  if (!token) {
+    return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
+  }
+
+  if (decodedToken.role !== "admin") {
+    return <div>ACCESS DENIED, You are not authorized</div>;
+  }
 
   return (
     <div className="applicantviewer">
@@ -63,6 +92,16 @@ const ViewApplicants = () => {
         applicants.map((applicant) => (
           <div key={applicant._id}>
             <ApplicantDetails applicant={applicant} />
+            <textarea
+              placeholder="Enter employment contract details"
+              value={contractDetails[applicant._id] || ""}
+              onChange={(e) =>
+                setContractDetails({
+                  ...contractDetails,
+                  [applicant._id]: e.target.value,
+                })
+              }
+            />
             <button onClick={() => handleAccept(applicant._id)}>Accept</button>
             <button onClick={() => handleReject(applicant._id)}>Reject</button>
           </div>

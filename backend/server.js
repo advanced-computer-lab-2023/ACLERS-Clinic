@@ -63,6 +63,7 @@ console.log('Endpoint Secret:', endpointSecret);
     }
   }
 //app.use(express.urlencoded({extended : false}))
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(cors());
 app.get("/", (req, res) => {
   res.send("hello world");

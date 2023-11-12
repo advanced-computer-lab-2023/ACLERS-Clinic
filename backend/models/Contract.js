@@ -5,6 +5,7 @@ const employmentContractSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Doctor', // Reference to the Doctor model
     required: true,
+    unique:true
   },
   description: {
     type: String,

@@ -4,7 +4,7 @@ const Patient = require('../models/Patient')
 const Doctor = require('../models/Doctor')
 const blacklistedTokens = require('./blackListedTokens');
 const Applicant = require('../models/Applicant');
-
+const Admin = require('../models/Admin')
 const protect = asyncHandler(async (req,res,next)=>{
 let token 
 let user
@@ -37,6 +37,7 @@ if(req.headers.authorization && req.headers.authorization.startsWith("Bearer")){
 
      next()
     }catch(error){
+        console.log(error)
         res.status(401)
         throw new Error('not authorized')
 

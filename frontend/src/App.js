@@ -29,6 +29,9 @@ import PatientAppointments from "./patient/appointments";
 import Viewhealthpackages from "./patient/HealthPackageList";
 import Handlesubscription from "./patient/handlesubscribe";
 import ForgotPassword from "./login/forgotpassword";
+import PatientBalance from "./patient/patientWallet";
+import DoctorBalance from "./doctor/doctorWallet";
+import PasswordChangeForm from "./patient/changePassword";
 const App = () => {
   return (
     <>
@@ -63,6 +66,9 @@ const App = () => {
           path="/doctor/view-my-appointments"
           element={<DoctorAppointments />}
         />
+        <Route path="/patient/change-password/" element={<PasswordChangeForm/>}/>
+        <Route path="/doctor/change-password/" element={<PasswordChangeForm/>}/>
+        <Route path="/admin/change-password/" element={<PasswordChangeForm/>}/>
         <Route path="/doctor/view-my-patients" element={<DoctorPatients />} />
 
         <Route path="/patient/dashboard" element={<PatientDashBoard />} />
@@ -93,7 +99,8 @@ const App = () => {
           path="/patient/appointments/:id"
           element={<PatientAppointments />}
         />
-
+         <Route path="/patient/MyWallet/" element={<PatientBalance/>}/>
+         <Route path="/doctor/MyWallet/" element={<DoctorBalance/>}/>
         <Route
           path="/patient/Viewhealthpackages/:id"
           element={<Viewhealthpackages />}
