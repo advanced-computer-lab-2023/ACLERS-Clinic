@@ -2,21 +2,35 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 
+import jwt from "jsonwebtoken-promisified";
+
+
 
 const DoctorPatients = () => {
   const navigate=useNavigate();
-  const { id } = useParams();
+  const token = localStorage.getItem("token");
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const id = decodedtoken.id;
   const [patients, setPatients] = useState([]);
   const [filteredPatients, setFilteredPatients] = useState([]);
   const [appointmentStatus, setAppointmentStatus] = useState(""); // Default: no filter
   const [searchName, setSearchName] = useState(""); // Add state for search
 
   // Fetch the list of patients initially
+  const requestOptions = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  };
   useEffect(() => {
     // Replace with your API call to fetch patients registered with the doctor
     //console.log(doctorId);
+    
     fetch(
-      `http://localhost:8000/Doctor-Home/view-patients?doctorId=${id}`
+      `http://localhost:8000/Doctor-Home/view-patients?doctorId=${id}`,requestOptions
     )
       .then((response) => response.json())
       .then((data) => {
@@ -38,7 +52,7 @@ const DoctorPatients = () => {
     if (appointmentStatus) {
       // Filter patients by appointment status
       fetch(
-        `http://localhost:8000/Doctor-Home/view-patients?doctorId=${id}&status=${appointmentStatus}`
+        `http://localhost:8000/Doctor-Home/view-patients?doctorId=${id}&status=${appointmentStatus}`,requestOptions
       )
         .then((response) => response.json())
         .then((data) => {
@@ -119,7 +133,7 @@ const DoctorPatients = () => {
                   <p>
                     Name:{" "}
                     <Link
-                      to={`/doctor/view-patient/${item.patient._id}/${id}`}
+                      to={`/doctor/view-patient/${item.patient._id}`}
                     >
                       {item.patient.name}
                     </Link>

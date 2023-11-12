@@ -1,24 +1,43 @@
 // PatientInfo.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import jwt from "jsonwebtoken-promisified";
 
 const PatientInfo = () => {
-  const { patientId ,doctorId} = useParams();
+  const token = localStorage.getItem("token");
+  const decodedToken = jwt.decode(token);
+  console.log("Decoded Token:", decodedToken);
+  const doctorId = decodedToken.id;
+
+  const { patientId } = useParams();
   const [patient, setPatient] = useState(null);
-const navigate=useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
     // Replace with your API call to fetch patient information by patientId
-    fetch(`http://localhost:8000/Doctor-Home/view-patient?patientId=${patientId}&doctorId=${doctorId}`)
+    fetch(`http://localhost:8000/Doctor-Home/view-patient?patientId=${patientId}&doctorId=${doctorId}`, requestOptions)
       .then((response) => response.json())
       .then((data) => {
         setPatient(data);
-        console.log(data)
+        console.log(data);
       })
       .catch((error) => {
         console.error('Error fetching patient information:', error);
       });
-  }, [patientId]);
+  }, [patientId, doctorId, token]);
+
+  const handleNavigateToFreeSlots = () => {
+    // Navigate to the page that renders free slots
+    navigate(`view-freeSlots`);
+  };
 
   if (!patient) {
     return <div>Loading...</div>;
@@ -26,7 +45,7 @@ const navigate=useNavigate();
 
   return (
     <div>
-             <button onClick={() => navigate(-1)}>Go Back</button>
+      <button onClick={() => navigate(-1)}>Go Back</button>
 
       <h1>Patient Information</h1>
       <p>Name: {patient.patient.name}</p>
@@ -40,8 +59,11 @@ const navigate=useNavigate();
       <p>Mobile Number: {patient.patient.emergencyContact.mobileNumber}</p>
       <h3>Health Record</h3>
       <p>{patient.healthRecord}</p>
+
+      <button onClick={handleNavigateToFreeSlots}>FollowUp</button>
     </div>
   );
 };
+
 
 export default PatientInfo;

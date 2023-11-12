@@ -29,6 +29,7 @@ import PatientAppointments from "./patient/appointments";
 import Viewhealthpackages from "./patient/HealthPackageList";
 import Handlesubscription from "./patient/handlesubscribe";
 import ForgotPassword from "./login/forgotpassword";
+import FollowUp from "./doctor/FollowUp"
 const App = () => {
   return (
     <>
@@ -85,8 +86,12 @@ const App = () => {
           element={<PatientMedicalHistory />}
         />
         <Route
-          path="/doctor/view-patient/:patientId/:doctorId"
+          path="/doctor/view-patient/:patientId"
           element={<PatientInfo />}
+        />
+        <Route
+          path="/doctor/view-patient/:patientId/view-freeSlots"
+          element={<FollowUp />}
         />
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
         <Route
