@@ -150,6 +150,9 @@ export default function SignInSide() {
                   <Link href="/signuppage" variant="body2">
                     {"Don't have an account? Sign Up"}
                   </Link>
+                  <Link href="/forgotpassword" variant="body2">
+                    {"Forgot Password"}
+                  </Link>
                 </Grid>
                 <Grid item></Grid>
               </Grid>

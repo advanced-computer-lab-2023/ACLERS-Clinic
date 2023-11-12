@@ -19,6 +19,9 @@ function PatientDashboard() {
           <li>
             <Link to={`/patient/view-perscriptions/${id}`}>View perscriptions</Link>
           </li>
+          <li>
+            <Link to={`/patient/viewSubscribedHealthPackage/${id}`}>View HealthPackages</Link>
+          </li>
         </ul>
       </nav>
       {/* Add content for each section here */}

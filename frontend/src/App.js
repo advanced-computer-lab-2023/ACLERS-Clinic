@@ -1,6 +1,7 @@
 // App.js
 import { Routes, Route } from "react-router-dom";
 import Login from "./login/SignInSide";
+import ChangePass from "./test/ChangePass";
 import SignUpPage from "./signupdirectory/SignUpPage";
 import PatinetSignUpPage from "./signup/SignUp";
 import AdminHome from "./admin/adminhome/adminhome";
@@ -25,6 +26,8 @@ import DoctorSignUpPage from "./signup/SignUpdoctor";
 import ViewApplicants from "./admin/viewapplicants/viewapplicants";
 import PatientDoctors from "./patient/viewdoctors";
 import PatientAppointments from "./patient/appointments";
+import ViewSubHealthPackages from "./patient/viewHealthPackages";
+
 const App = () => {
   return (
     <>
@@ -32,6 +35,7 @@ const App = () => {
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signuppage" element={<SignUpPage />} />
+        <Route path="/forgotpassword" element={<ChangePass />} />
         <Route path="/signuppage/patient" element={<PatinetSignUpPage />} />
         <Route path="/signuppage/doctor" element={<DoctorSignUpPage />} />
         <Route path="/admin" element={<AdminHome />} />
@@ -77,7 +81,8 @@ const App = () => {
         <Route path="/patient/viewdoctors/:id" element={<PatientDoctors />} />
         <Route path="/patient/appointments/:id" element={<PatientAppointments />} />
         <Route path="/doctor/view-patient/:patientId/:doctorId" element={<PatientInfo />} />
-
+        <Route path="/patient/ViewSubHealthPackages/:id" element={<ViewSubHealthPackages />} />
+        <Route path="/test/ChangePass/:userId" element={<changePassword />} />
       </Routes>
     </>
   );
