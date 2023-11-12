@@ -82,6 +82,9 @@ export default function SignInSide() {
           // Redirect to doctor home page
           navigate("/admin/dashboard", { state: { id: decodedToken.id } });
         }
+        else if(decodedToken.role ==="applicant"){
+          navigate("/applicant/contract",{state:{id:decodedToken.id}});
+        }
       } else {
         // Login failed
         console.error("Login failed");

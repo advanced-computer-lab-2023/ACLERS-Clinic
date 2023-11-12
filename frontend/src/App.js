@@ -32,6 +32,7 @@ import ForgotPassword from "./login/forgotpassword";
 import PatientBalance from "./patient/patientWallet";
 import DoctorBalance from "./doctor/doctorWallet";
 import PasswordChangeForm from "./patient/changePassword";
+import ContractDetails from "./applicant/contract";
 const App = () => {
   return (
     <>
@@ -105,6 +106,7 @@ const App = () => {
           path="/patient/Viewhealthpackages/:id"
           element={<Viewhealthpackages />}
         />
+        <Route path="/applicant/contract" element={<ContractDetails/>}/>
         <Route
           path="/patient/Handlesubscription/:id1/:id2"
           element={<Handlesubscription />}

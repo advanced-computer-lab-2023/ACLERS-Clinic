@@ -298,7 +298,7 @@ const registerDoctor = asyncHandler(async (req, res) => {
       medicalLicense: medicalLicensePath, // Store the path to the uploaded medical license
       medicalDegree: medicalDegreePath,
     });
-    console.log(doctor);
+    console.log(doctor +"doctor");
     res.status(200).json(doctor);
   } catch (error) {
     res.send(error);

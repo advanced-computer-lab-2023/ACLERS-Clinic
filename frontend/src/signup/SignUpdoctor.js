@@ -35,8 +35,22 @@ export default function DoctorSignUp() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+   
     const data = new FormData(event.currentTarget);
-
+    data.append("username", username);
+    data.append("name", name);
+    data.append("email", email);
+    data.append("password", password);
+    data.append("dateOfBirth", dateOfBirth);
+    data.append("hourlyRate", hourlyRate);
+    data.append("affiliation", affiliation);
+    data.append("educationalBackground", educationalBackground);
+    data.append("speciality", speciality);
+  
+    // Append the files to the form data
+    data.append("idDocument", idDocument);
+    data.append("medicalLicense", medicalLicense);
+    data.append("medicalDegree", medicalDegree);
     // Add the file data to the form data
     data.append("idDocument", idDocument);
     data.append("medicalLicense", medicalLicense);
@@ -52,6 +66,9 @@ export default function DoctorSignUp() {
       affiliation,
       educationalBackground,
       speciality,
+      idDocument,
+      medicalLicense,
+      medicalDegree
     };
 
     console.log({ data });
@@ -61,7 +78,7 @@ export default function DoctorSignUp() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: data,
     })
       .then((res) => res.json())
       .then((data) => {

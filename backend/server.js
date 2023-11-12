@@ -6,12 +6,14 @@ const port = process.env.PORT;
 const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
-
+const bodyParser = require("body-parser");
 connectDB();
 
 const app = express();
+//app.use(express.json())
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-app.use(express.json())
 const endpointSecret = "whsec_e3aa0605f96c7a9b4d65f2fbdaa3d5c8fe1c741bbd51a03a36a63796a4a11cf9";
 
 
@@ -62,6 +64,8 @@ console.log('Endpoint Secret:', endpointSecret);
         console.log(`Unhandled event type: ${event.type}`);
     }
   }
+
+  
 //app.use(express.urlencoded({extended : false}))
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(cors());
