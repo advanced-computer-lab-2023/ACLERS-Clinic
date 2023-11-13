@@ -96,7 +96,7 @@ const App = () => {
         />
 
         <Route
-          path="/patient/Viewhealthpackages/:id"
+          path="/patient/Viewhealthpackages"
           element={<Viewhealthpackages />}
         />
         <Route

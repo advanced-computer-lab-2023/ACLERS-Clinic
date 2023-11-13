@@ -483,7 +483,7 @@ const viewDoctors = asyncHandler(async (req, res) => {
 });
 const subscribeHealthPackageFamMember = asyncHandler(async (req, res) => {
   try {
-    const { healthPackageId, familyMemberId, relation } = req.query;
+    const { healthPackageId, familyMemberId } = req.query;
     const patientId = req.user.id;
     const paymentMethod = req.body.paymentMethod;
     const patientHealthPack = await PatientHealthPackage.findOne({
