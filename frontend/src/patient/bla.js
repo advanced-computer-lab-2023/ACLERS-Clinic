@@ -18,7 +18,6 @@ const HealthPackageList = () => {
   const [healthPackages, setHealthPackages] = useState([]);
   const [subscriptionType, setSubscriptionType] = useState(""); // Added subscriptionType state
   const [familyMembers, setFamilyMembers] = useState([]);
-  const [paymentOption, setPaymentOption] = useState(""); 
  
 
   useEffect(() => {
@@ -42,22 +41,11 @@ const HealthPackageList = () => {
       .catch((error) => {
         console.error("Error fetching health packages:", error);
       });
+
   }, [id]);
 
   useEffect(() => {
-  // Replace with your API call to fetch patient's appointments
-  const requestOptions = {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  };
-
-    fetch(
-      `http://localhost:8000/Patient-Home/view-fam-member?patientId=${id}`,
-      requestOptions
-    )
+    fetch(`http://localhost:8000/Patient-Home/view-fam-member?patientId=${id}`)
       .then((response) => response.json())
       .then((data) => {
         if (data.familyMembers && Array.isArray(data.familyMembers)) {
@@ -73,60 +61,7 @@ const HealthPackageList = () => {
   }, [id]);
 
   const handleSubscribe = (healthPackageId) => {
-    console.log(subscriptionType)
-    // Check the subscription type
-    if (subscriptionType === "Myself") {
-      console.log(id)
-      console.log(healthPackageId)
-      console.log(paymentOption)
-      // If subscription type is "Myself", make a POST request with patientId and healthPackageId in the query
-      fetch(`http://localhost:8000/Patient-Home/subscribe-healthPackage?id=${id}&healthPackageId=${healthPackageId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          paymentMethod: paymentOption,
-        }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          // Handle the response as needed
-          console.log(data);
-        })
-        .catch((error) => {
-          console.error("Error subscribing:", error);
-        });
-    } else {
-      const familyMemberId = familyMembers._id;
-      console.log(id)
-      console.log(healthPackageId)
-      console.log(paymentOption)
-      console.log(familyMemberId)
-      // If subscription type is not "Myself", assume it's a family member
-      // Here, you need to replace "familyMemberId" with the actual ID of the selected family member
-      
-      // Make a POST request with patientId, familyMemberId, and healthPackageId in the query
-      fetch(`http://localhost:8000/Patient-Home/subscribe-healthPackage-famMem?id=${id}&familyMemberId=${familyMemberId}&healthPackageId=${healthPackageId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          paymentMethod: paymentOption,
-        }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          // Handle the response as needed
-          console.log(data);
-        })
-        .catch((error) => {
-          console.error("Error subscribing:", error);
-        });
-    }
+    navigate(`/patient/Handlesubscription/${id}/${healthPackageId}`);
   };
 
   return (
@@ -144,7 +79,6 @@ const HealthPackageList = () => {
               <th>Doctor Discount</th>
               <th>Medicine Discount</th>
               <th>Subscription Discount</th>
-              <th>Payment Option</th> 
               <th>Subscribe</th>
             </tr>
           </thead>
@@ -157,18 +91,6 @@ const HealthPackageList = () => {
                 <td>{healthPackage.medicineDiscount}%</td>
                 <td>{healthPackage.subscriptionDiscount}%</td>
                 <td>
-                  <div className="payment-dropdown">
-                    <select
-                      value={paymentOption}
-                      onChange={(e) => setPaymentOption(e.target.value)}
-                    >
-                     
-                      <option value="creditCard">Credit Card</option>
-                      <option value="wallet">Wallet</option>
-                    </select>
-                  </div>
-                </td>
-                <td>
                   <div className="subscription-dropdown">
                     <select
                       value={subscriptionType}
@@ -176,10 +98,7 @@ const HealthPackageList = () => {
                     >
                       <option value="Myself">Myself</option>
                       {familyMembers.map((familyMember) => (
-                        <option
-                          key={familyMember._id}
-                          value={familyMember.relationToPatient}
-                        >
+                        <option key={familyMember._id} value={familyMember.relationToPatient}>
                           {familyMember.name} - {familyMember.relationToPatient}
                         </option>
                       ))}

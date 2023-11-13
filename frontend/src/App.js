@@ -80,7 +80,8 @@ const App = () => {
         <Route
           path="/patient/appointments/"
           element={<PatientAppointments />}
-        />
+
+/>
         <Route
           path="/patient/medicalhistory/"
           element={<PatientMedicalHistory />}
