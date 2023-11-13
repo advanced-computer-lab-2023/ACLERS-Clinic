@@ -5,7 +5,7 @@ import { Link, useLocation } from "react-router-dom";
 import "./PatientAppointments.css";
 import "react-datepicker/dist/react-datepicker.css";
 
-import jwt from "jsonwebtoken-promisified";
+import jwt, { decode } from "jsonwebtoken-promisified";
 
 const PatientAppointments = () => {
   const location = useLocation();
@@ -100,9 +100,13 @@ const PatientAppointments = () => {
         console.error("Error making payment:", error);
       });
   };
-  if (!token) {
-    // Handle the case where id is not available
-    return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
+  if (decodedtoken.role !== "patient") {
+    return (
+      <div>
+        <div>ACCESS DENIED, You are not authenticated, please log in</div>
+        <Link to="/login">Login</Link>
+      </div>
+    );
   }
   return (
     <div>

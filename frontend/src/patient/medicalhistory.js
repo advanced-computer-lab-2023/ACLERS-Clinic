@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./MedicalHistory.css"; // Create a separate CSS file for styling
 import jwt from "jsonwebtoken-promisified";
+import { Link } from "react-router-dom";
 
 function MedicalHistory() {
   const [files, setFiles] = useState([]);
@@ -70,7 +71,14 @@ function MedicalHistory() {
   //     <span>{file.name}</span>
   //   </div>
   // ));
-
+  if (decodedtoken.role !== "patient") {
+    return (
+      <div>
+        <div>ACCESS DENIED, You are not authenticated, please log in</div>
+        <Link to="/login">Login</Link>
+      </div>
+    );
+  }
   return (
     <div className="container">
       <div className="row">

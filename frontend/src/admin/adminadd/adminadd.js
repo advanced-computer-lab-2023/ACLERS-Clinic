@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import "./adminadd.css";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import jwt from "jsonwebtoken-promisified";
 
 function AdminAdd() {
   // Define state variables to store the username and password
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate()
-
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const id = decodedtoken.id;
   // Function to handle the form submission when the "Add Admin" button is clicked
   const handleAddAdmin = (event) => {
     event.preventDefault();
@@ -36,10 +40,17 @@ function AdminAdd() {
     setUsername("");
     setPassword("");
   };
-
+  if (decodedtoken.role !== "admin") {
+    return (
+      <div>
+        <div>ACCESS DENIED, You are not authenticated, please log in</div>
+        <Link to="/login">Login</Link>
+      </div>
+    );
+  }
   return (
     <div className="body">
-       <button onClick={() => navigate(-1)}>Go Back</button>
+      <button onClick={() => navigate(-1)}>Go Back</button>
       <h1>Add Admin</h1>
       <div>
         <label htmlFor="username">Username:</label>

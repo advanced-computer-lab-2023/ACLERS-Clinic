@@ -105,9 +105,13 @@ function DoctorSearch() {
         setDoctors(null);
       });
   };
-  if (!token) {
-    // Handle the case where id is not available
-    return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
+  if (decodedtoken.role !== "patient") {
+    return (
+      <div>
+        <div>ACCESS DENIED, You are not authenticated, please log in</div>
+        <Link to="/login">Login</Link>
+      </div>
+    );
   }
   return (
     <div>

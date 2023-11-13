@@ -11,8 +11,10 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import jwt from "jsonwebtoken-promisified";
 import Button from "@mui/material/Button";
+import { Link, useNavigate } from "react-router-dom";
 
 function SelectedDoctor() {
+  const navigate = useNavigate();
   const { doctorId, sessionPrice } = useParams();
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [slots, setSlots] = useState([]);
@@ -151,7 +153,7 @@ function SelectedDoctor() {
       )
         .then((response) => response.json())
         .then((data) => {
-          console.log("Appointment booked for family member:", data);
+          console.log("Appointment booked for yourself:", data);
           window.location.href = data.url;
           // Issue a POST request to pay without redirecting
           //   if (body.paymentMethod === "creditCard") {
@@ -191,9 +193,18 @@ function SelectedDoctor() {
         });
     }
   };
+  if (decodedtoken.role !== "patient") {
+    return (
+      <div>
+        <div>ACCESS DENIED, You are not authenticated, please log in</div>
+        <Link to="/login">Login</Link>
+      </div>
+    );
+  }
 
   return (
     <div>
+      <button onClick={() => navigate(-1)}>Go Back</button>
       <h1>Your Selected Doctor</h1>
 
       {selectedDoctor ? (

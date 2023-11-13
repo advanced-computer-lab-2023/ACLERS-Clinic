@@ -1,28 +1,38 @@
 // HealthPackageList.js
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import jwt from "jsonwebtoken-promisified";
+import { Link, useNavigate } from "react-router-dom";
+
 const HealthPackageList = () => {
   const [healthPackages, setHealthPackages] = useState([]);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const id = decodedtoken.id;
 
   useEffect(() => {
     const fetchPackages = async () => {
-        const response = await fetch("http://localhost:8000/admin/view-HealthPackage");
-        const json = await response.json();
-         
-        if (response.ok) {
-          setHealthPackages(json);
-        }
-      };
-      fetchPackages()
+      const response = await fetch(
+        "http://localhost:8000/admin/view-HealthPackage"
+      );
+      const json = await response.json();
+
+      if (response.ok) {
+        setHealthPackages(json);
+      }
+    };
+    fetchPackages();
   }, []);
-  
 
   const deletePackage = async (packageId) => {
     try {
-      const response = await fetch(`/admin/delete-HealthPackage?healthPackageId=${packageId}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(
+        `/admin/delete-HealthPackage?healthPackageId=${packageId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (response.ok) {
         // Handle success, e.g., update the UI or show a success message
@@ -33,20 +43,31 @@ const HealthPackageList = () => {
         // Handle errors, e.g., show an error message
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
   const fetchPackages = async () => {
-    const response = await fetch("http://localhost:8000/admin/view-HealthPackage");
+    const response = await fetch(
+      "http://localhost:8000/admin/view-HealthPackage"
+    );
     const json = await response.json();
-     
+
     if (response.ok) {
       setHealthPackages(json);
     }
   };
+  if (decodedtoken.role !== "admin") {
+    return (
+      <div>
+        <div>ACCESS DENIED, You are not authenticated, please log in</div>
+        <Link to="/login">Login</Link>
+      </div>
+    );
+  }
+
   return (
     <div>
-       <button onClick={() => navigate(-1)}>Go Back</button>
+      <button onClick={() => navigate(-1)}>Go Back</button>
       <h2>Health Packages</h2>
       <table>
         <thead>
@@ -68,15 +89,17 @@ const HealthPackageList = () => {
               <td>{packag.medicineDiscount}%</td>
               <td>{packag.subscriptionDiscount}%</td>
               <td>
-              <Link
-  to={{
-    pathname: '/admin/edit-HealthPackage',
-    search: `?id=${packag._id}`,
-  }}
->
-  Edit
-</Link>
-                <button onClick={() => deletePackage(packag._id)}>Delete</button>
+                <Link
+                  to={{
+                    pathname: "/admin/edit-HealthPackage",
+                    search: `?id=${packag._id}`,
+                  }}
+                >
+                  Edit
+                </Link>
+                <button onClick={() => deletePackage(packag._id)}>
+                  Delete
+                </button>
               </td>
             </tr>
           ))}

@@ -406,9 +406,7 @@ const viewDoctors = asyncHandler(async (req, res) => {
           });
 
           if (patientHealthPackages.length > 0) {
-            const healthPackageId = patientHealthPackages
-            
-            [0].healthPackage;
+            const healthPackageId = patientHealthPackages[0].healthPackage;
             const healthPackage = await HealthPackage.findById(healthPackageId);
 
             // Calculate the session price based on the health package
@@ -485,6 +483,8 @@ const viewDoctors = asyncHandler(async (req, res) => {
 });
 const subscribeHealthPackageFamMember = asyncHandler(async (req, res) => {
   try {
+    console.log("query of request fel backend: ", req.query);
+    console.log("body of request fel backend: ", req.body);
     const { healthPackageId, familyMemberId } = req.query;
     const patientId = req.user.id;
     const paymentMethod = req.body.paymentMethod;
@@ -492,13 +492,17 @@ const subscribeHealthPackageFamMember = asyncHandler(async (req, res) => {
       patient: patientId,
       status: "susbcribed",
     });
-    const healthPackage1 = await HealthPackage.findById(
-      patientHealthPack.healthPackage
-    );
     let discountAmount = 0;
-    if (healthPackage1) {
-      discountAmount = healthPackage1.subscriptionDiscount / 100;
+
+    if (patientHealthPack) {
+      const healthPackage1 = await HealthPackage.findById(
+        patientHealthPack.healthPackage
+      );
+      if (healthPackage1) {
+        discountAmount = healthPackage1.subscriptionDiscount / 100;
+      }
     }
+
     // Check if the patient has an existing subscription
     const existingSubscription = await PatientHealthPackage.findOne({
       patient: familyMemberId,

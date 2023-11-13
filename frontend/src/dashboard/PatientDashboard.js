@@ -55,7 +55,10 @@ function PatientDashboard() {
             <Link to={`/patient/medicalhistory`}>Medical History</Link>
           </li>
           <li>
-            <Link to={`/patient/Viewhealthpackages`}> health packages</Link>
+            <Link to={`/patient/Viewhealthpackages`}>
+              {" "}
+              Subscribe to a Health Package
+            </Link>
           </li>
           <li>
             <button onClick={handleLogout}>Logout</button>

@@ -74,9 +74,13 @@ const DoctorInfo = () => {
       console.error("Failed to update doctor information");
     }
   };
-  if (!token) {
-    // Handle the case where id is not available
-    return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
+  if (decodedtoken.role !== "doctor") {
+    return (
+      <div>
+        <div>ACCESS DENIED, You are not authenticated, please log in</div>
+        <Link to="/login">Login</Link>
+      </div>
+    );
   }
   return (
     <div>
