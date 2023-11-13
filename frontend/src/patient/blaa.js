@@ -1,38 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./HealthPackageList.css"; // Import the CSS file
-import DatePicker from "react-datepicker";
-import { Link, useLocation } from "react-router-dom";
-import "./PatientAppointments.css";
-import "react-datepicker/dist/react-datepicker.css";
-import jwt from "jsonwebtoken-promisified";
-
 
 const HealthPackageList = () => {
-  const location = useLocation();
-  const token = localStorage.getItem("token");
-  const decodedtoken = jwt.decode(token);
-  console.log("decoded Token:", decodedtoken);
-  const id = decodedtoken.id;
-  const navigate = useNavigate();
   const [healthPackages, setHealthPackages] = useState([]);
   const [subscriptionType, setSubscriptionType] = useState(""); // Added subscriptionType state
   const [familyMembers, setFamilyMembers] = useState([]);
- 
+  const { id } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
-
-    const requestOptions = {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      };
-
     // Fetch health packages data
-    fetch(`http://localhost:8000/Patient-Home/view-healthPackages?patientId=${id}`,
-    requestOptions)
+    fetch(`http://localhost:8000/Patient-Home/view-healthPackages?patientId=${id}`)
       .then((response) => response.json())
       .then((data) => {
         console.log(data);

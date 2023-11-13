@@ -410,7 +410,9 @@ const viewDoctors = asyncHandler(async (req, res) => {
           });
 
           if (patientHealthPackages.length > 0) {
-            const healthPackageId = patientHealthPackages[0].healthPackage;
+            const healthPackageId = patientHealthPackages
+            
+            [0].healthPackage;
             const healthPackage = await HealthPackage.findById(healthPackageId);
 
             // Calculate the session price based on the health package
