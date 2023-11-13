@@ -41,11 +41,13 @@ const HealthPackageList = () => {
       .catch((error) => {
         console.error("Error fetching health packages:", error);
       });
-
   }, [id]);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/Patient-Home/view-fam-member?patientId=${id}`)
+    fetch(
+      `http://localhost:8000/Patient-Home/view-fam-member?patientId=${id}`,
+      requestOptions
+    )
       .then((response) => response.json())
       .then((data) => {
         if (data.familyMembers && Array.isArray(data.familyMembers)) {
@@ -98,7 +100,10 @@ const HealthPackageList = () => {
                     >
                       <option value="Myself">Myself</option>
                       {familyMembers.map((familyMember) => (
-                        <option key={familyMember._id} value={familyMember.relationToPatient}>
+                        <option
+                          key={familyMember._id}
+                          value={familyMember.relationToPatient}
+                        >
                           {familyMember.name} - {familyMember.relationToPatient}
                         </option>
                       ))}

@@ -4,14 +4,17 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Link, useLocation } from "react-router-dom";
 import "./PatientAppointments.css";
 import "react-datepicker/dist/react-datepicker.css";
+
 import jwt from "jsonwebtoken-promisified";
 
 const PatientAppointments = () => {
   const location = useLocation();
+
   const token = localStorage.getItem("token");
   const decodedtoken = jwt.decode(token);
   console.log("decoded Token:", decodedtoken);
   const id = decodedtoken.id;
+
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [filteredAppointments, setFilteredAppointments] = useState([]);
@@ -97,7 +100,10 @@ const PatientAppointments = () => {
         console.error("Error making payment:", error);
       });
   };
-
+  if (!token) {
+    // Handle the case where id is not available
+    return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
+  }
   return (
     <div>
       <button onClick={() => navigate(-1)}>Go Back</button>
@@ -154,7 +160,6 @@ const PatientAppointments = () => {
               <th className="custom-th">Doctor</th>
               <th className="custom-th">Date</th>
               <th className="custom-th">Status</th>
-              <th className="custom-th">Payment</th>
             </tr>
           </thead>
           <tbody>
@@ -163,36 +168,6 @@ const PatientAppointments = () => {
                 <td className="custom-td">{appointment.doctor}</td>
                 <td className="custom-td">{appointment.date}</td>
                 <td className="custom-td">{appointment.status}</td>
-                <td className="custom-td">
-                  <button
-                    className="wallet-payment"
-                    onClick={() =>
-                      handlePayment(
-                        id,
-                        appointment.doctorId,
-                        appointment.slotId,
-                        "wallet",
-                        appointment.sessionPrice
-                      )
-                    }
-                  >
-                    💵 Wallet 💵
-                  </button>
-                  <button
-                    className="credit-card-payment"
-                    onClick={() =>
-                      handlePayment(
-                        id,
-                        appointment.doctorId,
-                        appointment.slotId,
-                        "credit-card",
-                        appointment.sessionPrice
-                      )
-                    }
-                  >
-                    💳 Credit Card 💳
-                  </button>
-                </td>
               </tr>
             ))}
           </tbody>

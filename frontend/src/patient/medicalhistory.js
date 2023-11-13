@@ -1,11 +1,17 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./MedicalHistory.css"; // Create a separate CSS file for styling
+import jwt from "jsonwebtoken-promisified";
 
 function MedicalHistory() {
   const [files, setFiles] = useState([]);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [uploadStatus, setUploadStatus] = useState("");
+
+  const token = localStorage.getItem("token");
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const id = decodedtoken.id;
 
   const handleFileChange = (e) => {
     const newFiles = Array.from(e.target.files);
@@ -25,11 +31,16 @@ function MedicalHistory() {
       formData.append("document", file);
     });
 
-    // Send the formData to the server using a fetch request
-    fetch("http://localhost:8000/Patient-Home/upload", {
+    const requestOptions = {
       method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       body: formData,
-    })
+    };
+
+    // Send the formData to the server using a fetch request
+    fetch("http://localhost:8000/Patient-Home/upload", requestOptions)
       .then((response) => response.json())
       .then((data) => {
         console.log("here is the data:", data);
@@ -54,11 +65,11 @@ function MedicalHistory() {
     </div>
   ));
 
-  const uploadedFileItems = uploadedFiles.map((file, index) => (
-    <div className="uploaded-file-item" key={index}>
-      <span>{file.name}</span>
-    </div>
-  ));
+  // const uploadedFileItems = uploadedFiles.map((file, index) => (
+  //   <div className="uploaded-file-item" key={index}>
+  //     <span>{file.name}</span>
+  //   </div>
+  // ));
 
   return (
     <div className="container">
@@ -79,7 +90,7 @@ function MedicalHistory() {
               <div className="file-list">{fileItems}</div>
               <div className="upload-status">{uploadStatus}</div>
               <h5 className="card-title">Uploaded Files</h5>
-              <div className="uploaded-file-list">{uploadedFileItems}</div>
+              {/* <div className="uploaded-file-list">{uploadedFileItems}</div> */}
             </div>
           </div>
         </div>

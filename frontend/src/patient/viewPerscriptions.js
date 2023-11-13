@@ -3,10 +3,15 @@ import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import { DataGrid } from "@mui/x-data-grid";
 import { useNavigate, useParams } from "react-router-dom";
+import jwt from "jsonwebtoken-promisified";
 
 function PrescriptionDataText() {
-  const {id} = useParams()
-  const navigate = useNavigate()
+  const token = localStorage.getItem("token");
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const id = decodedtoken.id;
+
+  const navigate = useNavigate();
   const [patientId, setPatientId] = useState("");
   const [date, setDate] = useState("");
   const [doctorId, setDoctorId] = useState("");
@@ -17,14 +22,14 @@ function PrescriptionDataText() {
   const handleChange = (e) => {
     setPatientId(e.target.value);
   };
-   useEffect(()=>{
+  useEffect(() => {
     const handleFetchPrescriptions = () => {
       // Construct the query string with filters
       let query = `patientId=${id}`;
       if (date) query += `&date=${date}`;
       if (doctorId) query += `&doctorId=${doctorId}`;
       if (status) query += `&status=${status}`;
-  
+
       fetch(`http://localhost:8000/Patient-home/view-perscriptions?${query}`)
         .then((response) => response.json())
         .then((data) => {
@@ -36,9 +41,9 @@ function PrescriptionDataText() {
           setPrescriptions([]);
         });
     };
-     handleFetchPrescriptions()
-   },[])
-   const handleFetchPrescriptions = () => {
+    handleFetchPrescriptions();
+  }, []);
+  const handleFetchPrescriptions = () => {
     // Construct the query string with filters
     let query = `patientId=${id}`;
     if (date) query += `&date=${date}`;
@@ -73,7 +78,7 @@ function PrescriptionDataText() {
 
   return (
     <div>
-       <button onClick={() => navigate(-1)}>Go Back</button>
+      <button onClick={() => navigate(-1)}>Go Back</button>
 
       <div>
         <TextField

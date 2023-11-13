@@ -29,6 +29,7 @@ import PatientAppointments from "./patient/appointments";
 import Viewhealthpackages from "./patient/HealthPackageList";
 import Handlesubscription from "./patient/handlesubscribe";
 import ForgotPassword from "./login/forgotpassword";
+import PatientSelectedDoctor from "./patient/viewselecteddoctor";
 const App = () => {
   return (
     <>
@@ -57,20 +58,17 @@ const App = () => {
           element={<EditHealthPackage />}
         />
         <Route path="/admin/Dashboard" element={<AdminDashboard />} />
-        <Route path="/doctor/Dashboard/:id" element={<DoctorDashboard />} />
-        <Route path="/doctor/view-my-info/:id" element={<DoctorInfo />} />
+        <Route path="/doctor/Dashboard" element={<DoctorDashboard />} />
+        <Route path="/doctor/view-my-info" element={<DoctorInfo />} />
         <Route
-          path="/doctor/view-my-appointments/:doctorId"
+          path="/doctor/view-my-appointments"
           element={<DoctorAppointments />}
         />
-        <Route
-          path="/doctor/view-my-patients/:id"
-          element={<DoctorPatients />}
-        />
+        <Route path="/doctor/view-my-patients" element={<DoctorPatients />} />
 
         <Route path="/patient/dashboard" element={<PatientDashBoard />} />
         <Route
-          path="/patient/view-perscriptions/:id"
+          path="/patient/view-perscriptions"
           element={<PatientPerscriptions />}
         />
         <Route
@@ -85,7 +83,7 @@ const App = () => {
 
 />
         <Route
-          path="/patient/medicalhistory/:id"
+          path="/patient/medicalhistory/"
           element={<PatientMedicalHistory />}
         />
         <Route
@@ -97,12 +95,19 @@ const App = () => {
           path="/patient/appointments/:id"
           element={<PatientAppointments />}
         />
+
         <Route
-          path="/doctor/view-patient/:patientId/:doctorId"
-          element={<PatientInfo />}
+          path="/patient/Viewhealthpackages/:id"
+          element={<Viewhealthpackages />}
         />
-        <Route path="/patient/Viewhealthpackages/:id" element={<Viewhealthpackages />}/>
-        <Route path="/patient/Handlesubscription/:id1/:id2" element={<Handlesubscription/>}/>
+        <Route
+          path="/patient/Handlesubscription/:id1/:id2"
+          element={<Handlesubscription />}
+        />
+        <Route
+          path="/patient/viewdoctors/selecteddoctor/:doctorId/:sessionPrice"
+          element={<PatientSelectedDoctor />}
+        />
       </Routes>
     </>
   );

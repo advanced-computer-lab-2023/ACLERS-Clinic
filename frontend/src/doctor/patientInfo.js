@@ -1,32 +1,50 @@
 // PatientInfo.js
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import jwt from "jsonwebtoken-promisified";
 
 const PatientInfo = () => {
-  const { patientId ,doctorId} = useParams();
+  const { patientId, doctorId } = useParams();
   const [patient, setPatient] = useState(null);
-const navigate=useNavigate();
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const id = decodedtoken.id;
 
   useEffect(() => {
-    // Replace with your API call to fetch patient information by patientId
-    fetch(`http://localhost:8000/Doctor-Home/view-patient?patientId=${patientId}&doctorId=${doctorId}`)
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    fetch(
+      `http://localhost:8000/Doctor-Home/view-patient?patientId=${patientId}&doctorId=${doctorId}`,
+      requestOptions
+    )
       .then((response) => response.json())
       .then((data) => {
         setPatient(data);
-        console.log(data)
+        console.log(data);
       })
       .catch((error) => {
-        console.error('Error fetching patient information:', error);
+        console.error("Error fetching patient information:", error);
       });
   }, [patientId]);
 
   if (!patient) {
     return <div>Loading...</div>;
   }
-
+  if (!token) {
+    // Handle the case where id is not available
+    return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
+  }
   return (
     <div>
-             <button onClick={() => navigate(-1)}>Go Back</button>
+      <button onClick={() => navigate(-1)}>Go Back</button>
 
       <h1>Patient Information</h1>
       <p>Name: {patient.patient.name}</p>

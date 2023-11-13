@@ -78,6 +78,9 @@ export default function SignInSide() {
         } else if (decodedToken.role === "doctor") {
           // Redirect to doctor home page
           navigate("/doctor/dashboard", { state: { id: decodedToken.id } });
+        } else if (decodedToken.role === "admin") {
+          // Redirect to doctor home page
+          navigate("/admin/dashboard", { state: { id: decodedToken.id } });
         }
       } else {
         // Login failed

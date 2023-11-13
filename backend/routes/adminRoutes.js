@@ -17,7 +17,7 @@ const {
   removePatient,
   viewHealthPackges,
   viewPackage,
-  changePassword
+  changePassword,
 } = require("../controllers/adminController");
 const { protect, checkRole } = require("../middleware/authMiddleware");
 router.post("/add-admin", protect, checkRole("admin"), addAdmin);

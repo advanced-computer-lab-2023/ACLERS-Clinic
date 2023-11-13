@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ApplicantDetails from "../../components/applicantdetails.js";
 import { useNavigate } from "react-router-dom";
+import jwt from "jsonwebtoken-promisified";
 
 const ViewApplicants = () => {
   const [applicants, setApplicants] = useState(null);
@@ -16,6 +17,13 @@ const ViewApplicants = () => {
     };
     fetchApplicants();
   }, []);
+
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    // Handle the case where id is not available
+    return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
+  }
 
   const handleAccept = (applicantId) => {
     // Send a POST request to "/admin/approve-doctor?applicantId=<applicantId>"
