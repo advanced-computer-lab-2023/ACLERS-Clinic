@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from "react";
 import ApplicantDetails from "../../components/applicantdetails.js";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
 
 const ViewApplicants = () => {
   const [applicants, setApplicants] = useState(null);
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const id = decodedtoken.id;
+
   useEffect(() => {
     const fetchApplicants = async () => {
       const response = await fetch("/admin/view-applicants");
