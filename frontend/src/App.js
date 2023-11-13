@@ -26,10 +26,11 @@ import DoctorSignUpPage from "./signup/SignUpdoctor";
 import ViewApplicants from "./admin/viewapplicants/viewapplicants";
 import PatientDoctors from "./patient/viewdoctors";
 import PatientAppointments from "./patient/appointments";
-import Viewhealthpackages from "./patient/HealthPackageList";
+import Subscribealthpackages from "./patient/HealthPackageList";
 import ForgotPassword from "./login/forgotpassword";
 import PatientSelectedDoctor from "./patient/viewselecteddoctor";
 import PatientPaymentSuccess from "./patient/PaymentSuccess";
+import ViewHealthPackages from "./patient/viewHealthPackage";
 const App = () => {
   return (
     <>
@@ -96,12 +97,16 @@ const App = () => {
         />
 
         <Route
-          path="/patient/Viewhealthpackages"
-          element={<Viewhealthpackages />}
+          path="/patient/Subscribehealthpackages"
+          element={<Subscribealthpackages />}
         />
         <Route
           path="/patient/viewdoctors/selecteddoctor/:doctorId/:sessionPrice"
           element={<PatientSelectedDoctor />}
+        />
+        <Route
+          path="/patient/Viewhealthpackages"
+          element={<ViewHealthPackages />}
         />
         <Route path="/payment-success" element={<PatientPaymentSuccess />} />
       </Routes>

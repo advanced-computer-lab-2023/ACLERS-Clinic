@@ -990,7 +990,6 @@ const viewSubscribedHealthPackage = asyncHandler(async (req, res) => {
 });
 
 const viewSubscribedHealthPackageFamMem = asyncHandler(async (req, res) => {
-  const patientId = req.user.id; // Get patientId from req.user.id (assuming you have authenticated the patient)
   const FamMemId = req.query;
   try {
     // Find the patient's subscribed health package
