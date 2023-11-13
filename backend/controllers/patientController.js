@@ -96,7 +96,11 @@ const setAppointmentFamMem = asyncHandler(async (req, res) => {
   const sessionPrice = req.body.sessionPrice;
   const slot = await FreeSlots.findById(slotId);
   const familyMemId = req.query.familyMemId;
-
+  function getType(variable) {
+    return typeof variable;
+  }
+  console.log("TYPE OF SESSIONPRICE FEL BACKEND: ", getType(sessionPrice));
+  console.log("body of request fel backend: ", req.body);
   if (paymentMethod === "wallet") {
     // Check if the patient's wallet balance is sufficient
 
@@ -137,9 +141,9 @@ const setAppointmentFamMem = asyncHandler(async (req, res) => {
           },
         }
       );
-      console.log(response.data);
-      res.json({ url: response.data.session.url });
 
+      console.log("EL RESPONSE DATA AHOOOO: ", response.data);
+      res.json({ url: response.data.session.url });
       // return res.json(stripeResponse)
     } catch (error) {
       console.log(error);

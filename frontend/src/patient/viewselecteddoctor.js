@@ -108,15 +108,36 @@ function SelectedDoctor() {
       },
     };
 
+    const holderprice = parseInt(sessionPrice);
+    console.log("PARSED PRICEEEEEE: ", holderprice);
     const body = {
       paymentMethod: paymentMethods[slotId],
-      sessionPrice: sessionPrice,
+      sessionPrice: holderprice,
     };
 
     const params = {
       doctorId: doctorId,
       slotId: slotId,
     };
+
+    function getType(variable) {
+      return typeof variable;
+    }
+    console.log("TYPE OF SLOT ID: ", getType(slotId));
+    console.log("TYPE OF DOCTOR ID: ", getType(doctorId));
+    console.log("TYPE OF SESSION PRICE: ", getType(sessionPrice));
+    console.log("TYPE OF holder PRICE: ", getType(holderprice));
+
+    const requestOptions2 = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    };
+
+    console.log("REQUEST OPTIONS: ", requestOptions2);
 
     if (selectedValue === "myself") {
       // Add the user ID to the params for booking for oneself
@@ -126,36 +147,44 @@ function SelectedDoctor() {
       fetch(
         "http://localhost:8000/Patient-Home/book-appointment?" +
           new URLSearchParams(params).toString(),
-        {
-          ...requestOptions,
-          method: "POST",
-          body: JSON.stringify(body),
-        }
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Appointment booked for myself:", data);
-        })
-        .catch((error) => {
-          console.error("Error booking appointment for myself:", error);
-        });
-    } else {
-      // Add the family member ID to the params for booking for a family member
-      params.familyMemId = selectedValue;
-
-      // Make a POST request to book the appointment for a family member
-      fetch(
-        "http://localhost:8000/Patient-Home/book-appointment-fam?" +
-          new URLSearchParams(params).toString(),
-        {
-          ...requestOptions,
-          method: "POST",
-          body: JSON.stringify(body),
-        }
+        requestOptions2
       )
         .then((response) => response.json())
         .then((data) => {
           console.log("Appointment booked for family member:", data);
+          window.location.href = data.url;
+          // Issue a POST request to pay without redirecting
+          //   if (body.paymentMethod === "creditCard") {
+          //     fetch("http://localhost:8000/Patient-Home/pay", {
+          //       ...requestOptions,
+          //       method: "POST",
+          //       body: JSON.stringify(dummyPaymentData),
+          //     })
+          //       .then((payResponse) => payResponse.json())
+          //       .then((payData) => {
+          //         console.log("Payment successful:", payData);
+          //         // Handle success, update UI, show success message, etc.
+          //       })
+          //       .catch((payError) => {
+          //         console.error("Error making payment:", payError);
+          //         // Handle error, display error message, etc.
+          //       });
+          //   }
+        })
+        .catch((error) => {
+          console.error("Error booking appointment for family member:", error);
+        });
+    } else {
+      params.familyMemId = selectedValue;
+      fetch(
+        "http://localhost:8000/Patient-Home/book-appointment-fam?" +
+          new URLSearchParams(params).toString(),
+        requestOptions2
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Appointment booked for family member:", data);
+          window.location.href = data.url;
         })
         .catch((error) => {
           console.error("Error booking appointment for family member:", error);
