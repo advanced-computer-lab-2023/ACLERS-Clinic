@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ApplicantDetails from "../../components/applicantdetails.js";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
 
 const ViewApplicants = () => {

@@ -4,8 +4,9 @@ import jwt from "jsonwebtoken-promisified";
 
 function AdminDashboard() {
   const token = localStorage.getItem("token");
-  const decodedToken = jwt.decode(token);
-  console.log("decoded Token:", decodedToken);
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const id = decodedtoken.id;
 
   const navigate = useNavigate();
 

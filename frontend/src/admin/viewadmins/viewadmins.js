@@ -3,14 +3,13 @@ import AdminDetails from "../../components/admindetails";
 import jwt from "jsonwebtoken-promisified";
 import { Link, useNavigate } from "react-router-dom";
 
-const navigate = useNavigate();
-const token = localStorage.getItem("token");
-const decodedtoken = jwt.decode(token);
-console.log("decoded Token:", decodedtoken);
-const id = decodedtoken.id;
-
 const ViewAdmins = () => {
   const [admins, setAdmins] = useState(null);
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const id = decodedtoken.id;
 
   useEffect(() => {
     const fetchAdmins = async () => {
