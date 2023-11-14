@@ -227,7 +227,7 @@ function AddFamilyMember() {
             name="email"
             value={linkFormData.email}
             onChange={handleLinkChange}
-            required
+            
           />
         </div>
         <div>
@@ -238,7 +238,7 @@ function AddFamilyMember() {
             name="mobileNumber"
             value={linkFormData.mobileNumber}
             onChange={handleLinkChange}
-            required
+            
           />
         </div>
         <div>

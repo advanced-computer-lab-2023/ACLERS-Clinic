@@ -58,7 +58,7 @@ const PatientInfo = () => {
       <p>Full Name: {patient.patient.emergencyContact.fullName}</p>
       <p>Mobile Number: {patient.patient.emergencyContact.mobileNumber}</p>
       <h3>Health Record</h3>
-      <p>{patient.healthRecord}</p>
+      <p>{patient.patient.healthRecord}</p>
 
       <button onClick={handleNavigateToFreeSlots}>FollowUp</button>
     </div>

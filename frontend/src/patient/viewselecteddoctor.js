@@ -154,7 +154,13 @@ function SelectedDoctor() {
         .then((response) => response.json())
         .then((data) => {
           console.log("Appointment booked for yourself:", data);
+          console.log(paymentMethods[slotId])
+          if(paymentMethods[slotId] === "creditCard"){
+            console.log("inn")
+            if(data.url){
           window.location.href = data.url;
+            }
+        }
           // Issue a POST request to pay without redirecting
           //   if (body.paymentMethod === "creditCard") {
           //     fetch("http://localhost:8000/Patient-Home/pay", {
@@ -186,7 +192,11 @@ function SelectedDoctor() {
         .then((response) => response.json())
         .then((data) => {
           console.log("Appointment booked for family member:", data);
+          if(paymentMethods[slotId] === "creditCard"){
+            if(data.url){
           window.location.href = data.url;
+            }
+        }
         })
         .catch((error) => {
           console.error("Error booking appointment for family member:", error);

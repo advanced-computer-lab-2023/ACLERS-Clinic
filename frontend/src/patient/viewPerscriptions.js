@@ -5,6 +5,11 @@ import { DataGrid } from "@mui/x-data-grid";
 import { useNavigate, useParams } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
 import { Link } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import Datetime from "react-datetime";
+import "react-datetime/css/react-datetime.css";
+import { format } from "date-fns";
 
 function PrescriptionDataText() {
   const token = localStorage.getItem("token");
@@ -34,7 +39,18 @@ function PrescriptionDataText() {
     const handleFetchPrescriptions = () => {
       // Construct the query string with filters
       let query = `patientId=${id}`;
-      if (date) query += `&date=${date}`;
+      if (date) {
+        const adjustedDate = new Date(date);
+        adjustedDate.setSeconds(0);
+        adjustedDate.setMilliseconds(0);
+
+        const formattedDate = format(
+          adjustedDate,
+          "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        );
+        console.log("formattedDate:", formattedDate);
+        query += `&date=${formattedDate}`;
+      }
       if (doctorId) query += `&doctorId=${doctorId}`;
       if (status) query += `&status=${status}`;
 
@@ -103,25 +119,14 @@ function PrescriptionDataText() {
       <button onClick={() => navigate(-1)}>Go Back</button>
 
       <div>
-        <TextField
+        <Datetime
           id="date"
           label="Date"
-          type="text"
           value={date}
-          onChange={(e) => setDate(e.target.value)}
-          InputLabelProps={{
-            shrink: true,
-          }}
-        />
-      </div>
-
-      <div>
-        <TextField
-          id="doctorId"
-          label="Doctor ID"
-          type="text"
-          value={doctorId}
-          onChange={(e) => setDoctorId(e.target.value)}
+          onChange={(date) => setDate(date)}
+          dateFormat="YYYY-MM-DD"
+          timeFormat="HH:mm"
+          inputProps={{ placeholder: "Select Date and Time" }}
         />
       </div>
 

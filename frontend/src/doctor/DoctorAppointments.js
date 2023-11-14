@@ -4,8 +4,8 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Link, useNavigate } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
 import { format } from "date-fns";
-import { parse } from "date-fns";
-import { set } from "date-fns";
+import Datetime from "react-datetime";
+import "react-datetime/css/react-datetime.css";
 
 const DoctorAppointments = () => {
   const navigate = useNavigate();
@@ -13,6 +13,8 @@ const DoctorAppointments = () => {
   const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [filterBy, setFilterBy] = useState("date"); // Default filter by date
   const [filterValue, setFilterValue] = useState("");
+  const [dateFilter, setDateFilter] = useState(new Date());
+  const [statusFilter, setStatusFilter] = useState("");
 
   const [newSlot, setNewSlot] = useState({
     date: new Date(),
@@ -48,24 +50,51 @@ const DoctorAppointments = () => {
       });
   }, [doctorId, token]);
 
-  // Function to handle filtering appointments
   const handleFilter = () => {
     if (filterBy === "date") {
-      // Filter appointments by date
-      const filtered = appointments.filter((appointment) =>
-        appointment.date.includes(filterValue)
+      // Convert the date to string and set minutes and seconds to 0
+      const adjustedDate = new Date(dateFilter);
+      adjustedDate.setSeconds(0);
+      adjustedDate.setMilliseconds(0);
+
+      const formattedDate = format(
+        adjustedDate,
+        "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
       );
-      setFilteredAppointments(filtered);
+      console.log("formattedDate:", formattedDate);
+
+      // Make a request to fetch appointments with the filtered date
+      const requestOptions = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      fetch(
+        `http://localhost:8000/Doctor-Home/view-appointments?date=${formattedDate}`,
+        requestOptions
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          setFilteredAppointments(data);
+        })
+        .catch((error) => {
+          console.error("Error fetching doctor appointments:", error);
+          setFilteredAppointments([]);
+        });
     } else if (filterBy === "status") {
       // Filter appointments by status
       const filtered = appointments.filter(
-        (appointment) => appointment.status === filterValue
+        (appointment) => appointment.status === statusFilter
       );
-
       setFilteredAppointments(filtered);
     }
   };
 
+  // Function to handle adding a new time slot
   const handleAddTimeSlot = () => {
     const requestOptions = {
       method: "POST",
@@ -119,12 +148,22 @@ const DoctorAppointments = () => {
             <option value="status">Status</option>
           </select>
         </label>
-        <input
-          type="text"
-          placeholder={`Filter by ${filterBy}`}
-          value={filterValue}
-          onChange={(e) => setFilterValue(e.target.value)}
-        />
+        {filterBy === "date" && (
+          <Datetime
+            value={dateFilter}
+            onChange={(date) => setDateFilter(date)}
+            dateFormat="YYYY-MM-DD"
+            timeFormat="HH:mm"
+            inputProps={{ placeholder: "Select Date and Time" }}
+          />
+        )}
+        {filterBy === "status" && (
+          <select onChange={(e) => setStatusFilter(e.target.value)}>
+            <option value="">Select Status</option>
+            <option value="UpComing">UpComing</option>
+            <option value="Done">Done</option>
+          </select>
+        )}
         <button onClick={handleFilter}>Filter</button>
       </div>
 
@@ -140,7 +179,9 @@ const DoctorAppointments = () => {
           {filteredAppointments &&
             filteredAppointments.map((appointment) => (
               <tr key={appointment.id}>
-                 <td>{appointment.patient ? appointment.patient.name : 'N/A'}</td>
+                <td>
+                  {appointment.patient ? appointment.patient.name : "N/A"}
+                </td>
                 <td>{appointment.date}</td>
                 <td>{appointment.status}</td>
               </tr>

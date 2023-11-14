@@ -243,7 +243,8 @@ const resetPassword = asyncHandler(async (req, res) => {
   }
 
   if (user) {
-    user.password = newPassword;
+    const hashedpass =await bcrypt.hash(newPassword, 10);
+    user.password = hashedpass;
     await user.save(); // Assuming you save the user details in your database
     console.log("Password changed successfully");
     return res.status(200).json({ message: "Password changed successfully" });

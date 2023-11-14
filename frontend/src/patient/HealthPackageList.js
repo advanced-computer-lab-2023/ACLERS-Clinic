@@ -95,9 +95,11 @@ const HealthPackageList = () => {
         .then((response) => response.json())
         .then((data) => {
           console.log(data);
-          if (paymentOption == "creditCard"){
-          window.location.href = data.url;
-        }
+          if (paymentOption == "creditCard") {
+            if (data.url) {
+              window.location.href = data.url;
+            }
+          }
         })
         .catch((error) => {
           console.error("Error subscribing:", error);
@@ -131,7 +133,11 @@ const HealthPackageList = () => {
         .then((response) => response.json())
         .then((data) => {
           console.log(data);
-          window.location.href = data.url;
+          if (paymentOption == "creditCard") {
+            if (data.url) {
+              window.location.href = data.url;
+            }
+          }
         })
         .catch((error) => {
           console.error("Error subscribing:", error);

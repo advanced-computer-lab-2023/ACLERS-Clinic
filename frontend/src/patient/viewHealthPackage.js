@@ -24,61 +24,6 @@ const SubscribedHealthPackages = () => {
   const decodedtoken = jwt.decode(token);
   const id = decodedtoken.id;
   const patientId = id;
-  useEffect(() => {
-    const fetchFamilyMemberHealthPackages = async (familyMemberId) => {
-      try {
-        function getType(variable) {
-          return typeof variable;
-        }
-        console.log(
-          "family member id el type beta3o :",
-          getType(familyMemberId)
-        );
-        console.log("family member id :", familyMemberId);
-        // const parsedFamilyMemberId = parseInt(familyMemberId);
-        // console.log(
-        //   "parsed family member id el type beta3o :",
-        //   getType(parsedFamilyMemberId)
-        // );
-        // console.log("parsed family member id :", parsedFamilyMemberId);
-        const response = await fetch(
-          `http://localhost:8000/Patient-Home/view-HealthPack-FamMember?FamMemId=${familyMemberId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          console.log("data fam members :", data);
-
-          setFamilyMemberHealthPackages((prevPackages) => [
-            ...prevPackages,
-            { familyMemberId, healthPackages: data },
-          ]);
-        } else if (typeof data === "object" && data !== null) {
-          console.log("data fam members :", data);
-          setFamilyMemberHealthPackages((prevPackages) => [
-            ...prevPackages,
-            { familyMemberId, healthPackages: [data] },
-          ]);
-        } else {
-          console.error("Invalid response format:", data);
-        }
-      } catch (error) {
-        console.error("Error fetching family member health packages:", error);
-      }
-    };
-
-    // Fetch health packages for each family member
-    familyMembers.forEach((familyMember) => {
-      console.log("BOS HENAAAAAAAAA: ", familyMember._id);
-      fetchFamilyMemberHealthPackages(familyMember._id);
-    });
-  }, [token, familyMembers]);
 
   useEffect(() => {
     // Fetch subscribed health packages for the patient
@@ -91,25 +36,13 @@ const SubscribedHealthPackages = () => {
         },
       };
 
-      function getType(variable) {
-        return typeof variable;
-      }
-      console.log("patient id el type beta3o :", getType(patientId));
-      console.log("patient id :", patientId);
-
       fetch(
         `http://localhost:8000/Patient-home/viewSubscribedHealthPackage?id=${patientId}`,
         requestOptions
       )
         .then((response) => response.json())
         .then((data) => {
-          if (Array.isArray(data)) {
-            setSubscribedPackages(data);
-          } else if (typeof data === "object" && data !== null) {
-            setSubscribedPackages([data]);
-          } else {
-            console.error("Invalid response format:", data);
-          }
+          setSubscribedPackages(data);
         })
         .catch((error) => {
           console.error("Error fetching subscribed health packages:", error);
@@ -133,7 +66,6 @@ const SubscribedHealthPackages = () => {
         .then((response) => response.json())
         .then((data) => {
           setFamilyMembers(data.familyMembers);
-          console.log("Family members:", data.familyMembers);
         })
         .catch((error) => {
           console.error("Error fetching family members:", error);
@@ -143,6 +75,36 @@ const SubscribedHealthPackages = () => {
     fetchSubscribedPackages();
     fetchFamilyMembers();
   }, [token, id, patientId]);
+
+  useEffect(() => {
+    // Fetch health packages for each family member
+    const fetchFamilyMemberHealthPackages = async (familyMemberId) => {
+      try {
+        const response = await fetch(
+          `http://localhost:8000/Patient-Home/view-HealthPack-FamMember?FamMemId=${familyMemberId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await response.json();
+        setFamilyMemberHealthPackages((prevPackages) => [
+          ...prevPackages,
+          { familyMemberId, healthPackages: data },
+        ]);
+      } catch (error) {
+        console.error("Error fetching family member health packages:", error);
+      }
+    };
+
+    // Fetch health packages for each family member
+    familyMembers.forEach((familyMember) => {
+      fetchFamilyMemberHealthPackages(familyMember._id);
+    });
+  }, [token, familyMembers]);
 
   const handleCancelSubscription = (packageId) => {
     const requestOptions = {
@@ -166,6 +128,30 @@ const SubscribedHealthPackages = () => {
       })
       .catch((error) => {
         console.error("Error canceling subscription:", error);
+      });
+  };
+  const handleCancelSubscriptionFamilyMember = (familyMemberId, packageId) => {
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ packageId }),
+    };
+
+    fetch(
+      `http://localhost:8000/Patient-home/cancel-subscription-famMem?id=${patientId}&famMemId=${familyMemberId}`,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Subscription canceled for family member:", data);
+        // Refresh the page after canceling the subscription
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.error("Error canceling subscription for family member:", error);
       });
   };
 
@@ -226,30 +212,53 @@ const SubscribedHealthPackages = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Family Member ID</TableCell>
               <TableCell>Name</TableCell>
+              <TableCell>Relation To Patient</TableCell>
               <TableCell>Health Package ID</TableCell>
-              {/* Add more columns as needed */}
+              <TableCell>Status</TableCell>
+              <TableCell>Date of Subscription</TableCell>
+              <TableCell>Renewal Date</TableCell>
+              <TableCell>End Date</TableCell>
+              <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {(Array.isArray(familyMembers) ? familyMembers : []).map(
               (familyMember, index) => (
-                <TableRow key={index}>
-                  <TableCell>{familyMember._id}</TableCell>
-                  <TableCell>{familyMember.name}</TableCell>
-                  <TableCell>
-                    {(
-                      familyMemberHealthPackages.find(
-                        (packageData) =>
-                          packageData.familyMemberId === familyMember._id
-                      )?.healthPackages || []
-                    ).map((healthPackage) => (
-                      <div key={healthPackage._id}>{healthPackage._id}</div>
-                    ))}
-                  </TableCell>
-                  {/* Add more cells for additional columns */}
-                </TableRow>
+                <React.Fragment key={index}>
+                  {(
+                    familyMemberHealthPackages.find(
+                      (packageData) =>
+                        packageData.familyMemberId === familyMember._id
+                    )?.healthPackages || []
+                  ).map((healthPackage) => (
+                    <TableRow key={healthPackage._id}>
+                      <TableCell>{familyMember.name}</TableCell>
+                      <TableCell>{familyMember.relationToPatient}</TableCell>
+                      <TableCell>{healthPackage._id}</TableCell>
+                      <TableCell>{healthPackage.status}</TableCell>
+                      <TableCell>{healthPackage.dateOfSubscription}</TableCell>
+                      <TableCell>{healthPackage.renewalDate}</TableCell>
+                      <TableCell>{healthPackage.endDate}</TableCell>
+                      <TableCell>
+                        {healthPackage.status === "subscribed" && (
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={() =>
+                              handleCancelSubscriptionFamilyMember(
+                                familyMember._id,
+                                healthPackage._id
+                              )
+                            }
+                          >
+                            Cancel Subscription
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </React.Fragment>
               )
             )}
           </TableBody>
