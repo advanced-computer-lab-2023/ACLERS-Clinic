@@ -11,6 +11,8 @@ import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 
 function DoctorSearch() {
   const navigate = useNavigate();
@@ -126,13 +128,20 @@ function DoctorSearch() {
         onChange={(e) => setName(e.target.value)}
       />
 
-      <label htmlFor="doctorSpeciality">Specialty:</label>
-      <input
-        type="text"
-        id="doctorSpeciality"
+      <label htmlFor="filterSpeciality">Specialty:</label>
+      <Select
+        id="filterSpeciality"
         value={speciality}
         onChange={(e) => setSpeciality(e.target.value)}
-      />
+        displayEmpty
+      >
+        <MenuItem value="" disabled>
+          Select Specialty
+        </MenuItem>
+        <MenuItem value="heart">Heart</MenuItem>
+        <MenuItem value="radiology">Radiology</MenuItem>
+        <MenuItem value="neurology">Neurology</MenuItem>
+      </Select>
 
       <button onClick={handleSearch}>Search</button>
 

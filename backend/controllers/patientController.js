@@ -306,15 +306,15 @@ const setAppointment = asyncHandler(async (req, res) => {
 });
 const viewMyPerscriptions = asyncHandler(async (req, res) => {
   try {
-    const { patientId, date, doctorId, status } = req.query;
+    const { patientId, date, status } = req.query;
     const filter = {};
     if (date) {
       filter.date = new Date(date);
       console.log(filter.date);
     }
-    if (doctorId) {
-      filter.doctor = doctorId;
-    }
+    // if (doctorId) {
+    //   filter.doctor = doctorId;
+    // }
     if (status) {
       filter.status = status;
     }
@@ -405,12 +405,15 @@ const viewDoctors = asyncHandler(async (req, res) => {
             patient: patientId,
           });
 
-          if (patientHealthPackages.length > 0 || patientHealthPackages[0].status=="subscribed") {
+          if (
+            patientHealthPackages.length > 0 ||
+            patientHealthPackages[0].status == "subscribed"
+          ) {
             const healthPackageId = patientHealthPackages[0].healthPackage;
             const healthPackage = await HealthPackage.findById(healthPackageId);
 
             // Calculate the session price based on the health package
-            if (healthPackage ) {
+            if (healthPackage) {
               sessionPrice +=
                 sessionPrice * 0.1 -
                 (healthPackage.doctorDiscount / 100) * doctor.hourlyRate;
@@ -447,7 +450,10 @@ const viewDoctors = asyncHandler(async (req, res) => {
             patient: patientId,
           });
 
-          if (patientHealthPackages.length > 0 || patientHealthPackages[0].status=="subscribed") {
+          if (
+            patientHealthPackages.length > 0 ||
+            patientHealthPackages[0].status == "subscribed"
+          ) {
             const healthPackageId = patientHealthPackages[0].healthPackage;
             const healthPackage = await HealthPackage.findById(healthPackageId);
 
@@ -515,17 +521,17 @@ const subscribeHealthPackageFamMember = asyncHandler(async (req, res) => {
       // Check if a year has passed since the last subscription
       const oneYearAgo = new Date();
       oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-      
+
       console.log("in existing sub");
       console.log(subscribedSubscription.dateOfSubscription > oneYearAgo);
-  
+
       if (subscribedSubscription.dateOfSubscription > oneYearAgo) {
         return res.status(400).json({
           message: "Patient is not eligible for a new subscription yet",
         });
-      }else{
-        subscribedSubscription.status ="cancelled";
-        subscribedSubscription.save()
+      } else {
+        subscribedSubscription.status = "cancelled";
+        subscribedSubscription.save();
       }
     }
     const healthPackage = await HealthPackage.findById(healthPackageId);
@@ -611,8 +617,8 @@ const subscribeHealthPackage = asyncHandler(async (req, res) => {
     // Check if the patient has an existing subscription
     const existingSubscription = await PatientHealthPackage.find({
       patient: patientId,
-    }).populate('healthPackage');
-    console.log(existingSubscription + "existsubb")
+    }).populate("healthPackage");
+    console.log(existingSubscription + "existsubb");
     const subscribedSubscription = existingSubscription.find(
       (subscription) => subscription.status === "subscribed"
     );
@@ -620,17 +626,17 @@ const subscribeHealthPackage = asyncHandler(async (req, res) => {
       // Check if a year has passed since the last subscription
       const oneYearAgo = new Date();
       oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-      
+
       console.log("in existing sub");
       console.log(subscribedSubscription.dateOfSubscription > oneYearAgo);
-  
+
       if (subscribedSubscription.dateOfSubscription > oneYearAgo) {
         return res.status(400).json({
           message: "Patient is not eligible for a new subscription yet",
         });
-      }else{
-        subscribedSubscription.status ="cancelled";
-        subscribedSubscription.save()
+      } else {
+        subscribedSubscription.status = "cancelled";
+        subscribedSubscription.save();
       }
     }
     const healthPackage = await HealthPackage.findById(healthPackageId);
@@ -719,7 +725,7 @@ const viewAppointmentsOfDr = asyncHandler(async (req, res) => {
     if (!slots || slots.length === 0) {
       return res.status(404).send("No appointments available");
     }
- console.log(slots)
+    console.log(slots);
     // Filter slots by status: "free"
     const freeSlots = slots.filter((slot) => slot.status === "free");
 
@@ -1007,7 +1013,7 @@ const viewSubscribedHealthPackage = asyncHandler(async (req, res) => {
 });
 
 const viewSubscribedHealthPackageFamMem = asyncHandler(async (req, res) => {
-  const {FamMemId} = req.query;
+  const { FamMemId } = req.query;
   try {
     // Find the patient's subscribed health package
     const subscription = await PatientHealthPackage.find({
@@ -1037,6 +1043,7 @@ const cancelSubscription = asyncHandler(async (req, res) => {
     // Find the patient's subscribed health package
     const subscription = await PatientHealthPackage.findOne({
       patient: patientId,
+      status: "subscribed",
     }).populate("healthPackage");
 
     if (!subscription) {
@@ -1059,13 +1066,14 @@ const cancelSubscription = asyncHandler(async (req, res) => {
   }
 });
 const cancelSubscriptionFamMem = asyncHandler(async (req, res) => {
-  const patientId = req.user.id;
-  const FamMemId = req.query;
+  const { famMemId } = req.query;
 
   try {
     // Find the patient's subscribed health package
+    console.log("FamMemId fel backend: ", famMemId);
     const subscription = await PatientHealthPackage.findOne({
-      patient: FamMemId,
+      patient: famMemId,
+      status: "subscribed",
     }).populate("healthPackage");
 
     if (!subscription) {
