@@ -140,7 +140,7 @@ const DoctorAppointments = () => {
           {filteredAppointments &&
             filteredAppointments.map((appointment) => (
               <tr key={appointment.id}>
-                <td>{appointment.patient.name}</td>
+                 <td>{appointment.patient ? appointment.patient.name : 'N/A'}</td>
                 <td>{appointment.date}</td>
                 <td>{appointment.status}</td>
               </tr>

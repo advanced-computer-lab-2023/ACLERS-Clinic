@@ -36,7 +36,7 @@ const PatientInfo = () => {
 
   const handleNavigateToFreeSlots = () => {
     // Navigate to the page that renders free slots
-    navigate(`view-freeSlots`);
+    navigate(`view-freeSlots/${patientId}`);
   };
 
   if (!patient) {

@@ -96,6 +96,7 @@ const setAppointmentFamMem = asyncHandler(async (req, res) => {
   const sessionPrice = req.body.sessionPrice;
   const slot = await FreeSlots.findById(slotId);
   const familyMemId = req.query.familyMemId;
+  const docwallet = await Wallet.findOne({userId:doctorId})
   function getType(variable) {
     return typeof variable;
   }
@@ -117,7 +118,9 @@ const setAppointmentFamMem = asyncHandler(async (req, res) => {
       return res.status(400).json({ message: "Insufficient wallet balance" });
     } else {
       wallet.balance -= sessionPrice;
-      wallet.save();
+     await wallet.save();
+      docwallet.balance+=sessionPrice;
+      await docwallet.save();
     }
   } else {
     // Define any other necessary data here
@@ -144,6 +147,8 @@ const setAppointmentFamMem = asyncHandler(async (req, res) => {
 
       console.log("EL RESPONSE DATA AHOOOO: ", response.data);
       res.json({ url: response.data.session.url });
+      docwallet.balance+=sessionPrice;
+      await docwallet.save();
       // return res.json(stripeResponse)
     } catch (error) {
       console.log(error);
@@ -206,7 +211,9 @@ const setAppointment = asyncHandler(async (req, res) => {
   const paymentMethod = req.body.paymentMethod;
   const sessionPrice = req.body.sessionPrice;
   const slot = await FreeSlots.findById(slotId);
-
+  console.log(doctorId)
+  const docwallet = await Wallet.findOne({userId:doctorId})
+  console.log(docwallet+"docwallet")
   if (paymentMethod === "wallet") {
     // Check if the patient's wallet balance is sufficient
 
@@ -223,7 +230,9 @@ const setAppointment = asyncHandler(async (req, res) => {
       return res.status(400).json({ message: "Insufficient wallet balance" });
     } else {
       wallet.balance -= sessionPrice;
-      wallet.save();
+      await wallet.save();
+      docwallet.balance+=sessionPrice;
+      await docwallet.save();
     }
   } else {
     // Define any other necessary data here
@@ -248,6 +257,8 @@ const setAppointment = asyncHandler(async (req, res) => {
         }
       );
       console.log(response.data);
+      docwallet.balance+=sessionPrice;
+      await docwallet.save();
       res.json({ url: response.data.session.url });
 
       // return res.json(stripeResponse)
@@ -255,6 +266,7 @@ const setAppointment = asyncHandler(async (req, res) => {
       console.log(error);
     }
   }
+  
 
   const appointment = await Appointment.create({
     patient: patientId,
@@ -349,7 +361,7 @@ const filterAppointments = asyncHandler(async (req, res) => {
     }
 
     // Use the filter object to query the database
-    const appointments = await Appointment.find(filter);
+    const appointments = await Appointment.find(filter).populate('doctor');
     console.log(appointments);
 
     res.status(200).json(appointments);
@@ -363,6 +375,7 @@ const viewDoctors = asyncHandler(async (req, res) => {
     var { speciality, date, time } = req.query;
     const patientId = req.user.id;
     // Create an initial query object for doctors
+    console.log(time)
     const doctorQuery = {};
     var doctorsWithSessionPrices = [];
     // Add speciality filter if provided
@@ -372,8 +385,11 @@ const viewDoctors = asyncHandler(async (req, res) => {
 
     // If date and time are provided, check doctor availability
     if (date && time) {
+      const [hours, minutes] = time.split(":");
+  
+      // Create a new Date object with the combined date and time
       var dateWithTime = new Date(date);
-      dateWithTime.setHours(parseInt(time) + 2, 0, 0, 0);
+      dateWithTime.setHours(parseInt(hours)+2, minutes, 0, 0);
 
       // Find doctors available at the specified date and time
       console.log(dateWithTime);
@@ -1038,18 +1054,20 @@ const cancelSubscription = asyncHandler(async (req, res) => {
     const subscription = await PatientHealthPackage.findOne({
       patient: patientId,
     }).populate("healthPackage");
-
+   
     if (!subscription) {
       return res
         .status(404)
         .json({ message: "No subscribed health package found" });
     }
+    const wallet = await Wallet.findOne({userId : patientId})
 
     // Extract the health package details from the subscription
     subscription.status = "cancelled";
     subscription.endDate = new Date();
     subscription.save();
-
+    wallet.balance += subscription.healthPackage.Price;
+    await wallet.save();
     res.status(200).json(subscription);
   } catch (error) {
     console.error(error);

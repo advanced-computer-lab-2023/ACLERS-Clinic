@@ -33,6 +33,7 @@ const ContractDetails = () => {
       .then(response => response.json())
       .then(result => {
         console.log('Contract accepted:', result);
+        window.location.href = "/login"
         // You can update the UI or redirect the user as needed
       })
       .catch(error => console.error('Error accepting contract:', error));
