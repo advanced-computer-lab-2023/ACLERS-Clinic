@@ -35,6 +35,7 @@ import ContractDetails from "./applicant/contract";
 import PatientSelectedDoctor from "./patient/viewselecteddoctor";
 import PatientPaymentSuccess from "./patient/PaymentSuccess";
 import ViewHealthPackages from "./patient/viewHealthPackage";
+import FollowUp from "./doctor/FollowUp"
 const App = () => {
   return (
     <>
@@ -94,8 +95,12 @@ const App = () => {
           element={<PatientMedicalHistory />}
         />
         <Route
-          path="/doctor/view-patient/:patientId/:doctorId"
+          path="/doctor/view-patient/:patientId"
           element={<PatientInfo />}
+        />
+        <Route
+          path="/doctor/view-patient/:patientId/view-freeSlots"
+          element={<FollowUp />}
         />
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
         <Route

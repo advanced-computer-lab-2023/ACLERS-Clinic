@@ -1,21 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
+
 import jwt from "jsonwebtoken-promisified";
 
+
+
 const DoctorPatients = () => {
-  const navigate = useNavigate();
+  const navigate=useNavigate();
+  const token = localStorage.getItem("token");
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const id = decodedtoken.id;
   const [patients, setPatients] = useState([]);
   const [filteredPatients, setFilteredPatients] = useState([]);
   const [appointmentStatus, setAppointmentStatus] = useState(""); // Default: no filter
   const [searchName, setSearchName] = useState(""); // Add state for search
 
-  const token = localStorage.getItem("token");
-  const decodedtoken = jwt.decode(token);
-  console.log("decoded Token:", decodedtoken);
-  const id = decodedtoken.id;
-
+  // Fetch the list of patients initially
+  
   useEffect(() => {
+    // Replace with your API call to fetch patients registered with the doctor
+    //console.log(doctorId);
     const requestOptions = {
       method: "GET",
       headers: {
@@ -23,8 +29,9 @@ const DoctorPatients = () => {
         Authorization: `Bearer ${token}`,
       },
     };
-
-    fetch(`http://localhost:8000/Doctor-Home/view-patients`, requestOptions)
+    fetch(
+      `http://localhost:8000/Doctor-Home/view-patients?doctorId=${id}`,requestOptions
+    )
       .then((response) => response.json())
       .then((data) => {
         setPatients(data);
@@ -50,8 +57,7 @@ const DoctorPatients = () => {
     if (appointmentStatus) {
       // Filter patients by appointment status
       fetch(
-        `http://localhost:8000/Doctor-Home/view-patients?doctorId=${id}&status=${appointmentStatus}`,
-        requestOptions
+        `http://localhost:8000/Doctor-Home/view-patients?doctorId=${id}&status=${appointmentStatus}`,requestOptions
       )
         .then((response) => response.json())
         .then((data) => {
@@ -138,7 +144,9 @@ const DoctorPatients = () => {
                   <h3>Patient Information</h3>
                   <p>
                     Name:{" "}
-                    <Link to={`/doctor/view-patient/${item.patient._id}/${id}`}>
+                    <Link
+                      to={`/doctor/view-patient/${item.patient._id}`}
+                    >
                       {item.patient.name}
                     </Link>
                   </p>

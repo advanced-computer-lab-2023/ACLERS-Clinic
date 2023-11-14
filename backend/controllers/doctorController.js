@@ -426,10 +426,37 @@ const setAppointmentORFollowup = asyncHandler(async (req, res) => {
     // Save the new appointment to the database
     await newAppointment.save();
 
+    // Remove the free slot from the database
+    await FreeSlot.findByIdAndRemove(freeSlotId);
+
     res.status(201).json(newAppointment);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to set the appointment" });
+  }
+});
+
+const viewDoctorFreeSlots = asyncHandler(async (req, res) => {
+  const doctorId = req.user.id;
+
+  try {
+    // Find all free slots for the specified doctorId
+    const doctorFreeSlots = await FreeSlot.find({ doctorId });
+
+    // Log the doctorId and doctorFreeSlots to see what's going on
+    console.log('Doctor ID:', doctorId);
+    console.log('Doctor Free Slots:', doctorFreeSlots);
+
+    // Check if any free slots were found
+    if (!doctorFreeSlots || doctorFreeSlots.length === 0) {
+      return res.status(404).json({ message: 'No free slots found for the doctor.' });
+    }
+
+    // Return the list of free slots
+    res.json(doctorFreeSlots);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to retrieve doctor free slots.' });
   }
 });
 
@@ -447,6 +474,7 @@ module.exports = {
   addHealthRecord,
   ViewMyContract,
   acceptContract,
-  denyContract,
-  setAppointmentORFollowup,
+  denyContract, 
+  setAppointmentORFollowup
+  ,viewDoctorFreeSlots
 };
