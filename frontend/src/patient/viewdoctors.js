@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from "react";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
 import { useParams, useNavigate } from "react-router-dom";
 import { Link, useLocation } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import TableContainer from "@mui/material/TableContainer";
+import Paper from "@mui/material/Paper";
+import Table from "@mui/material/Table";
+import TableHead from "@mui/material/TableHead";
+import TableBody from "@mui/material/TableBody";
+import TableRow from "@mui/material/TableRow";
+import TableCell from "@mui/material/TableCell";
 
 function DoctorSearch() {
   const navigate = useNavigate();
@@ -45,6 +52,7 @@ function DoctorSearch() {
     };
     fetchDoctors();
   }, []);
+
   const handleSearch = () => {
     // Prepare the query parameters
     const queryParams = new URLSearchParams();
@@ -70,26 +78,8 @@ function DoctorSearch() {
       });
   };
 
-  const handleSelectDoctor = (doctorId) => {
-    const requestOptions = {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    };
-    fetch(
-      `http://localhost:8000/Patient-home/view-doctor?doctorId=${doctorId}`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        setSelectedDoctor(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching doctor data:", error);
-        setSelectedDoctor(null);
-      });
+  const handleRowClick = (doctorId, sessionPrice) => {
+    navigate(`/patient/viewdoctors/selecteddoctor/${doctorId}/${sessionPrice}`);
   };
 
   const handleFilterDoctors = () => {
@@ -115,7 +105,14 @@ function DoctorSearch() {
         setDoctors(null);
       });
   };
-
+  if (decodedtoken.role !== "patient") {
+    return (
+      <div>
+        <div>ACCESS DENIED, You are not authenticated, please log in</div>
+        <Link to="/login">Login</Link>
+      </div>
+    );
+  }
   return (
     <div>
       <button onClick={() => navigate(-1)}>Go Back</button>
@@ -188,22 +185,41 @@ function DoctorSearch() {
       {doctors ? (
         <div>
           <h2>Available Doctors:</h2>
-          {doctors.map((doctor) => (
-            <div key={doctor._id}>
-              <p>ID: {doctor._id}</p>
-              <p>Name: {doctor.username}</p>
-              <p>Specialty: {doctor.speciality}</p>
-              <p>Session Price: {doctor.sessionPrice}</p>
-              <p>Affiliation: {doctor.affiliation}</p>
-              <p>Educational Background: {doctor.educationalBackground}</p>
-              <button onClick={() => handleSelectDoctor(doctor._id)}>
-                Select Doctor
-              </button>
-            </div>
-          ))}
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>ID</TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Specialty</TableCell>
+                  <TableCell>Session Price</TableCell>
+                  <TableCell>Affiliation</TableCell>
+                  <TableCell>Educational Background</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {doctors.map((doctor) => (
+                  <TableRow
+                    key={doctor._id}
+                    hover
+                    onClick={() =>
+                      handleRowClick(doctor._id, doctor.sessionPrice)
+                    }
+                  >
+                    <TableCell>{doctor._id}</TableCell>
+                    <TableCell>{doctor.username}</TableCell>
+                    <TableCell>{doctor.speciality}</TableCell>
+                    <TableCell>{doctor.sessionPrice}</TableCell>
+                    <TableCell>{doctor.affiliation}</TableCell>
+                    <TableCell>{doctor.educationalBackground}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </div>
       ) : (
-        <p></p>
+        <p>No doctors available.</p>
       )}
     </div>
   );

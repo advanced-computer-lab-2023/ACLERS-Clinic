@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import DoctorDetails from "../../components/doctordetails";
-import { useNavigate } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
+import { Link, useNavigate } from "react-router-dom";
+
 const ViewDoctors = () => {
   const [doctors, setDoctors] = useState(null);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const decodedToken = jwt.decode(token);
-  console.log("decoded Token:", decodedToken);
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const id = decodedtoken.id;
   useEffect(() => {
     const fetchDoctors = async () => {
       const requestOptions = {
@@ -31,12 +33,19 @@ const ViewDoctors = () => {
     // Handle the case where id is not available
     return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
   }
-  if(decodedToken.role !=="admin"){
-    return <div>ACCESS DENIED, You are not authorized</div>;
+ 
+    
+  if (decodedtoken.role !== "admin") {
+    return (
+      <div>
+        <div>ACCESS DENIED, You are not authenticated, please log in</div>
+        <Link to="/login">Login</Link>
+      </div>
+    );
   }
   return (
     <div className="doctorviewer">
-       <button onClick={() => navigate(-1)}>Go Back</button>
+      <button onClick={() => navigate(-1)}>Go Back</button>
       <h1>Doctors</h1>
       {doctors &&
         doctors.map((doctor) => (

@@ -49,15 +49,15 @@ if(!token){
 }
 })
 function checkRole(role) {
-    return (req, res, next) => {
-        const userRole = req.role;
+  return (req, res, next) => {
+    const userRole = req.role;
 
-        if (userRole === role) {
-            // User has the required role, allow access to the route
-            next();
-        } else {
-            res.status(403).json({ message: 'Access denied' });
-        }
-    };
+    if (userRole === role) {
+      // User has the required role, allow access to the route
+      next();
+    } else {
+      res.status(403).json({ message: "Access denied" });
+    }
+  };
 }
-module.exports ={protect,checkRole}
+module.exports = { protect, checkRole };

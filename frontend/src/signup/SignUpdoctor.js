@@ -1,277 +1,195 @@
 import React, { useState } from "react";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Link from "@mui/material/Link";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import "./signup.css";
+import { Button, TextField, Grid, Typography, Container } from "@mui/material";
 
-const theme = createTheme({
-  palette: {
-    background: {
-      default: "#FFFFFF",
-    },
-  },
-});
+const DoctorSignUp = () => {
+  const [formData, setFormData] = useState({
+    username: "",
+    name: "",
+    email: "",
+    password: "",
+    dateOfBirth: "",
+    hourlyRate: "",
+    affiliation: "",
+    educationalBackground: "",
+    speciality: "",
+    idDocument: null,
+    medicalLicense: null,
+    medicalDegree: null,
+  });
 
-export default function DoctorSignUp() {
-  const [username, setUsername] = useState("");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
-  const [hourlyRate, setHourlyRate] = useState("");
-  const [affiliation, setAffiliation] = useState("");
-  const [educationalBackground, setEducationalBackground] = useState("");
-  const [speciality, setspeciality] = useState("");
-  const [idDocument, setIdDocument] = useState(null);
-  const [medicalLicense, setMedicalLicense] = useState(null);
-  const [medicalDegree, setMedicalDegree] = useState(null);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-   
-    const data = new FormData(event.currentTarget);
-    data.append("username", username);
-    data.append("name", name);
-    data.append("email", email);
-    data.append("password", password);
-    data.append("dateOfBirth", dateOfBirth);
-    data.append("hourlyRate", hourlyRate);
-    data.append("affiliation", affiliation);
-    data.append("educationalBackground", educationalBackground);
-    data.append("speciality", speciality);
-  
-    // Append the files to the form data
-    data.append("idDocument", idDocument);
-    data.append("medicalLicense", medicalLicense);
-    data.append("medicalDegree", medicalDegree);
-    // Add the file data to the form data
-    data.append("idDocument", idDocument);
-    data.append("medicalLicense", medicalLicense);
-    data.append("medicalDegree", medicalDegree);
- 
-    const newDoctor = {
-      username,
-      name,
-      email,
-      password,
-      dateOfBirth,
-      hourlyRate,
-      affiliation,
-      educationalBackground,
-      speciality,
-      idDocument,
-      medicalLicense,
-      medicalDegree
-    };
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    setFormData({ ...formData, [name]: files[0] });
+  };
 
-    console.log({ data });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    fetch("/auth/register-doctor", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: data,
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        // Redirect to a different page after successful registration
-        // window.location.href = "/login";
-      })
-      .catch((err) => {
-        console.log(err);
+    const data = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value !== null) {
+        data.append(key, value);
+      }
+    });
+
+    try {
+      const response = await fetch("/auth/register-doctor", {
+        method: "POST",
+        body: data,
       });
-  };
 
-  const handleIdDocumentChange = (event) => {
-    setIdDocument(event.target.files[0]);
-  };
-
-  const handleMedicalLicenseChange = (event) => {
-    setMedicalLicense(event.target.files[0]);
-  };
-
-  const handleMedicalDegreeChange = (event) => {
-    setMedicalDegree(event.target.files[0]);
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Doctor registration successful:", result);
+        // Redirect to a success page or handle accordingly
+      } else {
+        console.error("Doctor registration failed:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error during doctor registration:", error);
+    }
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <Box
-        sx={{
-          height: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Box
-          sx={{
-            marginTop: 75,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            width: "50%", // Make the form width 90% of the container
-            backgroundColor: "rgba(255, 255, 255, 0.8)", // Add a semi-transparent white background to the form
-            padding: "20px",
-            borderRadius: "8px", // Add rounded corners to the form
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Doctor Sign up
-          </Typography>
-          <Box
-            component="form"
-            noValidate
-            onSubmit={handleSubmit}
-            sx={{ mt: 3 }}
-          >
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  autoComplete="username"
-                  name="username"
-                  required
-                  fullWidth
-                  id="username"
-                  label="Username"
-                  autoFocus
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  autoComplete="name"
-                  name="name"
-                  required
-                  fullWidth
-                  id="name"
-                  label="Name"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  autoComplete="email"
-                  name="email"
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type="password"
-                  id="password"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="dateOfBirth"
-                  label="Date of Birth"
-                  type="date"
-                  id="dateOfBirth"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="hourlyRate"
-                  label="Hourly Rate"
-                  id="hourlyRate"
-                  type="number"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="affiliation"
-                  label="Affiliation"
-                  id="affiliation"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="educationalBackground"
-                  label="Educational Background"
-                  id="educationalBackground"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="speciality"
-                  label="Speciality"
-                  id="speciality"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <input
-                  type="file"
-                  name="idDocument"
-                  accept=".pdf, .jpg, .jpeg, .png"
-                  onChange={handleIdDocumentChange}
-                />
-                <label htmlFor="idDocument">Upload Your Medical ID</label>
-              </Grid>
-              <Grid item xs={12}>
-                <input
-                  type="file"
-                  name="medicalLicense"
-                  accept=".pdf, .jpg, .jpeg, .png"
-                  onChange={handleMedicalLicenseChange}
-                />
-                <label htmlFor="medicalLicense">Upload Medical License</label>
-              </Grid>
-              <Grid item xs={12}>
-                <input
-                  type="file"
-                  name="medicalDegree"
-                  accept=".pdf, .jpg, .jpeg, .png"
-                  onChange={handleMedicalDegreeChange}
-                />
-                <label htmlFor="medicalDegree">Upload Medical Degree</label>
-              </Grid>
-            </Grid>
-            <Button
-              type="submit"
+    <Container component="main" maxWidth="xs">
+      <Typography component="h1" variant="h5">
+        Doctor Sign Up
+      </Typography>
+      <form onSubmit={handleSubmit}>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            <TextField
               fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign Up
-            </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link href="/login" variant="body2">
-                  Already have an account? Sign in
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-      </Box>
-    </ThemeProvider>
+              label="Username"
+              name="username"
+              onChange={handleInputChange}
+              required
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Name"
+              name="name"
+              onChange={handleInputChange}
+              required
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Email"
+              name="email"
+              onChange={handleInputChange}
+              required
+              type="email"
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Password"
+              name="password"
+              onChange={handleInputChange}
+              required
+              type="password"
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Date of Birth"
+              name="dateOfBirth"
+              onChange={handleInputChange}
+              required
+              type="date"
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Hourly Rate"
+              name="hourlyRate"
+              onChange={handleInputChange}
+              required
+              type="number"
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Affiliation"
+              name="affiliation"
+              onChange={handleInputChange}
+              required
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Educational Background"
+              name="educationalBackground"
+              onChange={handleInputChange}
+              required
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Speciality"
+              name="speciality"
+              onChange={handleInputChange}
+              required
+              variant="outlined"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <input
+              type="file"
+              name="idDocument"
+              accept=".pdf, .jpg, .jpeg, .png"
+              onChange={handleFileChange}
+            />
+            <label htmlFor="idDocument">Upload Your Medical ID</label>
+          </Grid>
+          <Grid item xs={12}>
+            <input
+              type="file"
+              name="medicalLicense"
+              accept=".pdf, .jpg, .jpeg, .png"
+              onChange={handleFileChange}
+            />
+            <label htmlFor="medicalLicense">Upload Medical License</label>
+          </Grid>
+          <Grid item xs={12}>
+            <input
+              type="file"
+              name="medicalDegree"
+              accept=".pdf, .jpg, .jpeg, .png"
+              onChange={handleFileChange}
+            />
+            <label htmlFor="medicalDegree">Upload Medical Degree</label>
+          </Grid>
+        </Grid>
+        <Button type="submit" fullWidth variant="contained" color="primary">
+          Sign Up
+        </Button>
+      </form>
+    </Container>
   );
-}
+};
+
+export default DoctorSignUp;

@@ -3,6 +3,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./MedicalHistory.css"; // Create a separate CSS file for styling
 import jwt from "jsonwebtoken-promisified";
 import { useParams, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+
 function MedicalHistory() {
   const [files, setFiles] = useState([]);
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -112,6 +114,19 @@ function MedicalHistory() {
   if (!token) {
     // Handle the case where id is not available
     return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
+  }
+  // const uploadedFileItems = uploadedFiles.map((file, index) => (
+  //   <div className="uploaded-file-item" key={index}>
+  //     <span>{file.name}</span>
+  //   </div>
+  // ));
+  if (decodedtoken.role !== "patient") {
+    return (
+      <div>
+        <div>ACCESS DENIED, You are not authenticated, please log in</div>
+        <Link to="/login">Login</Link>
+      </div>
+    );
   }
   return (
     <>

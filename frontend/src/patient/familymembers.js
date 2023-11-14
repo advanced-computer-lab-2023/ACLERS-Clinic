@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
 
 function AddFamilyMember() {
@@ -140,6 +140,14 @@ function AddFamilyMember() {
   if (!token) {
     // Handle the case where id is not available
     return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
+  }
+  if (decodedtoken.role !== "patient") {
+    return (
+      <div>
+        <div>ACCESS DENIED, You are not authenticated, please log in</div>
+        <Link to="/login">Login</Link>
+      </div>
+    );
   }
   return (
     <div>

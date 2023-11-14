@@ -13,6 +13,7 @@ const multer = require("multer"); // Import Multer
 //const upload = multer({ dest: 'uploads/' });
 const path = require("path");
 const Wallet = require("../models/Wallet");
+
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const patient = await Patient.findOne({ email });
@@ -269,8 +270,9 @@ const upload = multer({
 });
 const registerDoctor = asyncHandler(async (req, res) => {
   try {
-    console.log(req.body);
-    console.log(req.files);
+    console.log("dakhalt el backend");
+    console.log("el req body: ", req.body);
+    console.log("el req files: ", req.files);
     const saltRounds = await bcrypt.genSalt(10); // You can adjust the number of salt rounds for security
     const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
     const idDocument = req.files["idDocument"]; // Assuming the field name in the form is 'idDocument'
@@ -302,6 +304,7 @@ const registerDoctor = asyncHandler(async (req, res) => {
     res.status(200).json(doctor);
   } catch (error) {
     res.send(error);
+    console.log("ERRRORORRRRRR", error);
   }
 });
 module.exports = {

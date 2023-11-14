@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
 import AdminDetails from "../../components/admindetails";
 import jwt from "jsonwebtoken-promisified";
+import { Link, useNavigate } from "react-router-dom";
+
 const ViewAdmins = () => {
   const [admins, setAdmins] = useState(null);
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const decodedToken = jwt.decode(token);
-  console.log("decoded Token:", decodedToken);
+  const decodedtoken = jwt.decode(token);
+  console.log("decoded Token:", decodedtoken);
+  const id = decodedtoken.id;
+
   useEffect(() => {
     const fetchAdmins = async () => {
       const requestOptions = {
@@ -28,12 +33,19 @@ const ViewAdmins = () => {
     // Handle the case where id is not available
     return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
   }
-  if(decodedToken.role !=="admin"){
-    return <div>ACCESS DENIED, You are not authorized</div>;
+  
+
+  if (decodedtoken.role !== "admin") {
+    return (
+      <div>
+        <div>ACCESS DENIED, You are not authenticated, please log in</div>
+        <Link to="/login">Login</Link>
+      </div>
+    );
   }
   return (
     <div className="adminviewer">
-      <h1>Admins</h1>
+      <button onClick={() => navigate(-1)}>Go Back</button>;<h1>Admins</h1>
       {admins &&
         admins.map((admin) => <AdminDetails key={admin._id} admin={admin} />)}
     </div>

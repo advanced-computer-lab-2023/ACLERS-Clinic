@@ -26,13 +26,15 @@ import DoctorSignUpPage from "./signup/SignUpdoctor";
 import ViewApplicants from "./admin/viewapplicants/viewapplicants";
 import PatientDoctors from "./patient/viewdoctors";
 import PatientAppointments from "./patient/appointments";
-import Viewhealthpackages from "./patient/HealthPackageList";
-import Handlesubscription from "./patient/handlesubscribe";
+import Subscribealthpackages from "./patient/HealthPackageList";
 import ForgotPassword from "./login/forgotpassword";
 import PatientBalance from "./patient/patientWallet";
 import DoctorBalance from "./doctor/doctorWallet";
 import PasswordChangeForm from "./patient/changePassword";
 import ContractDetails from "./applicant/contract";
+import PatientSelectedDoctor from "./patient/viewselecteddoctor";
+import PatientPaymentSuccess from "./patient/PaymentSuccess";
+import ViewHealthPackages from "./patient/viewHealthPackage";
 const App = () => {
   return (
     <>
@@ -103,14 +105,19 @@ const App = () => {
          <Route path="/patient/MyWallet/" element={<PatientBalance/>}/>
          <Route path="/doctor/MyWallet/" element={<DoctorBalance/>}/>
         <Route
-          path="/patient/Viewhealthpackages/:id"
-          element={<Viewhealthpackages />}
+          path="/patient/Subscribehealthpackages"
+          element={<Subscribealthpackages />}
         />
         <Route path="/applicant/contract" element={<ContractDetails/>}/>
         <Route
-          path="/patient/Handlesubscription/:id1/:id2"
-          element={<Handlesubscription />}
+          path="/patient/viewdoctors/selecteddoctor/:doctorId/:sessionPrice"
+          element={<PatientSelectedDoctor />}
         />
+        <Route
+          path="/patient/Viewhealthpackages"
+          element={<ViewHealthPackages />}
+        />
+        <Route path="/payment-success" element={<PatientPaymentSuccess />} />
       </Routes>
     </>
   );

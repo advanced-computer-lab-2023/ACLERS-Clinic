@@ -4,6 +4,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { DataGrid } from "@mui/x-data-grid";
 import { useNavigate, useParams } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
+import { Link } from "react-router-dom";
 
 function PrescriptionDataText() {
   const token = localStorage.getItem("token");
@@ -22,6 +23,13 @@ function PrescriptionDataText() {
   const handleChange = (e) => {
     setPatientId(e.target.value);
   };
+  const requestOptions = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  };
   useEffect(() => {
     const handleFetchPrescriptions = () => {
       // Construct the query string with filters
@@ -30,7 +38,10 @@ function PrescriptionDataText() {
       if (doctorId) query += `&doctorId=${doctorId}`;
       if (status) query += `&status=${status}`;
 
-      fetch(`http://localhost:8000/Patient-home/view-perscriptions?${query}`)
+      fetch(
+        `http://localhost:8000/Patient-home/view-perscriptions?${query}`,
+        requestOptions
+      )
         .then((response) => response.json())
         .then((data) => {
           const prescriptions = data.perscriptions;
@@ -51,7 +62,10 @@ function PrescriptionDataText() {
     if (status) query += `&status=${status}`;
     // var filtered =prescriptions.filter((perscription)=>perscription.date.includes(date))
     // console.log(filtered[0].date)
-    fetch(`http://localhost:8000/Patient-home/view-perscriptions?${query}`)
+    fetch(
+      `http://localhost:8000/Patient-home/view-perscriptions?${query}`,
+      requestOptions
+    )
       .then((response) => response.json())
       .then((data) => {
         const prescriptions = data.perscriptions;
@@ -64,7 +78,8 @@ function PrescriptionDataText() {
   };
   const handleSelectPrescription = (prescId) => {
     fetch(
-      `http://localhost:8000/Patient-home/view-perscription?prescId=${prescId}`
+      `http://localhost:8000/Patient-home/view-perscription?prescId=${prescId}`,
+      requestOptions
     )
       .then((response) => response.json())
       .then((data) => {
@@ -75,7 +90,14 @@ function PrescriptionDataText() {
         setSelectedPrescription(null);
       });
   };
-
+  if (decodedtoken.role !== "patient") {
+    return (
+      <div>
+        <div>ACCESS DENIED, You are not authenticated, please log in</div>
+        <Link to="/login">Login</Link>
+      </div>
+    );
+  }
   return (
     <div>
       <button onClick={() => navigate(-1)}>Go Back</button>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
 
 const DoctorInfo = () => {
@@ -74,9 +74,13 @@ const DoctorInfo = () => {
       console.error("Failed to update doctor information");
     }
   };
-  if (!token) {
-    // Handle the case where id is not available
-    return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
+  if (decodedtoken.role !== "doctor") {
+    return (
+      <div>
+        <div>ACCESS DENIED, You are not authenticated, please log in</div>
+        <Link to="/login">Login</Link>
+      </div>
+    );
   }
   return (
     <div>
