@@ -20,13 +20,13 @@ if(req.headers.authorization && req.headers.authorization.startsWith("Bearer")){
      
         
      }else if (decoded.role=="doctor"){
-        user = await Doctor.findById(decoded.id).select('-password')
+        user = await Doctor.findById(decoded.id)
      }
      else if (decoded.role=="applicant"){
-        user = await Applicant.findById(decoded.id).select('-password')
+        user = await Applicant.findById(decoded.id)
 
      }else if(decoded.role == "admin"){
-        user = await Admin.findById(decoded.id).select('-password')
+        user = await Admin.findById(decoded.id)
      }
 
      
