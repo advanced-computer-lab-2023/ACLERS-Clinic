@@ -504,20 +504,28 @@ const subscribeHealthPackageFamMember = asyncHandler(async (req, res) => {
     }
 
     // Check if the patient has an existing subscription
-    const existingSubscription = await PatientHealthPackage.findOne({
+    const existingSubscription = await PatientHealthPackage.find({
       patient: familyMemberId,
     });
 
-    if (existingSubscription && existingSubscription.status === "subscribed") {
+    const subscribedSubscription = existingSubscription.find(
+      (subscription) => subscription.status === "subscribed"
+    );
+    if (subscribedSubscription) {
       // Check if a year has passed since the last subscription
       const oneYearAgo = new Date();
       oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-      console.log(existingSubscription.dateOfSubscription + ">" + oneYearAgo);
-      console.log(existingSubscription.dateOfSubscription > oneYearAgo);
-      if (existingSubscription.dateOfSubscription > oneYearAgo) {
+      
+      console.log("in existing sub");
+      console.log(subscribedSubscription.dateOfSubscription > oneYearAgo);
+  
+      if (subscribedSubscription.dateOfSubscription > oneYearAgo) {
         return res.status(400).json({
           message: "Patient is not eligible for a new subscription yet",
         });
+      }else{
+        subscribedSubscription.status ="cancelled";
+        subscribedSubscription.save()
       }
     }
     const healthPackage = await HealthPackage.findById(healthPackageId);
@@ -601,19 +609,28 @@ const subscribeHealthPackage = asyncHandler(async (req, res) => {
     const { paymentMethod } = req.body;
     const patientId = req.user.id;
     // Check if the patient has an existing subscription
-    const existingSubscription = await PatientHealthPackage.findOne({
+    const existingSubscription = await PatientHealthPackage.find({
       patient: patientId,
-    });
-
-    if (existingSubscription && existingSubscription.status === "subscribed") {
+    }).populate('healthPackage');
+    console.log(existingSubscription + "existsubb")
+    const subscribedSubscription = existingSubscription.find(
+      (subscription) => subscription.status === "subscribed"
+    );
+    if (subscribedSubscription) {
       // Check if a year has passed since the last subscription
       const oneYearAgo = new Date();
       oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-
-      if (existingSubscription.dateOfSubscription > oneYearAgo) {
+      
+      console.log("in existing sub");
+      console.log(subscribedSubscription.dateOfSubscription > oneYearAgo);
+  
+      if (subscribedSubscription.dateOfSubscription > oneYearAgo) {
         return res.status(400).json({
           message: "Patient is not eligible for a new subscription yet",
         });
+      }else{
+        subscribedSubscription.status ="cancelled";
+        subscribedSubscription.save()
       }
     }
     const healthPackage = await HealthPackage.findById(healthPackageId);
@@ -967,7 +984,7 @@ const viewSubscribedHealthPackage = asyncHandler(async (req, res) => {
 
   try {
     // Find the patient's subscribed health package
-    const subscription = await PatientHealthPackage.findOne({
+    const subscription = await PatientHealthPackage.find({
       patient: patientId,
     }).populate("healthPackage");
 
@@ -990,10 +1007,10 @@ const viewSubscribedHealthPackage = asyncHandler(async (req, res) => {
 });
 
 const viewSubscribedHealthPackageFamMem = asyncHandler(async (req, res) => {
-  const FamMemId = req.query;
+  const {FamMemId} = req.query;
   try {
     // Find the patient's subscribed health package
-    const subscription = await PatientHealthPackage.findOne({
+    const subscription = await PatientHealthPackage.find({
       patient: FamMemId,
     }).populate("healthPackage");
 

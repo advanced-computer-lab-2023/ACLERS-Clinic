@@ -120,7 +120,7 @@ function MedicalHistory() {
   //     <span>{file.name}</span>
   //   </div>
   // ));
-  if (decodedtoken.role !== "patient") {
+  if (decodedToken.role !== "patient") {
     return (
       <div>
         <div>ACCESS DENIED, You are not authenticated, please log in</div>

@@ -95,7 +95,9 @@ const HealthPackageList = () => {
         .then((response) => response.json())
         .then((data) => {
           console.log(data);
+          if (paymentOption == "creditCard"){
           window.location.href = data.url;
+        }
         })
         .catch((error) => {
           console.error("Error subscribing:", error);
@@ -167,7 +169,7 @@ const HealthPackageList = () => {
             {healthPackages.map((healthPackage, index) => (
               <tr key={index}>
                 <td>{healthPackage.type}</td>
-                <td>${healthPackage.price}</td>
+                <td>${healthPackage.Price}</td>
                 <td>{healthPackage.doctorDiscount}%</td>
                 <td>{healthPackage.medicineDiscount}%</td>
                 <td>{healthPackage.subscriptionDiscount}%</td>
