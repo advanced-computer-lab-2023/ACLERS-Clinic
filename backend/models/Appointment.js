@@ -12,7 +12,9 @@ const Patient = require('./Patient')
         ,ref:'Patient'
         
     },
-
+price :{
+  type:Number
+},
     date:{
         type:Date,
         required:true
@@ -28,7 +30,7 @@ const Patient = require('./Patient')
     status:{
         type:String,
         
-enum:['UpComing','Done']
+enum:['UpComing','Done','Rescheduled','Cancelled']
     }
  })
  module.exports = mongoose.model('Appointment',appointmentSchema)

@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const {viewMyInfo,searchForPatient,viewPatient,viewPatients,filterAppointments,addFreeSlot,addHealthRecord,editEmail, writePerscription, viewPatientHealthRecords, getDoctorBalance, ViewMyContract, acceptContract, denyContract, setAppointmentORFollowup, viewDoctorFreeSlots}= require('../controllers/doctorController')
+const {viewMyInfo,searchForPatient,viewPatient,viewPatients,filterAppointments,addFreeSlot,addHealthRecord,editEmail, writePerscription, viewPatientHealthRecords, getDoctorBalance, ViewMyContract, acceptContract, denyContract, setAppointmentORFollowup, viewDoctorFreeSlots, viewPerscriptions, rescheduleAppointment,cancelAppointment}= require('../controllers/doctorController')
 const {protect,checkRole} = require('../middleware/authMiddleware')
 router.put('/editDocEmail',protect,checkRole('doctor'),editEmail)
 router.get('/view-appointments',protect,checkRole('doctor'),filterAppointments)
@@ -18,6 +18,12 @@ router.post('/acceptContract',protect,checkRole('applicant'),acceptContract)
 router.post('/denyContract',protect,checkRole('applicant'),denyContract)
 router.get('/viewFreeslots',protect,checkRole('doctor'),viewDoctorFreeSlots)
 router.post('/setAppointment',protect,checkRole('doctor'),setAppointmentORFollowup)
+router.get('/viewPerscriptions',protect,checkRole('doctor'),viewPerscriptions)
+router.post('/rescheduleAppointment',protect,checkRole('doctor'),rescheduleAppointment)
+router.post('/cancelAppointment',protect,checkRole('doctor'),cancelAppointment)
+
+
+
 
 
 
