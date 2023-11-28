@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const Doctor = require('./Doctor')
 const Patient = require('./Patient')
- const appointmentSchema = new mongoose.Schema({
+ const followupsSchema = new mongoose.Schema({
     doctor:{
         type:mongoose.Schema.Types.ObjectId,ref:'Doctor',
        
@@ -30,7 +30,7 @@ price:{
     status:{
         type:String,
         
-enum:['UpComing','Done','Rescheduled','Cancelled']
+enum:['Pending','Accepted','Denied']
     }
  })
- module.exports = mongoose.model('Appointment',appointmentSchema)
+ module.exports = mongoose.model('FollowUps',followupsSchema)
