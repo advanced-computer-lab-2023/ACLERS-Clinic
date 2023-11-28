@@ -1274,7 +1274,40 @@ const requestFollowUp = asyncHandler(async (req,res)=>{
     res.send(error)
   }
 })
+const requestFollowUpFamMem =asyncHandler(async(req,res)=>{
+ 
+  const {freeSlotId,appointmentId,famMemId} = req.query;
+  try{
+   const slot = await FreeSlots.findById(freeSlotId);
+   const appointment = await Appointment.findById(appointmentId);
+   const followUp = await FollowUps.create({
+    doctor:appointment.doctor,
+    patient:famMemId,
+    date:slot.date,
+    startTime:slot.startTime,
+    endTime:slot.endTime,
+    price:0,
+    status:"Pending"
+   })
+   res.send(followUp)
+  }catch(error){
+    console.log(error)
+    res.send(error)
+  }
+})
+const viewFamMemAppointments = asyncHandler(async(req,res)=>{
+  const {famMemId}= req.query;
+  try{
+  const appointments = await Appointment.find({patient:famMemId})
+  res.send(appointments)
+  }catch(error){
+    console.log(error);
+    res.send(error);
+  }
+})
 module.exports = {
+  requestFollowUpFamMem,
+  viewFamMemAppointments,
   requestFollowUp,
   cancelAppointmentFamMem,
   cancelAppointment,

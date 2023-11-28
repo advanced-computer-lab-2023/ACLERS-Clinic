@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const {requestFollowUp,cancelAppointmentFamMem,cancelAppointment,rescheduleAppointmentFamMem,rescheduleAppointment,setAppointmentFamMem,cancelSubscription,cancelSubscriptionFamMem,viewAppointmentsOfDr,viewSubscribedHealthPackageFamMem,subscribeHealthPackageFamMember,payUsingStripe,removeHealthRecordAttachment,getPatientBalance,linkAccount,upload,handleUpload,searchForDoctor,selectPresc,viewMyPerscriptions,viewDoctor,viewHealthPackages,subscribeHealthPackage, viewMyHealthRecords,viewDoctors, viewSubscribedHealthPackage,filterAppointments,addFamilyMember,viewFamilyMembers,setAppointment}= require('../controllers/patientController')
+const {requestFollowUpFamMem,viewFamMemAppointments,requestFollowUp,cancelAppointmentFamMem,cancelAppointment,rescheduleAppointmentFamMem,rescheduleAppointment,setAppointmentFamMem,cancelSubscription,cancelSubscriptionFamMem,viewAppointmentsOfDr,viewSubscribedHealthPackageFamMem,subscribeHealthPackageFamMember,payUsingStripe,removeHealthRecordAttachment,getPatientBalance,linkAccount,upload,handleUpload,searchForDoctor,selectPresc,viewMyPerscriptions,viewDoctor,viewHealthPackages,subscribeHealthPackage, viewMyHealthRecords,viewDoctors, viewSubscribedHealthPackage,filterAppointments,addFamilyMember,viewFamilyMembers,setAppointment}= require('../controllers/patientController')
 const {protect,checkRole} = require('../middleware/authMiddleware')
 router.post('/add-family-member',protect,checkRole('patient'),addFamilyMember)
 router.get('/view-fam-member',protect,checkRole('patient'),viewFamilyMembers)
@@ -32,4 +32,6 @@ router.post('/reschedule-appointment-fam',protect,checkRole('patient'),reschedul
 router.post('/cancel-appointment',protect,checkRole('patient'),cancelAppointment)
 router.post('/cancel-appointment-fam',protect,checkRole('patient'),cancelAppointmentFamMem)
 router.post('/request-followUp',protect,checkRole('patient'),requestFollowUp)
+router.post('/request-followUp-fam',protect,checkRole('patient'),requestFollowUpFamMem)
+router.get('/view-famMem-appointments',protect,checkRole('patient'),viewFamMemAppointments)
 module.exports = router
