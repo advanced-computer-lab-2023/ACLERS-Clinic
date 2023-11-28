@@ -11,6 +11,7 @@ const Wallet = require("../models/Wallet");
 const Contract = require("../models/Contract"); // Import the EmploymentContract model
 const Applicant = require("../models/Applicant");
 const FreeSlots = require("../models/FreeSlots");
+const FollowUps = require("../models/FollowUps");
 
 
 const editEmail = asyncHandler(async (req, res) => {
@@ -530,6 +531,45 @@ res.json({appointment : appointment, wallet : wallet, freeslot : freeslot ,walle
   }
 })
 
+const acceptFollowUp =asyncHandler(async(req,res)=>{
+  followUpId=req.query.followUpId
+  try{
+ const followUp= await FollowUps.findById(followUpId)
+ followUp.status='Accepted'
+ followUp.save();
+
+ const newAppointment = new Appointment({
+  doctor: followUp.doctor,
+  patient:followUp.patient,
+  date: followUp.date,
+  startTime: followUp.startTime,
+  endTime: followUp.endTime,
+  status: "UpComing", // You can set the initial status as needed
+  price:0
+});
+res.send(newAppointment)
+  }
+catch(error){
+  res.status(404).send(error)
+}
+
+})
+
+const rejectFollowUp =asyncHandler(async(req,res)=>{
+  followUpId=req.query.followUpId
+  try{
+ const followUp= await FollowUps.findById(followUpId)
+ followUp.status='Denied'
+ followUp.save()
+
+ 
+res.send(followUp)
+  }
+catch(error){
+  res.status(404).send(error)
+}
+
+})
 module.exports = {
   writePerscription,
   editEmail,
@@ -549,5 +589,7 @@ module.exports = {
   ,viewDoctorFreeSlots,
   viewPerscriptions, 
   rescheduleAppointment,
-  cancelAppointment
+  cancelAppointment,
+  acceptFollowUp,
+  rejectFollowUp
 };
