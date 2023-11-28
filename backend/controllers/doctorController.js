@@ -10,7 +10,9 @@ const DoctorSlot = require("../models/FreeSlots"); // Import the DoctorSlot mode
 const Wallet = require("../models/Wallet");
 const Contract = require("../models/Contract"); // Import the EmploymentContract model
 const Applicant = require("../models/Applicant");
-const FreeSlot = require("../models/FreeSlots");
+const FreeSlots = require("../models/FreeSlots");
+const FollowUps = require("../models/FollowUps");
+
 
 const editEmail = asyncHandler(async (req, res) => {
   const doctorID = req.user.id;
@@ -421,6 +423,7 @@ const setAppointmentORFollowup = asyncHandler(async (req, res) => {
       startTime: freeSlot.startTime,
       endTime: freeSlot.endTime,
       status: "UpComing", // You can set the initial status as needed
+      price:0
     });
 
     // Save the new appointment to the database
@@ -441,7 +444,7 @@ const viewDoctorFreeSlots = asyncHandler(async (req, res) => {
 
   try {
     // Find all free slots for the specified doctorId
-    const doctorFreeSlots = await FreeSlot.find({ doctorId });
+    const doctorFreeSlots = await FreeSlots.find({ doctorId ,status : 'free' });
 
     // Log the doctorId and doctorFreeSlots to see what's going on
     console.log('Doctor ID:', doctorId);
@@ -459,7 +462,114 @@ const viewDoctorFreeSlots = asyncHandler(async (req, res) => {
     res.status(500).json({ error: 'Failed to retrieve doctor free slots.' });
   }
 });
+const viewPerscriptions = asyncHandler(async (req, res) => {
+  try {
+    const { patientId, date, status } = req.query;
+    const filter = {};
+    if (date) {
+      filter.date = new Date(date);
+      console.log(filter.date);
+    }
+    // if (doctorId) {
+    //   filter.doctor = doctorId;
+    // }
+    if (status) {
+      filter.status = status;
+    }
+    filter.patient = patientId;
 
+    var perscriptions = await Perscription.find(filter);
+
+    res.json({ perscriptions });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+const rescheduleAppointment=asyncHandler(async(req,res)=>{
+  const AppointmentId=req.query.AppointmentId
+  const freeSlotId=req.query.freeSlotId
+  try{
+  const freeSlot=await FreeSlots.findById(freeSlotId)
+  const appointment=await Appointment.findById(AppointmentId)
+  appointment.date=freeSlot.date
+  appointment.startTime=freeSlot.startTime
+  appointment.endTime=freeSlot.endTime
+  appointment.status='Rescheduled'
+  appointment.save()
+  res.json({appointment: appointment
+  })
+  }
+catch(error){
+  res.status(400).send(error)
+}
+})
+const cancelAppointment=asyncHandler(async(req,res)=>{
+
+  const AppointmentId=req.query.AppointmentId
+  try{
+   const appointment=await Appointment.findById(AppointmentId)
+   appointment.status='Cancelled'
+    const wallet=await Wallet.findOne({userId:appointment.patient})
+    const walletdoc=await Wallet.findOne({userId:appointment.doctor})
+    walletdoc.balance-=appointment.price
+
+    wallet.balance+=appointment.price
+    const freeslot=await FreeSlots.findOne({date:appointment.date,startTime:appointment.startTime})
+    freeslot.status='free'
+    walletdoc.save()
+appointment.save()
+wallet.save()
+freeslot.save()
+
+res.json({appointment : appointment, wallet : wallet, freeslot : freeslot ,walletdoc:walletdoc})
+  }
+  catch(error){
+    console.log(error)
+    res.status(404).send(error)
+  }
+})
+
+const acceptFollowUp =asyncHandler(async(req,res)=>{
+  followUpId=req.query.followUpId
+  try{
+ const followUp= await FollowUps.findById(followUpId)
+ followUp.status='Accepted'
+ followUp.save();
+
+ const newAppointment = new Appointment({
+  doctor: followUp.doctor,
+  patient:followUp.patient,
+  date: followUp.date,
+  startTime: followUp.startTime,
+  endTime: followUp.endTime,
+  status: "UpComing", // You can set the initial status as needed
+  price:0
+});
+res.send(newAppointment)
+  }
+catch(error){
+  res.status(404).send(error)
+}
+
+})
+
+const rejectFollowUp =asyncHandler(async(req,res)=>{
+  followUpId=req.query.followUpId
+  try{
+ const followUp= await FollowUps.findById(followUpId)
+ followUp.status='Denied'
+ followUp.save()
+
+ 
+res.send(followUp)
+  }
+catch(error){
+  res.status(404).send(error)
+}
+
+})
 module.exports = {
   writePerscription,
   editEmail,
@@ -476,5 +586,10 @@ module.exports = {
   acceptContract,
   denyContract, 
   setAppointmentORFollowup
-  ,viewDoctorFreeSlots
+  ,viewDoctorFreeSlots,
+  viewPerscriptions, 
+  rescheduleAppointment,
+  cancelAppointment,
+  acceptFollowUp,
+  rejectFollowUp
 };
