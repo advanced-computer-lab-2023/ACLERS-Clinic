@@ -1,13 +1,13 @@
 // FreeSlotsPage.js
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useParams } from 'react-router-dom';
 import jwt from 'jsonwebtoken-promisified';
 
 const FreeSlotsPage = () => {
   const token = localStorage.getItem('token');
   const decodedToken = jwt.decode(token);
   const doctorId = decodedToken.id;
-
+  const { patientId } = useParams();
   const [freeSlots, setFreeSlots] = useState([]);
   const [registrationStatus, setRegistrationStatus] = useState({});
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ const FreeSlotsPage = () => {
         body: JSON.stringify({ freeSlotId: slotId }),
       };
 
-      const response = await fetch('http://localhost:8000/Doctor-Home/setAppointment', requestOptions);
+      const response = await fetch(`http://localhost:8000/Doctor-Home/setAppointment?patientId=${patientId}`, requestOptions);
 
       if (response.ok) {
         // Handle successful registration
@@ -60,6 +60,7 @@ const FreeSlotsPage = () => {
 
   return (
     <div>
+       <button onClick={() => navigate(-1)}>Go Back</button>
       <h1>Available Free Slots</h1>
       <table>
         <thead>

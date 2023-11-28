@@ -284,7 +284,7 @@ const viewPatientHealthRecords = asyncHandler(async (req, res) => {
 
 const getDoctorBalance = asyncHandler(async (req, res) => {
   const doctorId = req.user.id; // Assuming you have authenticated the doctor
-
+  
   try {
     // Find the wallet associated with the doctor's user ID
     const wallet = await Wallet.findOne({ userId: doctorId });

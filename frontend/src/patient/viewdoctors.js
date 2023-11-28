@@ -191,7 +191,7 @@ function DoctorSearch() {
         </div>
       )}
 
-      {doctors ? (
+      {doctors && Array.isArray(doctors) && doctors.length > 0 ? (
         <div>
           <h2>Available Doctors:</h2>
           <TableContainer component={Paper}>

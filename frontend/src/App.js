@@ -99,7 +99,7 @@ const App = () => {
           element={<PatientInfo />}
         />
         <Route
-          path="/doctor/view-patient/:patientId/view-freeSlots"
+          path="/doctor/view-patient/:patientId/view-freeSlots/:patientId"
           element={<FollowUp />}
         />
         <Route path="/ForgotPassword" element={<ForgotPassword />} />

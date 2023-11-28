@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
+
 import { useParams, useNavigate } from "react-router-dom";
 import { Link, useLocation } from "react-router-dom";
 import "./PatientAppointments.css";
 import "react-datepicker/dist/react-datepicker.css";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import Datetime from "react-datetime";
+import "react-datetime/css/react-datetime.css";
 
 import jwt, { decode } from "jsonwebtoken-promisified";
+import { format } from "date-fns";
 
 const PatientAppointments = () => {
   const location = useLocation();
@@ -20,9 +25,8 @@ const PatientAppointments = () => {
   const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [filterBy, setFilterBy] = useState("date"); // Default filter by date
   const [filterValue, setFilterValue] = useState(null); // Initialize with null
-  const [filterValueDate, setFilterValueDate] = useState(
-    new Date(2023, 0, 1, 14, 30)
-  ); // Initialize with null
+  const [date, setDate] = useState("");
+
   const [showDateInput, setShowDateInput] = useState(false);
 
   // Fetch patient's appointments based on patientId
@@ -53,18 +57,46 @@ const PatientAppointments = () => {
 
   // Function to handle filtering appointments
   const handleFilter = () => {
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+  
     if (filterBy === "date") {
       // Filter appointments by user-entered date
-      const filtered = appointments.filter((appointment) =>
-        appointment.date.includes(filterValueDate)
-      );
-      setFilteredAppointments(filtered);
+      const adjustedDate = new Date(date);
+        adjustedDate.setSeconds(0);
+        adjustedDate.setMilliseconds(0);
+
+        const formattedDate = format(
+          adjustedDate,
+          "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        );
+        console.log("formattedDate:", formattedDate);
+        
+      const url = `http://localhost:8000/Patient-Home/appointments?patientId=${id}&date=${formattedDate}`;
+      fetch(url, requestOptions)
+        .then((response) => response.json())
+        .then((data) => {
+          setFilteredAppointments(data);
+        })
+        .catch((error) => {
+          console.error("Error fetching filtered appointments:", error);
+        });
     } else if (filterBy === "status") {
-      // Show a dropdown for filtering by status
-      const filtered = appointments.filter(
-        (appointment) => appointment.status === filterValue
-      );
-      setFilteredAppointments(filtered);
+      // Filter appointments by status
+      const url = `http://localhost:8000/Patient-Home/appointments?patientId=${id}&status=${filterValue}`;
+      fetch(url, requestOptions)
+        .then((response) => response.json())
+        .then((data) => {
+          setFilteredAppointments(data);
+        })
+        .catch((error) => {
+          console.error("Error fetching filtered appointments:", error);
+        });
     }
   };
 
@@ -133,17 +165,17 @@ const PatientAppointments = () => {
             </select>
           </label>
           {filterBy === "date" && (
-            <DatePicker
-              selected={filterValueDate}
-              onChange={(date) => setFilterValueDate(date)}
-              showTimeSelect
-              timeFormat="HH:mm"
-              timeIntervals={15}
-              timeCaption="Time"
-              dateFormat="MM/dd/yyyy h:mm aa"
-              className="filter-input"
-              placeholderText="Select a date and time"
-            />
+            <div>
+        <Datetime
+          id="date"
+          label="Date"
+          value={date}
+          onChange={(date) => setDate(date)}
+          dateFormat="YYYY-MM-DD"
+          timeFormat="HH:mm"
+          inputProps={{ placeholder: "Select Date and Time" }}
+        />
+      </div>
           )}
           {filterBy === "status" && (
             <select
@@ -173,7 +205,7 @@ const PatientAppointments = () => {
           <tbody>
             {filteredAppointments.map((appointment) => (
               <tr key={appointment.id}>
-                <td className="custom-td">{appointment.doctor}</td>
+                <td className="custom-td">{appointment.doctor.name}</td>
                 <td className="custom-td">{appointment.date}</td>
                 <td className="custom-td">{appointment.status}</td>
               </tr>

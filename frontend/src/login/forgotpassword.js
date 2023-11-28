@@ -36,6 +36,11 @@ function ForgotPassword() {
 
     
   };
+  const handleGoToDashboard = () => {
+    // Change window location to the dashboard URL
+    window.location.href = "/login";
+  };
+
 
   const handleResetPassword = async() => {
     // Reset the password using the OTP and the new password
@@ -116,7 +121,9 @@ function ForgotPassword() {
               {isPasswordReset && (
                 <div className="alert alert-success" role="alert">
                   Password has been reset successfully.
+                  <button onClick={handleGoToDashboard}>Go Back to the Dashboard</button>
                 </div>
+                
               )}
             </div>
           </div>
