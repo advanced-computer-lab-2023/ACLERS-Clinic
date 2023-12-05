@@ -15,7 +15,7 @@ const Wallet = require("../models/Wallet");
 const FreeSlots = require("../models/FreeSlots");
 const PatientMedicalHistory = require("../models/PatientMedicalHistory");
 const healthPackage = require("../models/healthPackage");
-const FollowUps = require("../models/FollowUps")
+const FollowUps = require("../models/FollowUps");
 function calculateBirthdate(age) {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
@@ -35,7 +35,7 @@ const addFamilyMember = asyncHandler(async (req, res) => {
     const patient = await Patient.create({
       username: req.body.name,
       dateOfBirth: calculateBirthdate(req.body.age),
-      email: user.name + "@gmail.com",
+      email: req.body.name + "@gmail.com",
       gender: req.body.gender,
       name: req.body.name,
       mobileNumber: user.mobileNumber,
@@ -96,7 +96,7 @@ const setAppointmentFamMem = asyncHandler(async (req, res) => {
   const sessionPrice = req.body.sessionPrice;
   const slot = await FreeSlots.findById(slotId);
   const familyMemId = req.query.familyMemId;
-  const docwallet = await Wallet.findOne({userId:doctorId})
+  const docwallet = await Wallet.findOne({ userId: doctorId });
   function getType(variable) {
     return typeof variable;
   }
@@ -118,8 +118,8 @@ const setAppointmentFamMem = asyncHandler(async (req, res) => {
       return res.status(400).json({ message: "Insufficient wallet balance" });
     } else {
       wallet.balance -= sessionPrice;
-     await wallet.save();
-      docwallet.balance+=sessionPrice;
+      await wallet.save();
+      docwallet.balance += sessionPrice;
       await docwallet.save();
     }
   } else {
@@ -147,7 +147,7 @@ const setAppointmentFamMem = asyncHandler(async (req, res) => {
 
       console.log("EL RESPONSE DATA AHOOOO: ", response.data);
       res.json({ url: response.data.session.url });
-      docwallet.balance+=sessionPrice;
+      docwallet.balance += sessionPrice;
       await docwallet.save();
       // return res.json(stripeResponse)
     } catch (error) {
@@ -162,9 +162,9 @@ const setAppointmentFamMem = asyncHandler(async (req, res) => {
     startTime: slot.startTime,
     endTime: slot.endTime,
     status: "UpComing",
-    price:sessionPrice
+    price: sessionPrice,
   });
-  slot.status='booked';
+  slot.status = "booked";
   await slot.save();
   var patientHealthRecord = await PatientHealthRecord.findOne({
     patient: familyMemId,
@@ -213,9 +213,9 @@ const setAppointment = asyncHandler(async (req, res) => {
   const paymentMethod = req.body.paymentMethod;
   const sessionPrice = req.body.sessionPrice;
   const slot = await FreeSlots.findById(slotId);
-  console.log(doctorId +"doctorId")
-  const docwallet = await Wallet.findOne({userId:doctorId})
-  console.log(docwallet+"docwallet")
+  console.log(doctorId + "doctorId");
+  const docwallet = await Wallet.findOne({ userId: doctorId });
+  console.log(docwallet + "docwallet");
   if (paymentMethod === "wallet") {
     // Check if the patient's wallet balance is sufficient
 
@@ -226,16 +226,15 @@ const setAppointment = asyncHandler(async (req, res) => {
         balance: 0,
       });
     }
-  
 
-    const balance = wallet.balance; 
-    console.log(balance , sessionPrice)// Replace with the actual model
+    const balance = wallet.balance;
+    console.log(balance, sessionPrice); // Replace with the actual model
     if (balance < sessionPrice) {
       return res.status(400).json({ message: "Insufficient wallet balance" });
     } else {
       wallet.balance -= sessionPrice;
       await wallet.save();
-      docwallet.balance+=sessionPrice;
+      docwallet.balance += sessionPrice;
       await docwallet.save();
     }
   } else {
@@ -261,7 +260,7 @@ const setAppointment = asyncHandler(async (req, res) => {
         }
       );
       console.log(response.data);
-      docwallet.balance+=sessionPrice;
+      docwallet.balance += sessionPrice;
       await docwallet.save();
       res.json({ url: response.data.session.url });
 
@@ -270,7 +269,6 @@ const setAppointment = asyncHandler(async (req, res) => {
       console.log(error);
     }
   }
-  
 
   const appointment = await Appointment.create({
     patient: patientId,
@@ -279,9 +277,9 @@ const setAppointment = asyncHandler(async (req, res) => {
     startTime: slot.startTime,
     endTime: slot.endTime,
     status: "UpComing",
-    price:sessionPrice
+    price: sessionPrice,
   });
-  slot.status='booked';
+  slot.status = "booked";
   await slot.save();
 
   var patientHealthRecord = await PatientHealthRecord.findOne({
@@ -311,9 +309,7 @@ const setAppointment = asyncHandler(async (req, res) => {
 
       await registeredPatients.save();
 
-      console.log(
-        `Patient with ID ${patientId} added to RegisteredPatients.`
-      );
+      console.log(`Patient with ID ${patientId} added to RegisteredPatients.`);
     }
   } else {
     await RegisteredPatients.create({
@@ -325,8 +321,8 @@ const setAppointment = asyncHandler(async (req, res) => {
 });
 const viewMyPerscriptions = asyncHandler(async (req, res) => {
   try {
-    const {  date, status } = req.query;
-    const patientId = req.user.id
+    const { date, status } = req.query;
+    const patientId = req.user.id;
     const filter = {};
     if (date) {
       filter.date = new Date(date);
@@ -369,7 +365,7 @@ const filterAppointments = asyncHandler(async (req, res) => {
     }
 
     // Use the filter object to query the database
-    const appointments = await Appointment.find(filter).populate('doctor');
+    const appointments = await Appointment.find(filter).populate("doctor");
     console.log(appointments);
 
     res.status(200).json(appointments);
@@ -383,7 +379,7 @@ const viewDoctors = asyncHandler(async (req, res) => {
     var { speciality, date, time } = req.query;
     const patientId = req.user.id;
     // Create an initial query object for doctors
-    console.log(time)
+    console.log(time);
     const doctorQuery = {};
     var doctorsWithSessionPrices = [];
     // Add speciality filter if provided
@@ -394,10 +390,10 @@ const viewDoctors = asyncHandler(async (req, res) => {
     // If date and time are provided, check doctor availability
     if (date && time) {
       const [hours, minutes] = time.split(":");
-  
+
       // Create a new Date object with the combined date and time
       var dateWithTime = new Date(date);
-      dateWithTime.setHours(parseInt(hours)+2, minutes, 0, 0);
+      dateWithTime.setHours(parseInt(hours) + 2, minutes, 0, 0);
 
       // Find doctors available at the specified date and time
       console.log(dateWithTime);
@@ -473,7 +469,7 @@ const viewDoctors = asyncHandler(async (req, res) => {
           const patientHealthPackages = await PatientHealthPackage.find({
             patient: patientId,
           });
-   
+
           if (
             patientHealthPackages.length > 0 &&
             patientHealthPackages[0].status == "subscribed"
@@ -1069,13 +1065,13 @@ const cancelSubscription = asyncHandler(async (req, res) => {
       patient: patientId,
       status: "subscribed",
     }).populate("healthPackage");
-   
+
     if (!subscription) {
       return res
         .status(404)
         .json({ message: "No subscribed health package found" });
     }
-    const wallet = await Wallet.findOne({userId : patientId})
+    const wallet = await Wallet.findOne({ userId: patientId });
 
     // Extract the health package details from the subscription
     subscription.status = "cancelled";
@@ -1158,153 +1154,157 @@ const payUsingStripe = asyncHandler(async (req, res) => {
     return res.send(error);
   }
 });
-const rescheduleAppointment = asyncHandler(async (req,res)=>{
+const rescheduleAppointment = asyncHandler(async (req, res) => {
   const patientId = req.user.id;
-  const {appointmentId,freeSlotId} = req.query;
-  try{
-  const appointment = await Appointment.findById(appointmentId);
-  const freeSlot = await FreeSlots.findById(freeSlotId);
-  console.log(freeSlot)
-  appointment.date = freeSlot.date;
-  appointment.status = 'Rescheduled';
-  appointment.startTime = freeSlot.startTime;
-  appointment.endTime = freeSlot.endTime;
-  await appointment.save();
-  res.json({appointment : appointment});
-  }catch(error){
-    console.log(error);
-    res.status(400).send(error);
-  }
-})
-const rescheduleAppointmentFamMem = asyncHandler(async (req,res)=>{
-  const {appointmentId,freeSlotId,famMemId} = req.query;
-  try{
+  const { appointmentId, freeSlotId } = req.query;
+  try {
     const appointment = await Appointment.findById(appointmentId);
     const freeSlot = await FreeSlots.findById(freeSlotId);
-    console.log(freeSlot)
+    console.log(freeSlot);
     appointment.date = freeSlot.date;
-    appointment.status = 'Rescheduled';
+    appointment.status = "Rescheduled";
     appointment.startTime = freeSlot.startTime;
     appointment.endTime = freeSlot.endTime;
     await appointment.save();
-    res.json({appointment : appointment});
-    }catch(error){
-      console.log(error);
-      res.status(400).send(error);
-    }
-})
-const cancelAppointment = asyncHandler(async (req,res)=>{
-  const patientId = req.user.id;
-  const {appointmentId}=req.query
-  const appointment = await Appointment.findById(appointmentId);
-  const wallet = await Wallet.findOne({userId:patientId});
-  const drWallet = await Wallet.findOne({userId:appointment.doctor});
-  const now = new Date();
-    const startTime = new Date(appointment.startTime);
-
-    // Calculate the difference in milliseconds between the current time and the appointment start time
-    const timeDifference = startTime - now;
-
-    // Calculate the difference in hours
-    const hoursDifference = timeDifference / (1000 * 60 * 60);
-
-    // Check if the cancellation is before the start time by 24 hours
-    if (hoursDifference > 24) {
-     wallet.balance+=appointment.price;
-     drWallet.balance-=appointment.price;
-     await wallet.save();
-     await drWallet.save();
-    }
-    appointment.status='Cancelled';
-    console.log(appointment)
-    const slot = await FreeSlots.findOne({date:appointment.date,startTime:appointment.startTime});
-    slot.status='free';
-    await slot.save();
-    await appointment.save();
-    res.send(appointment);
-})
-const cancelAppointmentFamMem = asyncHandler(async (req,res)=>{
-  
-  const {appointmentId,famMemId}=req.query
-  const appointment = await Appointment.findById(appointmentId);
-  const wallet = await Wallet.findOne({userId:famMemId});
-  const drWallet = await Wallet.findOne({userId:appointment.doctor});
-  const now = new Date();
-    const startTime = new Date(appointment.startTime);
-
-    // Calculate the difference in milliseconds between the current time and the appointment start time
-    const timeDifference = startTime - now;
-
-    // Calculate the difference in hours
-    const hoursDifference = timeDifference / (1000 * 60 * 60);
-
-    // Check if the cancellation is before the start time by 24 hours
-    if (hoursDifference > 24) {
-     wallet.balance+=appointment.price;
-     drWallet.balance-=appointment.price;
-     await wallet.save();
-     await drWallet.save();
-    }
-    appointment.status='Cancelled';
-    console.log(appointment)
-    const slot = await FreeSlots.findOne({date:appointment.date,startTime:appointment.startTime});
-    slot.status='free';
-    await slot.save();
-    await appointment.save();
-    res.send(appointment);
-})
-const requestFollowUp = asyncHandler(async (req,res)=>{
-  const patientId = req.user.id;
-  const {freeSlotId,appointmentId} = req.query;
-  try{
-   const slot = await FreeSlots.findById(freeSlotId);
-   const appointment = await Appointment.findById(appointmentId);
-   const followUp = await FollowUps.create({
-    doctor:appointment.doctor,
-    patient:patientId,
-    date:slot.date,
-    startTime:slot.startTime,
-    endTime:slot.endTime,
-    price:0,
-    status:"Pending"
-   })
-   res.send(followUp)
-  }catch(error){
-    console.log(error)
-    res.send(error)
+    res.json({ appointment: appointment });
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error);
   }
-})
-const requestFollowUpFamMem =asyncHandler(async(req,res)=>{
- 
-  const {freeSlotId,appointmentId,famMemId} = req.query;
-  try{
-   const slot = await FreeSlots.findById(freeSlotId);
-   const appointment = await Appointment.findById(appointmentId);
-   const followUp = await FollowUps.create({
-    doctor:appointment.doctor,
-    patient:famMemId,
-    date:slot.date,
-    startTime:slot.startTime,
-    endTime:slot.endTime,
-    price:0,
-    status:"Pending"
-   })
-   res.send(followUp)
-  }catch(error){
-    console.log(error)
-    res.send(error)
+});
+const rescheduleAppointmentFamMem = asyncHandler(async (req, res) => {
+  const { appointmentId, freeSlotId, famMemId } = req.query;
+  try {
+    const appointment = await Appointment.findById(appointmentId);
+    const freeSlot = await FreeSlots.findById(freeSlotId);
+    console.log(freeSlot);
+    appointment.date = freeSlot.date;
+    appointment.status = "Rescheduled";
+    appointment.startTime = freeSlot.startTime;
+    appointment.endTime = freeSlot.endTime;
+    await appointment.save();
+    res.json({ appointment: appointment });
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error);
   }
-})
-const viewFamMemAppointments = asyncHandler(async(req,res)=>{
-  const {famMemId}= req.query;
-  try{
-  const appointments = await Appointment.find({patient:famMemId})
-  res.send(appointments)
-  }catch(error){
+});
+const cancelAppointment = asyncHandler(async (req, res) => {
+  const patientId = req.user.id;
+  const { appointmentId } = req.query;
+  const appointment = await Appointment.findById(appointmentId);
+  const wallet = await Wallet.findOne({ userId: patientId });
+  const drWallet = await Wallet.findOne({ userId: appointment.doctor });
+  const now = new Date();
+  const startTime = new Date(appointment.startTime);
+
+  // Calculate the difference in milliseconds between the current time and the appointment start time
+  const timeDifference = startTime - now;
+
+  // Calculate the difference in hours
+  const hoursDifference = timeDifference / (1000 * 60 * 60);
+
+  // Check if the cancellation is before the start time by 24 hours
+  if (hoursDifference > 24) {
+    wallet.balance += appointment.price;
+    drWallet.balance -= appointment.price;
+    await wallet.save();
+    await drWallet.save();
+  }
+  appointment.status = "Cancelled";
+  console.log(appointment);
+  const slot = await FreeSlots.findOne({
+    date: appointment.date,
+    startTime: appointment.startTime,
+  });
+  slot.status = "free";
+  await slot.save();
+  await appointment.save();
+  res.send(appointment);
+});
+const cancelAppointmentFamMem = asyncHandler(async (req, res) => {
+  const { appointmentId, famMemId } = req.query;
+  const appointment = await Appointment.findById(appointmentId);
+  const wallet = await Wallet.findOne({ userId: famMemId });
+  const drWallet = await Wallet.findOne({ userId: appointment.doctor });
+  const now = new Date();
+  const startTime = new Date(appointment.startTime);
+
+  // Calculate the difference in milliseconds between the current time and the appointment start time
+  const timeDifference = startTime - now;
+
+  // Calculate the difference in hours
+  const hoursDifference = timeDifference / (1000 * 60 * 60);
+
+  // Check if the cancellation is before the start time by 24 hours
+  if (hoursDifference > 24) {
+    wallet.balance += appointment.price;
+    drWallet.balance -= appointment.price;
+    await wallet.save();
+    await drWallet.save();
+  }
+  appointment.status = "Cancelled";
+  console.log(appointment);
+  const slot = await FreeSlots.findOne({
+    date: appointment.date,
+    startTime: appointment.startTime,
+  });
+  slot.status = "free";
+  await slot.save();
+  await appointment.save();
+  res.send(appointment);
+});
+const requestFollowUp = asyncHandler(async (req, res) => {
+  const patientId = req.user.id;
+  const { freeSlotId, appointmentId } = req.query;
+  try {
+    const slot = await FreeSlots.findById(freeSlotId);
+    const appointment = await Appointment.findById(appointmentId);
+    const followUp = await FollowUps.create({
+      doctor: appointment.doctor,
+      patient: patientId,
+      date: slot.date,
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      price: 0,
+      status: "Pending",
+    });
+    res.send(followUp);
+  } catch (error) {
     console.log(error);
     res.send(error);
   }
-})
+});
+const requestFollowUpFamMem = asyncHandler(async (req, res) => {
+  const { freeSlotId, appointmentId, famMemId } = req.query;
+  try {
+    const slot = await FreeSlots.findById(freeSlotId);
+    const appointment = await Appointment.findById(appointmentId);
+    const followUp = await FollowUps.create({
+      doctor: appointment.doctor,
+      patient: famMemId,
+      date: slot.date,
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      price: 0,
+      status: "Pending",
+    });
+    res.send(followUp);
+  } catch (error) {
+    console.log(error);
+    res.send(error);
+  }
+});
+const viewFamMemAppointments = asyncHandler(async (req, res) => {
+  const { famMemId } = req.query;
+  try {
+    const appointments = await Appointment.find({ patient: famMemId });
+    res.send(appointments);
+  } catch (error) {
+    console.log(error);
+    res.send(error);
+  }
+});
 module.exports = {
   requestFollowUpFamMem,
   viewFamMemAppointments,

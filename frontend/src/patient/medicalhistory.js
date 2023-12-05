@@ -5,6 +5,8 @@ import jwt from "jsonwebtoken-promisified";
 import { useParams, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
+import PatientNavbar from "../components/PatientNavbar";
+
 function MedicalHistory() {
   const [files, setFiles] = useState([]);
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -22,12 +24,15 @@ function MedicalHistory() {
   }, []);
   const removeAttachment = (filename) => {
     // Make a request to remove the attachment
-    fetch(`http://localhost:8000/Patient-Home/removeAttachment?filename=${filename}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetch(
+      `http://localhost:8000/Patient-Home/removeAttachment?filename=${filename}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
       .then((response) => response.json())
       .then((data) => {
         console.log("Attachment removed:", data);
@@ -129,55 +134,75 @@ function MedicalHistory() {
     );
   }
   return (
-    <>
-    <button onClick={() => navigate(-1)}>Go Back</button>
+    <div>
+      <PatientNavbar />
 
-    <div className="container">
-      <div className="row">
-        <div className="col-md-6 mx-auto mt-5">
-          <div className="card">
-            <div className="card-body">
-              <h5 className="card-title">Medical History</h5>
-              <input
-                type="file"
-                name="document"
-                accept=".pdf, .jpg, .jpeg, .png"
-                onChange={handleFileChange}
-              />
-              <button className="btn btn-primary btn-sm" onClick={uploadFiles}>
-                Upload
-              </button>
-              <div className="file-list">{fileItems}</div>
-              <div className="upload-status">{uploadStatus}</div>
-              <h5 className="card-title">Uploaded Files</h5>
-              <h5 className="card-title">Health Records</h5>
-              {healthRecords.map((healthRecord, index) => (
-                <div className="health-record-item" key={index}>
-                  <span>Description: {healthRecord.healthrecord}</span>
-                  <div>
-                    Attachments:
-                    <ul>
-                      {healthRecord.attachments.map((attachment, attachmentIndex) => (
-                        <li key={attachmentIndex}>
-                          <img src={`http://localhost:8000/uploads/${attachment.path.substring(8)}`} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} alt={attachment.filename} />
-                          <button
-                            className="btn btn-danger btn-sm"
-                            onClick={() => removeAttachment(attachment.filename)}
-                          >
-                            Remove
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
+      <div
+        className="container"
+        style={{ marginLeft: "240px", padding: "20px" }}
+      >
+        <div className="row">
+          <div className="col-md-6 mx-auto mt-5">
+            <div className="card">
+              <div className="card-body">
+                <h5 className="card-title">Medical History</h5>
+                <input
+                  type="file"
+                  name="document"
+                  accept=".pdf, .jpg, .jpeg, .png"
+                  onChange={handleFileChange}
+                />
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={uploadFiles}
+                >
+                  Upload
+                </button>
+                <div className="file-list">{fileItems}</div>
+                <div className="upload-status">{uploadStatus}</div>
+                <h5 className="card-title">Uploaded Files</h5>
+                <h5 className="card-title">Health Records</h5>
+                {healthRecords.map((healthRecord, index) => (
+                  <div className="health-record-item" key={index}>
+                    <span>Description: {healthRecord.healthrecord}</span>
+                    <div>
+                      Attachments:
+                      <ul>
+                        {healthRecord.attachments.map(
+                          (attachment, attachmentIndex) => (
+                            <li key={attachmentIndex}>
+                              <img
+                                src={`http://localhost:8000/uploads/${attachment.path.substring(
+                                  8
+                                )}`}
+                                style={{
+                                  maxWidth: "100%",
+                                  maxHeight: "100%",
+                                  objectFit: "contain",
+                                }}
+                                alt={attachment.filename}
+                              />
+                              <button
+                                className="btn btn-danger btn-sm"
+                                onClick={() =>
+                                  removeAttachment(attachment.filename)
+                                }
+                              >
+                                Remove
+                              </button>
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    </>
   );
 }
 

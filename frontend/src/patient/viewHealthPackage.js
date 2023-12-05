@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import jwt from "jsonwebtoken-promisified";
 import { Link, useNavigate } from "react-router-dom";
+import PatientNavbar from "../components/PatientNavbar";
 
 const SubscribedHealthPackages = () => {
   const [subscribedPackages, setSubscribedPackages] = useState([]);
@@ -165,109 +166,123 @@ const SubscribedHealthPackages = () => {
   }
 
   return (
-    <div style={{ maxWidth: 1000, margin: "auto", marginTop: 50 }}>
-      <button onClick={() => navigate(-1)}>Go Back</button>
-      <h2>Subscribed Health Packages</h2>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Package ID</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Date of Subscription</TableCell>
-              <TableCell>Renewal Date</TableCell>
-              <TableCell>End Date</TableCell>
-              <TableCell>Action</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {subscribedPackages.map((healthPackage, index) => (
-              <TableRow key={index}>
-                <TableCell>{healthPackage._id}</TableCell>
-                <TableCell>{healthPackage.status}</TableCell>
-                <TableCell>{healthPackage.dateOfSubscription}</TableCell>
-                <TableCell>{healthPackage.renewalDate}</TableCell>
-                <TableCell>{healthPackage.endDate}</TableCell>
-                <TableCell>
-                  {healthPackage.status !== "cancelled" && (
-                    <Button
-                      variant="contained"
-                      color="secondary"
-                      onClick={() =>
-                        handleCancelSubscription(healthPackage._id)
-                      }
-                    >
-                      Cancel Subscription
-                    </Button>
-                  )}
-                </TableCell>
+    <div>
+      <PatientNavbar />
+
+      <div
+        style={{
+          maxWidth: 1000,
+          margin: "auto",
+          marginTop: 50,
+          marginLeft: "240px",
+          padding: "20px",
+        }}
+      >
+        <button onClick={() => navigate(-1)}>Go Back</button>
+        <h2>Subscribed Health Packages</h2>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Package ID</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Date of Subscription</TableCell>
+                <TableCell>Renewal Date</TableCell>
+                <TableCell>End Date</TableCell>
+                <TableCell>Action</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {subscribedPackages.map((healthPackage, index) => (
+                <TableRow key={index}>
+                  <TableCell>{healthPackage._id}</TableCell>
+                  <TableCell>{healthPackage.status}</TableCell>
+                  <TableCell>{healthPackage.dateOfSubscription}</TableCell>
+                  <TableCell>{healthPackage.renewalDate}</TableCell>
+                  <TableCell>{healthPackage.endDate}</TableCell>
+                  <TableCell>
+                    {healthPackage.status !== "cancelled" && (
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() =>
+                          handleCancelSubscription(healthPackage._id)
+                        }
+                      >
+                        Cancel Subscription
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-      <h2>Family Members' Health Packages</h2>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Relation To Patient</TableCell>
-              <TableCell>Health Package ID</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Date of Subscription</TableCell>
-              <TableCell>Renewal Date</TableCell>
-              <TableCell>End Date</TableCell>
-              <TableCell>Action</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {(Array.isArray(familyMembers) ? familyMembers : []).map(
-              (familyMember, index) => (
-                <React.Fragment key={index}>
-                  {(
-                    familyMemberHealthPackages.find(
-                      (packageData) =>
-                        packageData.familyMemberId === familyMember._id
-                    )?.healthPackages || []
-                  ).map((healthPackage) => (
-                    <TableRow key={healthPackage._id}>
-                      <TableCell>{familyMember.name}</TableCell>
-                      <TableCell>{familyMember.relationToPatient}</TableCell>
-                      <TableCell>{healthPackage._id}</TableCell>
-                      <TableCell>{healthPackage.status}</TableCell>
-                      <TableCell>{healthPackage.dateOfSubscription}</TableCell>
-                      <TableCell>{healthPackage.renewalDate}</TableCell>
-                      <TableCell>{healthPackage.endDate}</TableCell>
-                      <TableCell>
-                        {healthPackage.status === "subscribed" && (
-                          <Button
-                            variant="contained"
-                            color="secondary"
-                            onClick={() =>
-                              handleCancelSubscriptionFamilyMember(
-                                familyMember._id,
-                                healthPackage._id
-                              )
-                            }
-                          >
-                            Cancel Subscription
-                          </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </React.Fragment>
-              )
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+        <h2>Family Members' Health Packages</h2>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Name</TableCell>
+                <TableCell>Relation To Patient</TableCell>
+                <TableCell>Health Package ID</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Date of Subscription</TableCell>
+                <TableCell>Renewal Date</TableCell>
+                <TableCell>End Date</TableCell>
+                <TableCell>Action</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {(Array.isArray(familyMembers) ? familyMembers : []).map(
+                (familyMember, index) => (
+                  <React.Fragment key={index}>
+                    {(
+                      familyMemberHealthPackages.find(
+                        (packageData) =>
+                          packageData.familyMemberId === familyMember._id
+                      )?.healthPackages || []
+                    ).map((healthPackage) => (
+                      <TableRow key={healthPackage._id}>
+                        <TableCell>{familyMember.name}</TableCell>
+                        <TableCell>{familyMember.relationToPatient}</TableCell>
+                        <TableCell>{healthPackage._id}</TableCell>
+                        <TableCell>{healthPackage.status}</TableCell>
+                        <TableCell>
+                          {healthPackage.dateOfSubscription}
+                        </TableCell>
+                        <TableCell>{healthPackage.renewalDate}</TableCell>
+                        <TableCell>{healthPackage.endDate}</TableCell>
+                        <TableCell>
+                          {healthPackage.status === "subscribed" && (
+                            <Button
+                              variant="contained"
+                              color="secondary"
+                              onClick={() =>
+                                handleCancelSubscriptionFamilyMember(
+                                  familyMember._id,
+                                  healthPackage._id
+                                )
+                              }
+                            >
+                              Cancel Subscription
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </React.Fragment>
+                )
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-      <Button variant="contained" color="primary" style={{ marginTop: 20 }}>
-        Go Back to Dashboard
-      </Button>
+        <Button variant="contained" color="primary" style={{ marginTop: 20 }}>
+          Go Back to Dashboard
+        </Button>
+      </div>
     </div>
   );
 };

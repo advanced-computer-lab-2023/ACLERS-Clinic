@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
+import PatientNavbar from "../components/PatientNavbar";
 
 function AddFamilyMember() {
   const navigate = useNavigate();
@@ -151,131 +152,133 @@ function AddFamilyMember() {
   }
   return (
     <div>
-      <button onClick={() => navigate(-1)}>Go Back</button>
+      <PatientNavbar />
 
-      <h2>Add Family Member</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="name">Name:</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="nationalId">National ID:</label>
-          <input
-            type="text"
-            id="nationalId"
-            name="nationalId"
-            value={formData.nationalId}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="age">Age:</label>
-          <input
-            type="number"
-            id="age"
-            name="age"
-            value={formData.age}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="gender">Gender:</label>
-          <select
-            id="gender"
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-          >
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-        <div>
-          <label htmlFor="relationToPatient">Relation to Patient:</label>
-          <select
-            id="relationToPatient"
-            name="relationToPatient"
-            value={formData.relationToPatient}
-            onChange={handleChange}
-          >
-            <option value="wife">Wife</option>
-            <option value="husband">Husband</option>
-            <option value="children">Children</option>
-          </select>
-        </div>
-        <button type="submit">Add Family Member</button>
-      </form>
+      <div style={{ marginLeft: "440px", padding: "20px" }}>
+        <button onClick={() => navigate(-1)}>Go Back</button>
 
-      <h2>Link Family Member</h2>
-      <form onSubmit={handleLinkSubmit}>
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={linkFormData.email}
-            onChange={handleLinkChange}
-            
-          />
-        </div>
-        <div>
-          <label htmlFor="mobileNumber">Phone Number:</label>
-          <input
-            type="tel"
-            id="mobileNumber"
-            name="mobileNumber"
-            value={linkFormData.mobileNumber}
-            onChange={handleLinkChange}
-            
-          />
-        </div>
-        <div>
-          <label htmlFor="relation">Relation to Patient:</label>
-          <select
-            id="relation"
-            name="relation"
-            value={linkFormData.relation}
-            onChange={handleLinkChange}
-          >
-            <option value="wife">Wife</option>
-            <option value="husband">Husband</option>
-            <option value="children">Children</option>
-          </select>
-        </div>
-        <button type="submit">Link Family Member</button>
-      </form>
+        <h2>Add Family Member</h2>
+        <form onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="name">Name:</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="nationalId">National ID:</label>
+            <input
+              type="text"
+              id="nationalId"
+              name="nationalId"
+              value={formData.nationalId}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="age">Age:</label>
+            <input
+              type="number"
+              id="age"
+              name="age"
+              value={formData.age}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="gender">Gender:</label>
+            <select
+              id="gender"
+              name="gender"
+              value={formData.gender}
+              onChange={handleChange}
+            >
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="relationToPatient">Relation to Patient:</label>
+            <select
+              id="relationToPatient"
+              name="relationToPatient"
+              value={formData.relationToPatient}
+              onChange={handleChange}
+            >
+              <option value="wife">Wife</option>
+              <option value="husband">Husband</option>
+              <option value="children">Children</option>
+            </select>
+          </div>
+          <button type="submit">Add Family Member</button>
+        </form>
 
-      <div style={{ marginTop: "50px" }}>
-        <button onClick={handleViewFamilyMembers}>View Family Members</button>
+        <h2>Link Family Member</h2>
+        <form onSubmit={handleLinkSubmit}>
+          <div>
+            <label htmlFor="email">Email:</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={linkFormData.email}
+              onChange={handleLinkChange}
+            />
+          </div>
+          <div>
+            <label htmlFor="mobileNumber">Phone Number:</label>
+            <input
+              type="tel"
+              id="mobileNumber"
+              name="mobileNumber"
+              value={linkFormData.mobileNumber}
+              onChange={handleLinkChange}
+            />
+          </div>
+          <div>
+            <label htmlFor="relation">Relation to Patient:</label>
+            <select
+              id="relation"
+              name="relation"
+              value={linkFormData.relation}
+              onChange={handleLinkChange}
+            >
+              <option value="wife">Wife</option>
+              <option value="husband">Husband</option>
+              <option value="children">Children</option>
+            </select>
+          </div>
+          <button type="submit">Link Family Member</button>
+        </form>
+
+        <div style={{ marginTop: "50px" }}>
+          <button onClick={handleViewFamilyMembers}>View Family Members</button>
+        </div>
+
+        {showFamilyMembers && (
+          <div>
+            <h3>Family Members:</h3>
+            <ul>
+              {familyMembers.map((familyMember) => (
+                <div>
+                  <li key={familyMember._id}>{familyMember.name}</li>
+                  <li>{familyMember.nationalId}</li>
+                  <li>{familyMember.age}</li>
+                  <li>{familyMember.relationToPatient}</li>
+                </div>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
-
-      {showFamilyMembers && (
-        <div>
-          <h3>Family Members:</h3>
-          <ul>
-            {familyMembers.map((familyMember) => (
-              <div>
-                <li key={familyMember._id}>{familyMember.name}</li>
-                <li>{familyMember.nationalId}</li>
-                <li>{familyMember.age}</li>
-                <li>{familyMember.relationToPatient}</li>
-              </div>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   );
 }
