@@ -12,6 +12,7 @@ import MenuItem from "@mui/material/MenuItem";
 import jwt from "jsonwebtoken-promisified";
 import Button from "@mui/material/Button";
 import { Link, useNavigate } from "react-router-dom";
+import PatientNavbar from "../components/PatientNavbar";
 
 function SelectedDoctor() {
   const navigate = useNavigate();
@@ -154,13 +155,13 @@ function SelectedDoctor() {
         .then((response) => response.json())
         .then((data) => {
           console.log("Appointment booked for yourself:", data);
-          console.log(paymentMethods[slotId])
-          if(paymentMethods[slotId] === "creditCard"){
-            console.log("inn")
-            if(data.url){
-          window.location.href = data.url;
+          console.log(paymentMethods[slotId]);
+          if (paymentMethods[slotId] === "creditCard") {
+            console.log("inn");
+            if (data.url) {
+              window.location.href = data.url;
             }
-        }
+          }
           // Issue a POST request to pay without redirecting
           //   if (body.paymentMethod === "creditCard") {
           //     fetch("http://localhost:8000/Patient-Home/pay", {
@@ -192,11 +193,11 @@ function SelectedDoctor() {
         .then((response) => response.json())
         .then((data) => {
           console.log("Appointment booked for family member:", data);
-          if(paymentMethods[slotId] === "creditCard"){
-            if(data.url){
-          window.location.href = data.url;
+          if (paymentMethods[slotId] === "creditCard") {
+            if (data.url) {
+              window.location.href = data.url;
             }
-        }
+          }
         })
         .catch((error) => {
           console.error("Error booking appointment for family member:", error);
@@ -214,109 +215,115 @@ function SelectedDoctor() {
 
   return (
     <div>
-      <button onClick={() => navigate(-1)}>Go Back</button>
-      <h1>Your Selected Doctor</h1>
+      <PatientNavbar />
 
-      {selectedDoctor ? (
-        <div>
-          <p>ID: {selectedDoctor._id}</p>
-          <p>Name: {selectedDoctor.username}</p>
-          <p>Email: {selectedDoctor.email}</p>
-          <p>Hourly Rate: {selectedDoctor.hourlyRate}</p>
-          <p>Affiliation: {selectedDoctor.affiliation}</p>
-          <p>Educational Background: {selectedDoctor.educationalBackground}</p>
-          <p>Speciality: {selectedDoctor.speciality}</p>
-          <p>Session Price: {sessionPrice}</p>
+      <div style={{ marginLeft: "240px", padding: "20px" }}>
+        <button onClick={() => navigate(-1)}>Go Back</button>
+        <h1>Your Selected Doctor</h1>
 
-          {slots.length > 0 ? (
-            <div>
-              <h2>Appointment Slots:</h2>
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Date</TableCell>
-                      <TableCell>Start Time</TableCell>
-                      <TableCell>End Time</TableCell>
-                      <TableCell>Payment Method</TableCell>
-                      <TableCell>Booking For</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {slots.map((slot) => (
-                      <TableRow key={slot._id}>
-                        <TableCell>{slot.date}</TableCell>
-                        <TableCell>{slot.startTime}</TableCell>
-                        <TableCell>{slot.endTime}</TableCell>
-                        <TableCell>
-                          <Select
-                            value={paymentMethods[slot._id] || "wallet"}
-                            onChange={(e) => {
-                              setPaymentMethods({
-                                ...paymentMethods,
-                                [slot._id]: e.target.value,
-                              });
-                            }}
-                            size="small"
-                            style={{ width: "150px" }}
-                          >
-                            <MenuItem value="wallet">💵 Wallet 💵</MenuItem>
-                            <MenuItem value="creditCard">
-                              💳 Credit Card 💳
-                            </MenuItem>
-                          </Select>
-                        </TableCell>
-                        <TableCell>
-                          <Select
-                            value={
-                              bookingFor[slot._id]
-                                ? bookingFor[slot._id][0]
-                                : "myself"
-                            }
-                            onChange={(e) => {
-                              const selectedValue = e.target.value;
-                              setBookingFor({ [slot._id]: [selectedValue] });
-                              console.log("You selected:", selectedValue);
-                            }}
-                            size="small"
-                            style={{ width: "150px" }}
-                          >
-                            <MenuItem value="myself">Myself</MenuItem>
-                            {familyMembers.map((option) => (
-                              <MenuItem key={option.id} value={option.id}>
-                                {option.name}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </TableCell>
+        {selectedDoctor ? (
+          <div>
+            <p>ID: {selectedDoctor._id}</p>
+            <p>Name: {selectedDoctor.username}</p>
+            <p>Email: {selectedDoctor.email}</p>
+            <p>Hourly Rate: {selectedDoctor.hourlyRate}</p>
+            <p>Affiliation: {selectedDoctor.affiliation}</p>
+            <p>
+              Educational Background: {selectedDoctor.educationalBackground}
+            </p>
+            <p>Speciality: {selectedDoctor.speciality}</p>
+            <p>Session Price: {sessionPrice}</p>
 
-                        <TableCell>
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() =>
-                              handleBookAppointment(
-                                slot._id,
-                                bookingFor[slot._id][0]
-                              )
-                            }
-                          >
-                            Book
-                          </Button>
-                        </TableCell>
+            {slots.length > 0 ? (
+              <div>
+                <h2>Appointment Slots:</h2>
+                <TableContainer component={Paper}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Date</TableCell>
+                        <TableCell>Start Time</TableCell>
+                        <TableCell>End Time</TableCell>
+                        <TableCell>Payment Method</TableCell>
+                        <TableCell>Booking For</TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </div>
-          ) : (
-            <p>No appointment slots available.</p>
-          )}
-        </div>
-      ) : (
-        <p>Loading...</p>
-      )}
+                    </TableHead>
+                    <TableBody>
+                      {slots.map((slot) => (
+                        <TableRow key={slot._id}>
+                          <TableCell>{slot.date}</TableCell>
+                          <TableCell>{slot.startTime}</TableCell>
+                          <TableCell>{slot.endTime}</TableCell>
+                          <TableCell>
+                            <Select
+                              value={paymentMethods[slot._id] || "wallet"}
+                              onChange={(e) => {
+                                setPaymentMethods({
+                                  ...paymentMethods,
+                                  [slot._id]: e.target.value,
+                                });
+                              }}
+                              size="small"
+                              style={{ width: "150px" }}
+                            >
+                              <MenuItem value="wallet">💵 Wallet 💵</MenuItem>
+                              <MenuItem value="creditCard">
+                                💳 Credit Card 💳
+                              </MenuItem>
+                            </Select>
+                          </TableCell>
+                          <TableCell>
+                            <Select
+                              value={
+                                bookingFor[slot._id]
+                                  ? bookingFor[slot._id][0]
+                                  : "myself"
+                              }
+                              onChange={(e) => {
+                                const selectedValue = e.target.value;
+                                setBookingFor({ [slot._id]: [selectedValue] });
+                                console.log("You selected:", selectedValue);
+                              }}
+                              size="small"
+                              style={{ width: "150px" }}
+                            >
+                              <MenuItem value="myself">Myself</MenuItem>
+                              {familyMembers.map((option) => (
+                                <MenuItem key={option.id} value={option.id}>
+                                  {option.name}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </TableCell>
+
+                          <TableCell>
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              onClick={() =>
+                                handleBookAppointment(
+                                  slot._id,
+                                  bookingFor[slot._id][0]
+                                )
+                              }
+                            >
+                              Book
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </div>
+            ) : (
+              <p>No appointment slots available.</p>
+            )}
+          </div>
+        ) : (
+          <p>Loading...</p>
+        )}
+      </div>
     </div>
   );
 }

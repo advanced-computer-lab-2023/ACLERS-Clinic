@@ -71,14 +71,23 @@ const App = () => {
           path="/doctor/view-my-appointments"
           element={<DoctorAppointments />}
         />
-        <Route path="/patient/change-password/" element={<PasswordChangeForm/>}/>
-        <Route path="/doctor/change-password/" element={<PasswordChangeForm/>}/>
-        <Route path="/admin/change-password/" element={<PasswordChangeForm/>}/>
+        <Route
+          path="/patient/changepassword/"
+          element={<PasswordChangeForm />}
+        />
+        <Route
+          path="/doctor/change-password/"
+          element={<PasswordChangeForm />}
+        />
+        <Route
+          path="/admin/change-password/"
+          element={<PasswordChangeForm />}
+        />
         <Route path="/doctor/view-my-patients" element={<DoctorPatients />} />
 
         <Route path="/patient/dashboard" element={<PatientDashBoard />} />
         <Route
-          path="/patient/view-perscriptions"
+          path="/patient/perscriptions"
           element={<PatientPerscriptions />}
         />
         <Route
@@ -86,7 +95,7 @@ const App = () => {
           element={<PatientFamilyMembers />}
         />
         <Route path="/admin/view-applicants" element={<ViewApplicants />} />
-        <Route path="/patient/viewdoctors/" element={<PatientDoctors />} />
+        <Route path="/patient/doctors/" element={<PatientDoctors />} />
         <Route
           path="/patient/appointments/"
           element={<PatientAppointments />}
@@ -108,13 +117,13 @@ const App = () => {
           path="/patient/appointments/:id"
           element={<PatientAppointments />}
         />
-         <Route path="/patient/MyWallet/" element={<PatientBalance/>}/>
-         <Route path="/doctor/MyWallet/" element={<DoctorBalance/>}/>
+        <Route path="/patient/MyWallet/" element={<PatientBalance />} />
+        <Route path="/doctor/MyWallet/" element={<DoctorBalance />} />
         <Route
           path="/patient/Subscribehealthpackages"
           element={<Subscribealthpackages />}
         />
-        <Route path="/applicant/contract" element={<ContractDetails/>}/>
+        <Route path="/applicant/contract" element={<ContractDetails />} />
         <Route
           path="/patient/viewdoctors/selecteddoctor/:doctorId/:sessionPrice"
           element={<PatientSelectedDoctor />}

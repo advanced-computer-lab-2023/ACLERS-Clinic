@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import jwt from "jsonwebtoken-promisified";
 import { useParams, useNavigate } from "react-router-dom";
+import PatientNavbar from "../components/PatientNavbar";
 const PatientBalance = () => {
   const [balance, setBalance] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -15,8 +16,6 @@ const PatientBalance = () => {
   }, []);
 
   const fetchPatientBalance = () => {
-  
-
     // Make a request to fetch patient balance
     fetch(`http://localhost:8000/Patient-Home/viewMyBalance`, {
       method: "GET",
@@ -40,26 +39,29 @@ const PatientBalance = () => {
     return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
   }
   return (
-    <><button onClick={() => navigate(-1)}>Go Back</button>
-    <div className="container mt-5">
-      <div className="row">
-        <div className="col-md-6 mx-auto">
-          <div className="card">
-            <div className="card-body">
-              <h5 className="card-title">Patient Balance</h5>
-              {loading ? (
-                <p>Loading...</p>
-              ) : (
-                <p>
-                  Your current balance is: ${balance}
-                </p>
-              )}
+    <div>
+      <PatientNavbar />
+
+      <div
+        className="container mt-5"
+        style={{ marginLeft: "240px", padding: "20px" }}
+      >
+        <div className="row">
+          <div className="col-md-6 mx-auto">
+            <div className="card">
+              <div className="card-body">
+                <h5 className="card-title">Patient Balance</h5>
+                {loading ? (
+                  <p>Loading...</p>
+                ) : (
+                  <p>Your current balance is: ${balance}</p>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    </>
   );
 };
 

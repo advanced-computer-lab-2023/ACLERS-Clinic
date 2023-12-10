@@ -10,6 +10,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import { format } from "date-fns";
+import PatientNavbar from "../components/PatientNavbar";
 
 function PrescriptionDataText() {
   const token = localStorage.getItem("token");
@@ -116,9 +117,9 @@ function PrescriptionDataText() {
   }
   return (
     <div>
-      <button onClick={() => navigate(-1)}>Go Back</button>
+      <PatientNavbar />
 
-      <div>
+      <div style={{ marginLeft: "240px", padding: "20px" }}>
         <Datetime
           id="date"
           label="Date"

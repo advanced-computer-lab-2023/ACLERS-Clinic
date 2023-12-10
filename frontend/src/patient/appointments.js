@@ -11,6 +11,7 @@ import "react-datetime/css/react-datetime.css";
 
 import jwt, { decode } from "jsonwebtoken-promisified";
 import { format } from "date-fns";
+import PatientNavbar from "../components/PatientNavbar";
 
 const PatientAppointments = () => {
   const location = useLocation();
@@ -64,19 +65,19 @@ const PatientAppointments = () => {
         Authorization: `Bearer ${token}`,
       },
     };
-  
+
     if (filterBy === "date") {
       // Filter appointments by user-entered date
       const adjustedDate = new Date(date);
-        adjustedDate.setSeconds(0);
-        adjustedDate.setMilliseconds(0);
+      adjustedDate.setSeconds(0);
+      adjustedDate.setMilliseconds(0);
 
-        const formattedDate = format(
-          adjustedDate,
-          "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-        );
-        console.log("formattedDate:", formattedDate);
-        
+      const formattedDate = format(
+        adjustedDate,
+        "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+      );
+      console.log("formattedDate:", formattedDate);
+
       const url = `http://localhost:8000/Patient-Home/appointments?patientId=${id}&date=${formattedDate}`;
       fetch(url, requestOptions)
         .then((response) => response.json())
@@ -146,72 +147,74 @@ const PatientAppointments = () => {
   }
   return (
     <div>
-      <button onClick={() => navigate(-1)}>Go Back</button>
+      <PatientNavbar />
 
-      <h1 className="page-title">Patient Appointments</h1>
-      <div className="appointments-container">
-        <div className="filter-section">
-          <label className="filter-label">
-            Filter by:
-            <select
-              className="filter-select"
-              onChange={(e) => {
-                setFilterBy(e.target.value);
-                setShowDateInput(false); // Hide the date input when changing the filter
-              }}
-            >
-              <option value="date">Date</option>
-              <option value="status">Status</option>
-            </select>
-          </label>
-          {filterBy === "date" && (
-            <div>
-        <Datetime
-          id="date"
-          label="Date"
-          value={date}
-          onChange={(date) => setDate(date)}
-          dateFormat="YYYY-MM-DD"
-          timeFormat="HH:mm"
-          inputProps={{ placeholder: "Select Date and Time" }}
-        />
-      </div>
-          )}
-          {filterBy === "status" && (
-            <select
-              className="filter-select"
-              value={filterValue}
-              onChange={(e) => setFilterValue(e.target.value)}
-            >
-              <option value="">Select status</option>
-              <option value="UpComing">UpComing</option>
-              <option value="Done">Done</option>
-            </select>
-          )}
-          <button className="filter-button" onClick={handleFilter}>
-            Filter
-          </button>
+      <div style={{ marginLeft: "240px", padding: "20px" }}>
+        <h1 className="page-title">Patient Appointments</h1>
+        <div className="appointments-container">
+          <div className="filter-section">
+            <label className="filter-label">
+              Filter by:
+              <select
+                className="filter-select"
+                onChange={(e) => {
+                  setFilterBy(e.target.value);
+                  setShowDateInput(false); // Hide the date input when changing the filter
+                }}
+              >
+                <option value="date">Date</option>
+                <option value="status">Status</option>
+              </select>
+            </label>
+            {filterBy === "date" && (
+              <div>
+                <Datetime
+                  id="date"
+                  label="Date"
+                  value={date}
+                  onChange={(date) => setDate(date)}
+                  dateFormat="YYYY-MM-DD"
+                  timeFormat="HH:mm"
+                  inputProps={{ placeholder: "Select Date and Time" }}
+                />
+              </div>
+            )}
+            {filterBy === "status" && (
+              <select
+                className="filter-select"
+                value={filterValue}
+                onChange={(e) => setFilterValue(e.target.value)}
+              >
+                <option value="">Select status</option>
+                <option value="UpComing">UpComing</option>
+                <option value="Done">Done</option>
+              </select>
+            )}
+            <button className="filter-button" onClick={handleFilter}>
+              Filter
+            </button>
+          </div>
         </div>
-      </div>
-      <div className="table-container">
-        <table className="table custom-table custom-table-header">
-          <thead>
-            <tr className="custom-th-row">
-              <th className="custom-th">Doctor</th>
-              <th className="custom-th">Date</th>
-              <th className="custom-th">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredAppointments.map((appointment) => (
-              <tr key={appointment.id}>
-                <td className="custom-td">{appointment.doctor.name}</td>
-                <td className="custom-td">{appointment.date}</td>
-                <td className="custom-td">{appointment.status}</td>
+        <div className="table-container">
+          <table className="table custom-table custom-table-header">
+            <thead>
+              <tr className="custom-th-row">
+                <th className="custom-th">Doctor</th>
+                <th className="custom-th">Date</th>
+                <th className="custom-th">Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredAppointments.map((appointment) => (
+                <tr key={appointment.id}>
+                  <td className="custom-td">{appointment.doctor.name}</td>
+                  <td className="custom-td">{appointment.date}</td>
+                  <td className="custom-td">{appointment.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
