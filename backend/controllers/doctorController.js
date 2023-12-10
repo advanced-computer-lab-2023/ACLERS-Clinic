@@ -12,7 +12,7 @@ const Contract = require("../models/Contract"); // Import the EmploymentContract
 const Applicant = require("../models/Applicant");
 const FreeSlots = require("../models/FreeSlots");
 const FollowUps = require("../models/FollowUps");
-
+const axios = require("axios");
 
 const editEmail = asyncHandler(async (req, res) => {
   const doctorID = req.user.id;
@@ -214,15 +214,18 @@ const viewMyInfo = asyncHandler(async (req, res) => {
     res.status(400).send(error);
   }
 });
-
+const getNotifications = asyncHandler(async (req,res)=>{
+  const notifications = notificationService.getNotifications(req.user.id);
+  res.send(notifications);
+})
 const writePerscription = asyncHandler(async (req, res) => {
   const { patientId } = req.query;
   const doctorId = req.user.id;
   const description = req.body.description;
   const perscription = await Perscription.create({
-    description: description,
+    descriptions: description,
     date: new Date(),
-    status: "filled",
+    status: "unfilled",
     patient: patientId,
     doctor: doctorId,
   });
@@ -570,7 +573,22 @@ catch(error){
 }
 
 })
+
+const getMedicines = asyncHandler(async (req,res)=>{
+  try{
+  const pharmacyResponse = await axios.get('http://localhost:8800/pharmacist/view-Medicines');
+  const medicines = pharmacyResponse.data;
+
+  // Do something with the medicines (send them to the client, process, etc.)
+  res.json({ medicines });
+  }catch(error){
+    console.error('Error fetching medicines from pharmacy:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+})
 module.exports = {
+  getNotifications,
+  getMedicines,
   writePerscription,
   editEmail,
   filterAppointments,

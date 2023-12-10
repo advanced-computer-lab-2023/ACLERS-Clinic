@@ -36,6 +36,7 @@ import PatientSelectedDoctor from "./patient/viewselecteddoctor";
 import PatientPaymentSuccess from "./patient/PaymentSuccess";
 import ViewHealthPackages from "./patient/viewHealthPackage";
 import FollowUp from "./doctor/FollowUp"
+import PatientComponent from "./patient/videocall";
 const App = () => {
   return (
     <>
@@ -123,6 +124,7 @@ const App = () => {
           element={<ViewHealthPackages />}
         />
         <Route path="/payment-success" element={<PatientPaymentSuccess />} />
+        <Route path ="/patient/video-call" element={<PatientComponent/>}/>
       </Routes>
     </>
   );

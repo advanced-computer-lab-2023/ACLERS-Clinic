@@ -16,6 +16,8 @@ const FreeSlots = require("../models/FreeSlots");
 const PatientMedicalHistory = require("../models/PatientMedicalHistory");
 const healthPackage = require("../models/healthPackage");
 const FollowUps = require("../models/FollowUps")
+const notificationService = require('../services/notificationService');
+const mailService = require('../services/mailService')
 function calculateBirthdate(age) {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
@@ -35,7 +37,7 @@ const addFamilyMember = asyncHandler(async (req, res) => {
     const patient = await Patient.create({
       username: req.body.name,
       dateOfBirth: calculateBirthdate(req.body.age),
-      email: user.name + "@gmail.com",
+      email: req.body.name + "@gmail.com",
       gender: req.body.gender,
       name: req.body.name,
       mobileNumber: user.mobileNumber,
@@ -216,6 +218,7 @@ const setAppointment = asyncHandler(async (req, res) => {
   console.log(doctorId +"doctorId")
   const docwallet = await Wallet.findOne({userId:doctorId})
   console.log(docwallet+"docwallet")
+  if(slot.status ==="free"){
   if (paymentMethod === "wallet") {
     // Check if the patient's wallet balance is sufficient
 
@@ -283,6 +286,17 @@ const setAppointment = asyncHandler(async (req, res) => {
   });
   slot.status='booked';
   await slot.save();
+  const doctor = await Doctor.findById(doctorId);
+
+  await notificationService.sendNotification(req.user.id, `Appointment with doctor ${doctor.name} booked successfully`);
+  await notificationService.sendNotification(doctorId, `Appointment with patient ${req.user.name} has been booked 
+  on ${slot.date} from  ${slot.startTime} to ${slot.endTime}`);
+
+  await mailService.sendNotification(req.user.email,"Appointment Booked",`Appointment with doctor ${doctor.name} booked successfully`)
+
+  await mailService.sendNotification(doctor.email,"Appointment Booked",`Appointment with patient ${req.user.name} has been booked 
+  on ${slot.date} from  ${slot.startTime} to ${slot.endTime}`)
+
 
   var patientHealthRecord = await PatientHealthRecord.findOne({
     patient: patientId,
@@ -322,6 +336,7 @@ const setAppointment = asyncHandler(async (req, res) => {
     });
   }
   res.status(200).send(appointment);
+}
 });
 const viewMyPerscriptions = asyncHandler(async (req, res) => {
   try {
@@ -340,9 +355,36 @@ const viewMyPerscriptions = asyncHandler(async (req, res) => {
     }
     filter.patient = patientId;
 
-    var perscriptions = await Perscription.find(filter);
+    const prescriptions = await Perscription.find(filter);
 
-    res.json({ perscriptions });
+    // Fetch medicine details from the pharmacy API for each prescription
+    const prescriptionsWithDetails = await Promise.all(
+      prescriptions.map(async (prescription) => {
+        const prescriptionObject = prescription.toObject();
+
+        // Fetch medicine details for each description in the prescription
+        const descriptionsWithMedicineDetails = await Promise.all(
+          prescriptionObject.descriptions.map(async (description) => {
+            const medicineDetails = await axios.get(`http://localhost:8800/pharmacist/view-Medicine?medicineId=${description.medicine}`);
+
+            return {
+              medicine: medicineDetails.data, // Assuming the API returns the complete medicine details
+              dosage: description.dosage,
+              // Add other description properties if needed
+            };
+          })
+        );
+
+        return {
+          ...prescriptionObject,
+          descriptions: descriptionsWithMedicineDetails,
+        };
+      })
+    );
+
+    res.json({ prescriptions: prescriptionsWithDetails });
+
+   
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
@@ -1170,6 +1212,16 @@ const rescheduleAppointment = asyncHandler(async (req,res)=>{
   appointment.startTime = freeSlot.startTime;
   appointment.endTime = freeSlot.endTime;
   await appointment.save();
+  const doctor = await Doctor.findById(appointment.doctor)
+  const doctorId = doctor._id
+  await notificationService.sendNotification(req.user.id, `Appointment with doctor ${doctor.name} has been cancelled`);
+  await notificationService.sendNotification(doctorId, `Appointment with patient ${req.user.name}  
+  on ${slot.date} from  ${slot.startTime} to ${slot.endTime} has been cancelled`);
+  
+  await mailService.sendNotification(req.user.email,"Appointment Cancelled",`Appointment with doctor ${doctor.name} has been cancelled`)
+
+  await mailService.sendNotification(doctor.email,"Appointment Cancelled",`Appointment with patient ${req.user.name} 
+  on ${slot.date} from  ${slot.startTime} to ${slot.endTime} has been cancelled`)
   res.json({appointment : appointment});
   }catch(error){
     console.log(error);
@@ -1215,12 +1267,22 @@ const cancelAppointment = asyncHandler(async (req,res)=>{
      await wallet.save();
      await drWallet.save();
     }
+    const doctor = await Doctor.findById(appointment.doctor)
+    const doctorId = doctor._id
     appointment.status='Cancelled';
     console.log(appointment)
     const slot = await FreeSlots.findOne({date:appointment.date,startTime:appointment.startTime});
     slot.status='free';
     await slot.save();
     await appointment.save();
+     await notificationService.sendNotification(req.user.id, `Appointment with doctor ${doctor.name} has been cancelled`);
+  await notificationService.sendNotification(doctorId, `Appointment with patient ${req.user.name}  
+  on ${slot.date} from  ${slot.startTime} to ${slot.endTime} has been cancelled`);
+  
+  await mailService.sendNotification(req.user.email,"Appointment Cancelled",`Appointment with doctor ${doctor.name} has been cancelled`)
+
+  await mailService.sendNotification(doctor.email,"Appointment Cancelled",`Appointment with patient ${req.user.name} 
+  on ${slot.date} from  ${slot.startTime} to ${slot.endTime} has been cancelled`)
     res.send(appointment);
 })
 const cancelAppointmentFamMem = asyncHandler(async (req,res)=>{
@@ -1305,7 +1367,69 @@ const viewFamMemAppointments = asyncHandler(async(req,res)=>{
     res.send(error);
   }
 })
+
+const fillPrescription = asyncHandler(async (req, res) => {
+  try {
+    const perscriptionId = req.query.perscriptionId;
+
+    if (!perscriptionId) {
+      return res.status(400).json({ message: 'Prescription ID is required' });
+    }
+
+    const perscription = await Perscription.findById(perscriptionId);
+
+    if (!perscription) {
+      return res.status(404).json({ message: 'Prescription not found' });
+    }
+
+    // Process each medicine in the prescription
+    const descriptionsWithMedicineDetails = await Promise.all(
+      perscription.descriptions.map(async (description) => {
+        // Assuming medicine details are already present in the description
+        const medicineDetails = description.medicine;
+
+        // Make a POST request to add the medicine to the patient's cart
+        await axios.post(
+          'http://localhost:8800/patient/add-to-cart',
+          {
+            medicineId: description.medicine._id, // Adjust the property name based on your medicine model
+            quantity: 1, // You may adjust the quantity as needed
+            // Assuming the patient ID is used for the user in the pharmacy
+          },
+          {
+            headers: {
+              Authorization: ` ${req.headers.authorization}`, // Assuming the token is present in the request headers
+            },
+          }
+        );
+
+        return {
+          medicine: medicineDetails,
+          dosage: description.dosage,
+          // Add other description properties if needed
+        };
+      })
+    );
+    perscription.status="filled";
+    await perscription.save();
+    const perscriptionWithDetails = {
+      ...perscription.toObject(),
+      descriptions: descriptionsWithMedicineDetails,
+    };
+
+    res.json({ perscription: perscriptionWithDetails ,message:"perscription filled items added to cart" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+const getNotifications = asyncHandler(async (req,res)=>{
+  const notifications = notificationService.getNotifications(req.user.id);
+  res.send(notifications);
+})
 module.exports = {
+  getNotifications,
+  fillPrescription,
   requestFollowUpFamMem,
   viewFamMemAppointments,
   requestFollowUp,

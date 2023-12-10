@@ -4,10 +4,17 @@ const Doctor = require('./Doctor')
 const Patient = require('./Patient')
 
 const perscriptionSchema = new mongoose.Schema({
-    description:{
-        type:String,
-        required:true
-    },
+    descriptions: [{
+        medicine: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true
+        },
+        dosage: {
+            type: String,
+            required: true
+        },
+        // Add other properties as needed
+    }],
     status:{
         type:String,
         enum:['filled','unfilled'],
