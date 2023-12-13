@@ -15,7 +15,9 @@ const Wallet = require("../models/Wallet");
 const FreeSlots = require("../models/FreeSlots");
 const PatientMedicalHistory = require("../models/PatientMedicalHistory");
 const healthPackage = require("../models/healthPackage");
-const FollowUps = require("../models/FollowUps");
+const FollowUps = require("../models/FollowUps")
+const notificationService = require('../services/notificationService');
+const mailService = require('../services/mailService')
 function calculateBirthdate(age) {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
@@ -213,9 +215,10 @@ const setAppointment = asyncHandler(async (req, res) => {
   const paymentMethod = req.body.paymentMethod;
   const sessionPrice = req.body.sessionPrice;
   const slot = await FreeSlots.findById(slotId);
-  console.log(doctorId + "doctorId");
-  const docwallet = await Wallet.findOne({ userId: doctorId });
-  console.log(docwallet + "docwallet");
+  console.log(doctorId +"doctorId")
+  const docwallet = await Wallet.findOne({userId:doctorId})
+  console.log(docwallet+"docwallet")
+  if(slot.status ==="free"){
   if (paymentMethod === "wallet") {
     // Check if the patient's wallet balance is sufficient
 
@@ -281,6 +284,17 @@ const setAppointment = asyncHandler(async (req, res) => {
   });
   slot.status = "booked";
   await slot.save();
+  const doctor = await Doctor.findById(doctorId);
+
+  await notificationService.sendNotification(req.user.id, `Appointment with doctor ${doctor.name} booked successfully`);
+  await notificationService.sendNotification(doctorId, `Appointment with patient ${req.user.name} has been booked 
+  on ${slot.date} from  ${slot.startTime} to ${slot.endTime}`);
+
+  await mailService.sendNotification(req.user.email,"Appointment Booked",`Appointment with doctor ${doctor.name} booked successfully`)
+
+  await mailService.sendNotification(doctor.email,"Appointment Booked",`Appointment with patient ${req.user.name} has been booked 
+  on ${slot.date} from  ${slot.startTime} to ${slot.endTime}`)
+
 
   var patientHealthRecord = await PatientHealthRecord.findOne({
     patient: patientId,
@@ -318,6 +332,7 @@ const setAppointment = asyncHandler(async (req, res) => {
     });
   }
   res.status(200).send(appointment);
+}
 });
 const viewMyPerscriptions = asyncHandler(async (req, res) => {
   try {
@@ -336,9 +351,36 @@ const viewMyPerscriptions = asyncHandler(async (req, res) => {
     }
     filter.patient = patientId;
 
-    var perscriptions = await Perscription.find(filter);
+    const prescriptions = await Perscription.find(filter);
 
-    res.json({ perscriptions });
+    // Fetch medicine details from the pharmacy API for each prescription
+    const prescriptionsWithDetails = await Promise.all(
+      prescriptions.map(async (prescription) => {
+        const prescriptionObject = prescription.toObject();
+
+        // Fetch medicine details for each description in the prescription
+        const descriptionsWithMedicineDetails = await Promise.all(
+          prescriptionObject.descriptions.map(async (description) => {
+            const medicineDetails = await axios.get(`http://localhost:8800/pharmacist/view-Medicine?medicineId=${description.medicine}`);
+
+            return {
+              medicine: medicineDetails.data, // Assuming the API returns the complete medicine details
+              dosage: description.dosage,
+              // Add other description properties if needed
+            };
+          })
+        );
+
+        return {
+          ...prescriptionObject,
+          descriptions: descriptionsWithMedicineDetails,
+        };
+      })
+    );
+
+    res.json({ prescriptions: prescriptionsWithDetails });
+
+   
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
@@ -1156,20 +1198,138 @@ const payUsingStripe = asyncHandler(async (req, res) => {
 });
 const rescheduleAppointment = asyncHandler(async (req, res) => {
   const patientId = req.user.id;
-  const { appointmentId, freeSlotId } = req.query;
-  try {
-    const appointment = await Appointment.findById(appointmentId);
-    const freeSlot = await FreeSlots.findById(freeSlotId);
-    console.log(freeSlot);
-    appointment.date = freeSlot.date;
-    appointment.status = "Rescheduled";
-    appointment.startTime = freeSlot.startTime;
-    appointment.endTime = freeSlot.endTime;
-    await appointment.save();
-    res.json({ appointment: appointment });
-  } catch (error) {
+  const {appointmentId,freeSlotId} = req.query;
+  try{
+  const appointment = await Appointment.findById(appointmentId);
+  const freeSlot = await FreeSlots.findById(freeSlotId);
+  console.log(freeSlot)
+  appointment.date = freeSlot.date;
+  appointment.status = 'Rescheduled';
+  appointment.startTime = freeSlot.startTime;
+  appointment.endTime = freeSlot.endTime;
+  await appointment.save();
+  const doctor = await Doctor.findById(appointment.doctor)
+  const doctorId = doctor._id
+  await notificationService.sendNotification(req.user.id, `Appointment with doctor ${doctor.name} has been cancelled`);
+  await notificationService.sendNotification(doctorId, `Appointment with patient ${req.user.name}  
+  on ${slot.date} from  ${slot.startTime} to ${slot.endTime} has been cancelled`);
+  
+  await mailService.sendNotification(req.user.email,"Appointment Cancelled",`Appointment with doctor ${doctor.name} has been cancelled`)
+
+  await mailService.sendNotification(doctor.email,"Appointment Cancelled",`Appointment with patient ${req.user.name} 
+  on ${slot.date} from  ${slot.startTime} to ${slot.endTime} has been cancelled`)
+  res.json({appointment : appointment});
+  }catch(error){
     console.log(error);
     res.status(400).send(error);
+  }
+})
+// const rescheduleAppointmentFamMem = asyncHandler(async (req,res)=>{
+//   const {appointmentId,freeSlotId,famMemId} = req.query;
+//   try{
+//     const appointment = await Appointment.findById(appointmentId);
+//     const freeSlot = await FreeSlots.findById(freeSlotId);
+//     console.log(freeSlot);
+//     appointment.date = freeSlot.date;
+//     appointment.status = "Rescheduled";
+//     appointment.startTime = freeSlot.startTime;
+//     appointment.endTime = freeSlot.endTime;
+//     await appointment.save();
+//     res.json({appointment : appointment});
+//     }catch(error){
+//       console.log(error);
+//       res.status(400).send(error);
+//     }
+// })
+const cancelAppointment = asyncHandler(async (req,res)=>{
+  const patientId = req.user.id;
+  const {appointmentId}=req.query
+  const appointment = await Appointment.findById(appointmentId);
+  const wallet = await Wallet.findOne({userId:patientId});
+  const drWallet = await Wallet.findOne({userId:appointment.doctor});
+  const now = new Date();
+    const startTime = new Date(appointment.startTime);
+
+    // Calculate the difference in milliseconds between the current time and the appointment start time
+    const timeDifference = startTime - now;
+
+    // Calculate the difference in hours
+    const hoursDifference = timeDifference / (1000 * 60 * 60);
+
+    // Check if the cancellation is before the start time by 24 hours
+    if (hoursDifference > 24) {
+     wallet.balance+=appointment.price;
+     drWallet.balance-=appointment.price;
+     await wallet.save();
+     await drWallet.save();
+    }
+    const doctor = await Doctor.findById(appointment.doctor)
+    const doctorId = doctor._id
+    appointment.status='Cancelled';
+    console.log(appointment)
+    const slot = await FreeSlots.findOne({date:appointment.date,startTime:appointment.startTime});
+    slot.status='free';
+    await slot.save();
+    await appointment.save();
+     await notificationService.sendNotification(req.user.id, `Appointment with doctor ${doctor.name} has been cancelled`);
+  await notificationService.sendNotification(doctorId, `Appointment with patient ${req.user.name}  
+  on ${slot.date} from  ${slot.startTime} to ${slot.endTime} has been cancelled`);
+  
+  await mailService.sendNotification(req.user.email,"Appointment Cancelled",`Appointment with doctor ${doctor.name} has been cancelled`)
+
+  await mailService.sendNotification(doctor.email,"Appointment Cancelled",`Appointment with patient ${req.user.name} 
+  on ${slot.date} from  ${slot.startTime} to ${slot.endTime} has been cancelled`)
+    res.send(appointment);
+})
+const cancelAppointmentFamMem = asyncHandler(async (req,res)=>{
+  
+  const {appointmentId,famMemId}=req.query
+  const appointment = await Appointment.findById(appointmentId);
+  const wallet = await Wallet.findOne({userId:famMemId});
+  const drWallet = await Wallet.findOne({userId:appointment.doctor});
+  const now = new Date();
+    const startTime = new Date(appointment.startTime);
+
+    // Calculate the difference in milliseconds between the current time and the appointment start time
+    const timeDifference = startTime - now;
+
+    // Calculate the difference in hours
+    const hoursDifference = timeDifference / (1000 * 60 * 60);
+
+    // Check if the cancellation is before the start time by 24 hours
+    if (hoursDifference > 24) {
+     wallet.balance+=appointment.price;
+     drWallet.balance-=appointment.price;
+     await wallet.save();
+     await drWallet.save();
+    }
+    appointment.status='Cancelled';
+    console.log(appointment)
+    const slot = await FreeSlots.findOne({date:appointment.date,startTime:appointment.startTime});
+    slot.status='free';
+    await slot.save();
+    await appointment.save();
+    res.send(appointment);
+})
+const requestFollowUp = asyncHandler(async (req,res)=>{
+  const patientId = req.user.id;
+  const {freeSlotId,appointmentId} = req.query;
+  try{
+   const slot = await FreeSlots.findById(freeSlotId);
+   const appointment = await Appointment.findById(appointmentId);
+   const followUp = await FollowUps.create({
+    doctor:appointment.doctor,
+    patient:patientId,
+    date:slot.date,
+    startTime:slot.startTime,
+    endTime:slot.endTime,
+    price:0,
+    status:"Pending"
+   })
+   res.send(followUp)
+  }catch(error){
+    console.log(error)
+    res.send(error)
   }
 });
 const rescheduleAppointmentFamMem = asyncHandler(async (req, res) => {
@@ -1189,123 +1349,185 @@ const rescheduleAppointmentFamMem = asyncHandler(async (req, res) => {
     res.status(400).send(error);
   }
 });
-const cancelAppointment = asyncHandler(async (req, res) => {
-  const patientId = req.user.id;
-  const { appointmentId } = req.query;
-  const appointment = await Appointment.findById(appointmentId);
-  const wallet = await Wallet.findOne({ userId: patientId });
-  const drWallet = await Wallet.findOne({ userId: appointment.doctor });
-  const now = new Date();
-  const startTime = new Date(appointment.startTime);
+// const cancelAppointment = asyncHandler(async (req, res) => {
+//   const patientId = req.user.id;
+//   const { appointmentId } = req.query;
+//   const appointment = await Appointment.findById(appointmentId);
+//   const wallet = await Wallet.findOne({ userId: patientId });
+//   const drWallet = await Wallet.findOne({ userId: appointment.doctor });
+//   const now = new Date();
+//   const startTime = new Date(appointment.startTime);
 
-  // Calculate the difference in milliseconds between the current time and the appointment start time
-  const timeDifference = startTime - now;
+//   // Calculate the difference in milliseconds between the current time and the appointment start time
+//   const timeDifference = startTime - now;
 
-  // Calculate the difference in hours
-  const hoursDifference = timeDifference / (1000 * 60 * 60);
+//   // Calculate the difference in hours
+//   const hoursDifference = timeDifference / (1000 * 60 * 60);
 
-  // Check if the cancellation is before the start time by 24 hours
-  if (hoursDifference > 24) {
-    wallet.balance += appointment.price;
-    drWallet.balance -= appointment.price;
-    await wallet.save();
-    await drWallet.save();
+//   // Check if the cancellation is before the start time by 24 hours
+//   if (hoursDifference > 24) {
+//     wallet.balance += appointment.price;
+//     drWallet.balance -= appointment.price;
+//     await wallet.save();
+//     await drWallet.save();
+//   }
+//   appointment.status = "Cancelled";
+//   console.log(appointment);
+//   const slot = await FreeSlots.findOne({
+//     date: appointment.date,
+//     startTime: appointment.startTime,
+//   });
+//   slot.status = "free";
+//   await slot.save();
+//   await appointment.save();
+//   res.send(appointment);
+// });
+// const cancelAppointmentFamMem = asyncHandler(async (req, res) => {
+//   const { appointmentId, famMemId } = req.query;
+//   const appointment = await Appointment.findById(appointmentId);
+//   const wallet = await Wallet.findOne({ userId: famMemId });
+//   const drWallet = await Wallet.findOne({ userId: appointment.doctor });
+//   const now = new Date();
+//   const startTime = new Date(appointment.startTime);
+
+//   // Calculate the difference in milliseconds between the current time and the appointment start time
+//   const timeDifference = startTime - now;
+
+//   // Calculate the difference in hours
+//   const hoursDifference = timeDifference / (1000 * 60 * 60);
+
+//   // Check if the cancellation is before the start time by 24 hours
+//   if (hoursDifference > 24) {
+//     wallet.balance += appointment.price;
+//     drWallet.balance -= appointment.price;
+//     await wallet.save();
+//     await drWallet.save();
+//   }
+//   appointment.status = "Cancelled";
+//   console.log(appointment);
+//   const slot = await FreeSlots.findOne({
+//     date: appointment.date,
+//     startTime: appointment.startTime,
+//   });
+//   slot.status = "free";
+//   await slot.save();
+//   await appointment.save();
+//   res.send(appointment);
+// });
+// const requestFollowUp = asyncHandler(async (req, res) => {
+//   const patientId = req.user.id;
+//   const { freeSlotId, appointmentId } = req.query;
+//   try {
+//     const slot = await FreeSlots.findById(freeSlotId);
+//     const appointment = await Appointment.findById(appointmentId);
+//     const followUp = await FollowUps.create({
+//       doctor: appointment.doctor,
+//       patient: patientId,
+//       date: slot.date,
+//       startTime: slot.startTime,
+//       endTime: slot.endTime,
+//       price: 0,
+//       status: "Pending",
+//     });
+//     res.send(followUp);
+//   } catch (error) {
+//     console.log(error);
+//     res.send(error);
+//   }
+// })
+const requestFollowUpFamMem =asyncHandler(async(req,res)=>{
+ 
+  const {freeSlotId,appointmentId,famMemId} = req.query;
+  try{
+   const slot = await FreeSlots.findById(freeSlotId);
+   const appointment = await Appointment.findById(appointmentId);
+   const followUp = await FollowUps.create({
+    doctor:appointment.doctor,
+    patient:famMemId,
+    date:slot.date,
+    startTime:slot.startTime,
+    endTime:slot.endTime,
+    price:0,
+    status:"Pending"
+   })
+   res.send(followUp)
+  }catch(error){
+    console.log(error)
+    res.send(error)
   }
-  appointment.status = "Cancelled";
-  console.log(appointment);
-  const slot = await FreeSlots.findOne({
-    date: appointment.date,
-    startTime: appointment.startTime,
-  });
-  slot.status = "free";
-  await slot.save();
-  await appointment.save();
-  res.send(appointment);
-});
-const cancelAppointmentFamMem = asyncHandler(async (req, res) => {
-  const { appointmentId, famMemId } = req.query;
-  const appointment = await Appointment.findById(appointmentId);
-  const wallet = await Wallet.findOne({ userId: famMemId });
-  const drWallet = await Wallet.findOne({ userId: appointment.doctor });
-  const now = new Date();
-  const startTime = new Date(appointment.startTime);
-
-  // Calculate the difference in milliseconds between the current time and the appointment start time
-  const timeDifference = startTime - now;
-
-  // Calculate the difference in hours
-  const hoursDifference = timeDifference / (1000 * 60 * 60);
-
-  // Check if the cancellation is before the start time by 24 hours
-  if (hoursDifference > 24) {
-    wallet.balance += appointment.price;
-    drWallet.balance -= appointment.price;
-    await wallet.save();
-    await drWallet.save();
-  }
-  appointment.status = "Cancelled";
-  console.log(appointment);
-  const slot = await FreeSlots.findOne({
-    date: appointment.date,
-    startTime: appointment.startTime,
-  });
-  slot.status = "free";
-  await slot.save();
-  await appointment.save();
-  res.send(appointment);
-});
-const requestFollowUp = asyncHandler(async (req, res) => {
-  const patientId = req.user.id;
-  const { freeSlotId, appointmentId } = req.query;
-  try {
-    const slot = await FreeSlots.findById(freeSlotId);
-    const appointment = await Appointment.findById(appointmentId);
-    const followUp = await FollowUps.create({
-      doctor: appointment.doctor,
-      patient: patientId,
-      date: slot.date,
-      startTime: slot.startTime,
-      endTime: slot.endTime,
-      price: 0,
-      status: "Pending",
-    });
-    res.send(followUp);
-  } catch (error) {
+})
+const viewFamMemAppointments = asyncHandler(async(req,res)=>{
+  const {famMemId}= req.query;
+  try{
+  const appointments = await Appointment.find({patient:famMemId})
+  res.send(appointments)
+  }catch(error){
     console.log(error);
     res.send(error);
   }
-});
-const requestFollowUpFamMem = asyncHandler(async (req, res) => {
-  const { freeSlotId, appointmentId, famMemId } = req.query;
+})
+const fillPrescription = asyncHandler(async (req, res) => {
   try {
-    const slot = await FreeSlots.findById(freeSlotId);
-    const appointment = await Appointment.findById(appointmentId);
-    const followUp = await FollowUps.create({
-      doctor: appointment.doctor,
-      patient: famMemId,
-      date: slot.date,
-      startTime: slot.startTime,
-      endTime: slot.endTime,
-      price: 0,
-      status: "Pending",
-    });
-    res.send(followUp);
+    const perscriptionId = req.query.perscriptionId;
+
+    if (!perscriptionId) {
+      return res.status(400).json({ message: 'Prescription ID is required' });
+    }
+
+    const perscription = await Perscription.findById(perscriptionId);
+
+    if (!perscription) {
+      return res.status(404).json({ message: 'Prescription not found' });
+    }
+
+    // Process each medicine in the prescription
+    const descriptionsWithMedicineDetails = await Promise.all(
+      perscription.descriptions.map(async (description) => {
+        // Assuming medicine details are already present in the description
+        const medicineDetails = description.medicine;
+
+        // Make a POST request to add the medicine to the patient's cart
+        await axios.post(
+          'http://localhost:8800/patient/add-to-cart',
+          {
+            medicineId: description.medicine._id, // Adjust the property name based on your medicine model
+            quantity: 1, // You may adjust the quantity as needed
+            // Assuming the patient ID is used for the user in the pharmacy
+          },
+          {
+            headers: {
+              Authorization: ` ${req.headers.authorization}`, // Assuming the token is present in the request headers
+            },
+          }
+        );
+
+        return {
+          medicine: medicineDetails,
+          dosage: description.dosage,
+          // Add other description properties if needed
+        };
+      })
+    );
+    perscription.status="filled";
+    await perscription.save();
+    const perscriptionWithDetails = {
+      ...perscription.toObject(),
+      descriptions: descriptionsWithMedicineDetails,
+    };
+
+    res.json({ perscription: perscriptionWithDetails ,message:"perscription filled items added to cart" });
   } catch (error) {
-    console.log(error);
-    res.send(error);
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
-const viewFamMemAppointments = asyncHandler(async (req, res) => {
-  const { famMemId } = req.query;
-  try {
-    const appointments = await Appointment.find({ patient: famMemId });
-    res.send(appointments);
-  } catch (error) {
-    console.log(error);
-    res.send(error);
-  }
-});
+const getNotifications = asyncHandler(async (req,res)=>{
+  const notifications = notificationService.getNotifications(req.user.id);
+  res.send(notifications);
+})
 module.exports = {
+  getNotifications,
+  fillPrescription,
   requestFollowUpFamMem,
   viewFamMemAppointments,
   requestFollowUp,

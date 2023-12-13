@@ -23,22 +23,22 @@ const login = asyncHandler(async (req, res) => {
   const admin = await Admin.findOne({ username: email });
   if (patient && (await bcrypt.compare(password, patient.password))) {
     return res.json({
-      token: generateToken(patient._id, "patient"),
+      token: generateToken(patient._id, "patient",patient.email),
     });
   }
   if (doctor && (await bcrypt.compare(password, doctor.password))) {
     return res.json({
-      token: generateToken(doctor._id, "doctor"),
+      token: generateToken(doctor._id, "doctor",doctor.email),
     });
   }
   if (applicant && (await bcrypt.compare(password, applicant.password))) {
     return res.json({
-      token: generateToken(applicant._id, "applicant"),
+      token: generateToken(applicant._id, "applicant",applicant.email),
     });
   }
   if (admin && (await bcrypt.compare(password, admin.password))) {
     return res.json({
-      token: generateToken(admin._id, "admin"),
+      token: generateToken(admin._id, "admin",admin.username),
     });
   }
   return res.status(400).send("invalid credentials");
@@ -53,8 +53,8 @@ const logout = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "Logout successful" });
 });
 
-const generateToken = (id, role) => {
-  return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "2h" });
+const generateToken = (id, role,email) => {
+  return jwt.sign({ id, role ,email}, process.env.JWT_SECRET, { expiresIn: "2h" });
 };
 const registerPatient = asyncHandler(async (req, res) => {
   // if (Patient.findOne({email:req.body.email}).exists){
