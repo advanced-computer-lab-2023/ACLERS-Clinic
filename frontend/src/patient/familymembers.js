@@ -2,12 +2,26 @@ import React, { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
 import PatientNavbar from "../components/PatientNavbar";
+import {
+  Container,
+  Button,
+  Typography,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Grid,
+  Card,
+  CardContent,
+  CardMedia,
+  Paper,
+} from "@mui/material";
 
 function AddFamilyMember() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const decodedtoken = jwt.decode(token);
-  console.log("decoded Token:", decodedtoken);
   const id = decodedtoken.id;
 
   const [formData, setFormData] = useState({
@@ -64,7 +78,6 @@ function AddFamilyMember() {
       .then((response) => response.json())
       .then((data) => {
         console.log("Family member added:", data);
-        // Reset the form fields
         setFormData({
           name: "",
           nationalId: "",
@@ -91,7 +104,7 @@ function AddFamilyMember() {
         ...linkFormData,
       }),
     };
-    console.log("linkFormData:", linkFormData);
+
     fetch(
       `http://localhost:8000/Patient-home/link-fam-member?patientId=${id}`,
       requestOptions
@@ -99,7 +112,6 @@ function AddFamilyMember() {
       .then((response) => response.json())
       .then((data) => {
         console.log("Family member linked:", data);
-        // Reset the form fields
         setLinkFormData({
           email: "",
           mobileNumber: "",
@@ -127,7 +139,6 @@ function AddFamilyMember() {
       .then((response) => response.json())
       .then((data) => {
         if (data.familyMembers && Array.isArray(data.familyMembers)) {
-          // Update the state variable to show family members
           setFamilyMembers(data.familyMembers);
           setShowFamilyMembers(true);
         } else {
@@ -138,10 +149,11 @@ function AddFamilyMember() {
         console.error("Error fetching family members:", error);
       });
   };
+
   if (!token) {
-    // Handle the case where id is not available
     return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
   }
+
   if (decodedtoken.role !== "patient") {
     return (
       <div>
@@ -150,135 +162,212 @@ function AddFamilyMember() {
       </div>
     );
   }
+
   return (
-    <div>
-      <PatientNavbar />
+    <div style={{ marginLeft: "240px", padding: "20px" }}>
+      <Container>
+        <PatientNavbar />
+        <Container
+          disableGutters
+          maxWidth="sm"
+          component="main"
+          sx={{ pt: 0, pb: 6 }}
+        >
+          <Typography
+            component="h1"
+            variant="h2"
+            align="center"
+            color="text.primary"
+            gutterBottom
+          >
+            Family Members
+          </Typography>
+          <Typography
+            variant="h5"
+            align="center"
+            color="text.secondary"
+            component="p"
+          >
+            Manage your family's health with ease by adding and linking family
+            members to your patient profile. Use our intuitive forms to add new
+            family members, link existing ones, and seamlessly view a detailed
+            list of your connected family members. Experience personalized and
+            comprehensive healthcare coordination at your fingertips.
+          </Typography>
+        </Container>
+        <Grid container spacing={3} justifyContent="center">
+          <Grid item xs={12} md={6}>
+            <Paper elevation={3} style={{ padding: "20px" }}>
+              <Typography variant="h4" gutterBottom>
+                Add Family Member
+              </Typography>
 
-      <div style={{ marginLeft: "440px", padding: "20px" }}>
-        <button onClick={() => navigate(-1)}>Go Back</button>
+              <form onSubmit={handleSubmit}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Name"
+                      fullWidth
+                      required
+                      value={formData.name}
+                      onChange={handleChange}
+                      name="name"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="National ID"
+                      fullWidth
+                      required
+                      value={formData.nationalId}
+                      onChange={handleChange}
+                      name="nationalId"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Age"
+                      fullWidth
+                      required
+                      type="number"
+                      value={formData.age}
+                      onChange={handleChange}
+                      name="age"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth>
+                      <InputLabel>Gender</InputLabel>
+                      <Select
+                        value={formData.gender}
+                        onChange={handleChange}
+                        name="gender"
+                      >
+                        <MenuItem value="Male">Male</MenuItem>
+                        <MenuItem value="Female">Female</MenuItem>
+                        <MenuItem value="Other">Other</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <FormControl fullWidth>
+                      <InputLabel>Relation to Patient</InputLabel>
+                      <Select
+                        value={formData.relationToPatient}
+                        onChange={handleChange}
+                        name="relationToPatient"
+                      >
+                        <MenuItem value="wife">Wife</MenuItem>
+                        <MenuItem value="husband">Husband</MenuItem>
+                        <MenuItem value="children">Children</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                </Grid>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  style={{ marginTop: "10px" }}
+                >
+                  Add Family Member
+                </Button>
+              </form>
+            </Paper>
+          </Grid>
 
-        <h2>Add Family Member</h2>
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="name">Name:</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="nationalId">National ID:</label>
-            <input
-              type="text"
-              id="nationalId"
-              name="nationalId"
-              value={formData.nationalId}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="age">Age:</label>
-            <input
-              type="number"
-              id="age"
-              name="age"
-              value={formData.age}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="gender">Gender:</label>
-            <select
-              id="gender"
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-            >
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div>
-            <label htmlFor="relationToPatient">Relation to Patient:</label>
-            <select
-              id="relationToPatient"
-              name="relationToPatient"
-              value={formData.relationToPatient}
-              onChange={handleChange}
-            >
-              <option value="wife">Wife</option>
-              <option value="husband">Husband</option>
-              <option value="children">Children</option>
-            </select>
-          </div>
-          <button type="submit">Add Family Member</button>
-        </form>
+          <Grid item xs={12} md={6}>
+            <Paper elevation={3} style={{ padding: "20px" }}>
+              <Typography variant="h4" gutterBottom>
+                Link Family Member
+              </Typography>
 
-        <h2>Link Family Member</h2>
-        <form onSubmit={handleLinkSubmit}>
-          <div>
-            <label htmlFor="email">Email:</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={linkFormData.email}
-              onChange={handleLinkChange}
-            />
-          </div>
-          <div>
-            <label htmlFor="mobileNumber">Phone Number:</label>
-            <input
-              type="tel"
-              id="mobileNumber"
-              name="mobileNumber"
-              value={linkFormData.mobileNumber}
-              onChange={handleLinkChange}
-            />
-          </div>
-          <div>
-            <label htmlFor="relation">Relation to Patient:</label>
-            <select
-              id="relation"
-              name="relation"
-              value={linkFormData.relation}
-              onChange={handleLinkChange}
-            >
-              <option value="wife">Wife</option>
-              <option value="husband">Husband</option>
-              <option value="children">Children</option>
-            </select>
-          </div>
-          <button type="submit">Link Family Member</button>
-        </form>
+              <form onSubmit={handleLinkSubmit}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Email"
+                      fullWidth
+                      type="email"
+                      value={linkFormData.email}
+                      onChange={handleLinkChange}
+                      name="email"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      label="Phone Number"
+                      fullWidth
+                      type="tel"
+                      value={linkFormData.mobileNumber}
+                      onChange={handleLinkChange}
+                      name="mobileNumber"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <FormControl fullWidth>
+                      <InputLabel>Relation to Patient</InputLabel>
+                      <Select
+                        value={linkFormData.relation}
+                        onChange={handleLinkChange}
+                        name="relation"
+                      >
+                        <MenuItem value="wife">Wife</MenuItem>
+                        <MenuItem value="husband">Husband</MenuItem>
+                        <MenuItem value="children">Children</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                </Grid>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  style={{ marginTop: "10px" }}
+                >
+                  Link Family Member
+                </Button>
+              </form>
+            </Paper>
+          </Grid>
+        </Grid>
 
-        <div style={{ marginTop: "50px" }}>
-          <button onClick={handleViewFamilyMembers}>View Family Members</button>
+        <div style={{ marginTop: "50px", textAlign: "center" }}>
+          <Button onClick={handleViewFamilyMembers} variant="outlined">
+            View Family Members
+          </Button>
         </div>
 
         {showFamilyMembers && (
-          <div>
-            <h3>Family Members:</h3>
-            <ul>
-              {familyMembers.map((familyMember) => (
-                <div>
-                  <li key={familyMember._id}>{familyMember.name}</li>
-                  <li>{familyMember.nationalId}</li>
-                  <li>{familyMember.age}</li>
-                  <li>{familyMember.relationToPatient}</li>
-                </div>
-              ))}
-            </ul>
-          </div>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Typography variant="h4" gutterBottom>
+                Family Members:
+              </Typography>
+            </Grid>
+            {familyMembers.map((familyMember) => (
+              <Grid item xs={12} md={6} lg={4} key={familyMember._id}>
+                <Card elevation={3}>
+                  <CardMedia
+                    component="img"
+                    height="340"
+                    image="https://i.ibb.co/HXyFJZM/avatar.jpg"
+                    alt={familyMember.name}
+                  />
+                  <CardContent>
+                    <Typography variant="h6">{familyMember.name}</Typography>
+                    <Typography>ID: {familyMember.nationalId}</Typography>
+                    <Typography>Age: {familyMember.age}</Typography>
+                    <Typography>
+                      Relation: {familyMember.relationToPatient}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
         )}
-      </div>
+      </Container>
     </div>
   );
 }

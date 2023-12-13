@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import TableContainer from "@mui/material/TableContainer";
+import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import Avatar from "@mui/material/Avatar";
+import TableContainer from "@mui/material/TableContainer";
 import Table from "@mui/material/Table";
 import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
@@ -9,10 +12,17 @@ import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import jwt from "jsonwebtoken-promisified";
 import Button from "@mui/material/Button";
+import jwt from "jsonwebtoken-promisified";
 import { Link, useNavigate } from "react-router-dom";
 import PatientNavbar from "../components/PatientNavbar";
+import {
+  Email,
+  Money,
+  Business,
+  School,
+  LocationCity,
+} from "@mui/icons-material"; // Import icons
 
 function SelectedDoctor() {
   const navigate = useNavigate();
@@ -123,14 +133,6 @@ function SelectedDoctor() {
       slotId: slotId,
     };
 
-    function getType(variable) {
-      return typeof variable;
-    }
-    console.log("TYPE OF SLOT ID: ", getType(slotId));
-    console.log("TYPE OF DOCTOR ID: ", getType(doctorId));
-    console.log("TYPE OF SESSION PRICE: ", getType(sessionPrice));
-    console.log("TYPE OF holder PRICE: ", getType(holderprice));
-
     const requestOptions2 = {
       method: "POST",
       headers: {
@@ -162,23 +164,6 @@ function SelectedDoctor() {
               window.location.href = data.url;
             }
           }
-          // Issue a POST request to pay without redirecting
-          //   if (body.paymentMethod === "creditCard") {
-          //     fetch("http://localhost:8000/Patient-Home/pay", {
-          //       ...requestOptions,
-          //       method: "POST",
-          //       body: JSON.stringify(dummyPaymentData),
-          //     })
-          //       .then((payResponse) => payResponse.json())
-          //       .then((payData) => {
-          //         console.log("Payment successful:", payData);
-          //         // Handle success, update UI, show success message, etc.
-          //       })
-          //       .catch((payError) => {
-          //         console.error("Error making payment:", payError);
-          //         // Handle error, display error message, etc.
-          //       });
-          //   }
         })
         .catch((error) => {
           console.error("Error booking appointment for family member:", error);
@@ -214,114 +199,147 @@ function SelectedDoctor() {
   }
 
   return (
-    <div>
+    <div style={{ marginLeft: "340px", padding: "20px" }}>
       <PatientNavbar />
 
-      <div style={{ marginLeft: "240px", padding: "20px" }}>
-        <button onClick={() => navigate(-1)}>Go Back</button>
-        <h1>Your Selected Doctor</h1>
-
+      <div>
         {selectedDoctor ? (
-          <div>
-            <p>ID: {selectedDoctor._id}</p>
-            <p>Name: {selectedDoctor.username}</p>
-            <p>Email: {selectedDoctor.email}</p>
-            <p>Hourly Rate: {selectedDoctor.hourlyRate}</p>
-            <p>Affiliation: {selectedDoctor.affiliation}</p>
-            <p>
-              Educational Background: {selectedDoctor.educationalBackground}
-            </p>
-            <p>Speciality: {selectedDoctor.speciality}</p>
-            <p>Session Price: {sessionPrice}</p>
-
-            {slots.length > 0 ? (
-              <div>
-                <h2>Appointment Slots:</h2>
-                <TableContainer component={Paper}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Date</TableCell>
-                        <TableCell>Start Time</TableCell>
-                        <TableCell>End Time</TableCell>
-                        <TableCell>Payment Method</TableCell>
-                        <TableCell>Booking For</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {slots.map((slot) => (
-                        <TableRow key={slot._id}>
-                          <TableCell>{slot.date}</TableCell>
-                          <TableCell>{slot.startTime}</TableCell>
-                          <TableCell>{slot.endTime}</TableCell>
-                          <TableCell>
-                            <Select
-                              value={paymentMethods[slot._id] || "wallet"}
-                              onChange={(e) => {
-                                setPaymentMethods({
-                                  ...paymentMethods,
-                                  [slot._id]: e.target.value,
-                                });
-                              }}
-                              size="small"
-                              style={{ width: "150px" }}
-                            >
-                              <MenuItem value="wallet">💵 Wallet 💵</MenuItem>
-                              <MenuItem value="creditCard">
-                                💳 Credit Card 💳
-                              </MenuItem>
-                            </Select>
-                          </TableCell>
-                          <TableCell>
-                            <Select
-                              value={
-                                bookingFor[slot._id]
-                                  ? bookingFor[slot._id][0]
-                                  : "myself"
-                              }
-                              onChange={(e) => {
-                                const selectedValue = e.target.value;
-                                setBookingFor({ [slot._id]: [selectedValue] });
-                                console.log("You selected:", selectedValue);
-                              }}
-                              size="small"
-                              style={{ width: "150px" }}
-                            >
-                              <MenuItem value="myself">Myself</MenuItem>
-                              {familyMembers.map((option) => (
-                                <MenuItem key={option.id} value={option.id}>
-                                  {option.name}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </TableCell>
-
-                          <TableCell>
-                            <Button
-                              variant="contained"
-                              color="primary"
-                              onClick={() =>
-                                handleBookAppointment(
-                                  slot._id,
-                                  bookingFor[slot._id][0]
-                                )
-                              }
-                            >
-                              Book
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </div>
-            ) : (
-              <p>No appointment slots available.</p>
-            )}
-          </div>
+          <Paper elevation={3} style={{ padding: "20px", width: "100%" }}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={3}>
+                <Typography variant="h4" gutterBottom>
+                  {"Doctor " + selectedDoctor.username}
+                </Typography>
+                <Avatar
+                  alt={selectedDoctor.username}
+                  src={
+                    "https://i.ibb.co/HXyFJZM/avatar.jpg" ||
+                    "default-avatar.jpg"
+                  }
+                  sx={{
+                    width: 250,
+                    height: 250,
+                    margin: "auto",
+                    borderRadius: 0,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6} style={{ paddingLeft: 40 }}>
+                <Typography
+                  variant="body1"
+                  paragraph
+                  style={{ paddingTop: 48 }}
+                >
+                  <Email /> Email: {selectedDoctor.email}
+                </Typography>
+                <Typography variant="body1" paragraph style={{ paddingTop: 6 }}>
+                  <Money /> Hourly Rate: {selectedDoctor.hourlyRate}
+                </Typography>
+                <Typography variant="body1" paragraph style={{ paddingTop: 6 }}>
+                  <Business /> Affiliation: {selectedDoctor.affiliation}
+                </Typography>
+                <Typography variant="body1" paragraph style={{ paddingTop: 6 }}>
+                  <School /> Educational Background:{" "}
+                  {selectedDoctor.educationalBackground}
+                </Typography>
+                <Typography variant="body1" paragraph style={{ paddingTop: 6 }}>
+                  <LocationCity /> Speciality: {selectedDoctor.speciality}
+                </Typography>
+                <Typography variant="body1" paragraph style={{ paddingTop: 6 }}>
+                  <Money /> Session Price: {sessionPrice}
+                </Typography>
+              </Grid>
+            </Grid>
+          </Paper>
         ) : (
           <p>Loading...</p>
+        )}
+
+        {slots.length > 0 ? (
+          <div>
+            <h2>Appointment Slots:</h2>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Date</TableCell>
+                    <TableCell>Start Time</TableCell>
+                    <TableCell>End Time</TableCell>
+                    <TableCell>Payment Method</TableCell>
+                    <TableCell>Booking For</TableCell>
+                    <TableCell>Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {slots.map((slot) => (
+                    <TableRow key={slot._id}>
+                      <TableCell>{slot.date}</TableCell>
+                      <TableCell>{slot.startTime}</TableCell>
+                      <TableCell>{slot.endTime}</TableCell>
+                      <TableCell>
+                        <Select
+                          value={paymentMethods[slot._id] || "wallet"}
+                          onChange={(e) => {
+                            setPaymentMethods({
+                              ...paymentMethods,
+                              [slot._id]: e.target.value,
+                            });
+                          }}
+                          size="small"
+                          style={{ width: "150px" }}
+                        >
+                          <MenuItem value="wallet">💵 Wallet 💵</MenuItem>
+                          <MenuItem value="creditCard">
+                            💳 Credit Card 💳
+                          </MenuItem>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={
+                            bookingFor[slot._id]
+                              ? bookingFor[slot._id][0]
+                              : "myself"
+                          }
+                          onChange={(e) => {
+                            const selectedValue = e.target.value;
+                            setBookingFor({ [slot._id]: [selectedValue] });
+                            console.log("You selected:", selectedValue);
+                          }}
+                          size="small"
+                          style={{ width: "150px" }}
+                        >
+                          <MenuItem value="myself">Myself</MenuItem>
+                          {familyMembers.map((option) => (
+                            <MenuItem key={option.id} value={option.id}>
+                              {option.name}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </TableCell>
+
+                      <TableCell>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() =>
+                            handleBookAppointment(
+                              slot._id,
+                              bookingFor[slot._id][0]
+                            )
+                          }
+                        >
+                          Book
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
+        ) : (
+          <p>No appointment slots available.</p>
         )}
       </div>
     </div>
