@@ -127,9 +127,6 @@ function PatientNavbar() {
       </Drawer>
 
       {/* Use the `ContentContainer` instead of a `div` */}
-      <ContentContainer>
-        {/* Add content for each section here */}
-      </ContentContainer>
     </div>
   );
 }
