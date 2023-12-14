@@ -11,7 +11,7 @@ import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import { format } from "date-fns";
 import PatientNavbar from "../components/PatientNavbar";
-
+import {jsPDF} from "jspdf";
 function PrescriptionDataText() {
   const token = localStorage.getItem("token");
   const decodedtoken = jwt.decode(token);
@@ -61,8 +61,11 @@ function PrescriptionDataText() {
       )
         .then((response) => response.json())
         .then((data) => {
-          const prescriptions = data.perscriptions;
+          const prescriptions = data.prescriptions;
+          console.log(data)
+          console.log("hereeeeeeee")
           setPrescriptions(prescriptions);
+          console.log(prescriptions)
         })
         .catch((error) => {
           console.error("Error fetching data:", error);
@@ -71,6 +74,43 @@ function PrescriptionDataText() {
     };
     handleFetchPrescriptions();
   }, []);
+  const handleFillPrescription = async (prescriptionId) => {
+    try {
+      const response = await fetch(`http://localhost:8000/Patient-Home/fill-perscription?perscriptionId=${prescriptionId}`, {
+        method: "POST", // Adjust the method if necessary
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (response.ok) {
+        // Prescription filled successfully, you might want to update the UI accordingly
+        console.log("Prescription filled successfully");
+      } else {
+        console.error("Failed to fill prescription");
+      }
+    } catch (error) {
+      console.error("Error filling prescription:", error);
+    }
+  };
+  const downloadPdf = (prescription) => {
+    const doc = new jsPDF();
+
+    doc.text('Prescription', 10, 10);
+    doc.text(`ID: ${prescription._id}`, 10, 20);
+    doc.text(`Date: ${new Date(prescription.date).toLocaleDateString('en-GB')}`, 10, 30);
+    doc.text(`Doctor ID: ${prescription.doctor}`, 10, 40);
+    doc.text(`Filled: ${prescription.status === 'filled' ? 'Yes' : 'No'}`, 10, 50);
+    doc.text('Medicines:', 10, 60);
+    prescription.descriptions.forEach((description, index) => {
+        doc.text(`Medicine Name: ${description.medicine.name}`, 10, 70 + (index * 20));
+        doc.text(`Dosage: ${description.dosage}`, 10, 80 + (index * 20));
+    });
+   
+
+    doc.save('prescription.pdf');
+};
   const handleFetchPrescriptions = () => {
     // Construct the query string with filters
     let query = `patientId=${id}`;
@@ -85,7 +125,8 @@ function PrescriptionDataText() {
     )
       .then((response) => response.json())
       .then((data) => {
-        const prescriptions = data.perscriptions;
+        const prescriptions = data.prescriptions;
+        console.log(data)
         setPrescriptions(prescriptions);
       })
       .catch((error) => {
@@ -117,7 +158,7 @@ function PrescriptionDataText() {
   }
   return (
     <div>
-      <PatientNavbar />
+      {/* <PatientNavbar /> */}
 
       <div style={{ marginLeft: "240px", padding: "20px" }}>
         <Datetime
@@ -147,24 +188,56 @@ function PrescriptionDataText() {
 
       <button onClick={handleFetchPrescriptions}>Filter</button>
 
-      {prescriptions.map((prescription) => (
-        <div key={prescription._id}>
-          <p>ID: {prescription._id}</p>
-          <p>Description: {prescription.description}</p>
-          <button onClick={() => handleSelectPrescription(prescription._id)}>
-            Select Prescription
-          </button>
-          {selectedPrescription &&
-            selectedPrescription._id === prescription._id && (
+      {prescriptions ? (
+  prescriptions.map((prescription) => (
+    <div key={prescription._id}>
+      <p>ID: {prescription._id}</p>
+      {prescription.descriptions && prescription.descriptions.length > 0 ? (
+        prescription.descriptions.map((description, index) => (
+          <div key={index}>
+            <p>Dosage: {description.dosage}</p>
+            <p>Medicine: {description.medicine.name}</p>
+            {/* Assuming each 'medicine' is an object with the following properties */}
+            {description.medicine && (
               <div>
-                <p>Status: {selectedPrescription.status}</p>
-                <p>Date: {selectedPrescription.date}</p>
-                <p>Doctor: {selectedPrescription.doctor}</p>
-                <p>Patient: {selectedPrescription.patient}</p>
+                <p>Details: {description.medicine.details}</p>
+                <p>Medicinal Use: {description.medicine.medicinialUse}</p>
+                <p>Name: {description.medicine.name}</p>
+                <p>Picture: <img src={description.medicine.picture} alt="Medicine" /></p>
+                <p>Price: {description.medicine.price}</p>
+               
               </div>
             )}
-        </div>
-      ))}
+          </div>
+        ))
+      ) : (
+        <p>No descriptions found.</p>
+      )}
+      <button onClick={() => handleSelectPrescription(prescription._id)}>
+        Select Prescription
+      </button>
+      <button onClick={() => handleFillPrescription(prescription._id)}>
+        Fill Prescription
+      </button>
+      <button onClick={() => downloadPdf(prescription)}>
+        download PDF
+      </button>
+      {selectedPrescription &&
+        selectedPrescription._id === prescription._id && (
+          <div>
+            <p>Status: {selectedPrescription.status}</p>
+            <p>Date: {selectedPrescription.date}</p>
+            <p>Doctor: {selectedPrescription.doctor}</p>
+            <p>Patient: {selectedPrescription.patient}</p>
+          </div>
+        )}
+    </div>
+  ))
+) : (
+  <p>No prescriptions found.</p>
+)}
+
+
     </div>
   );
 }

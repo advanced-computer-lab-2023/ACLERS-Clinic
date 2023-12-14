@@ -1,4 +1,3 @@
-// PatientNavbar.js
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
@@ -128,9 +127,6 @@ function PatientNavbar() {
       </Drawer>
 
       {/* Use the `ContentContainer` instead of a `div` */}
-      <ContentContainer>
-        {/* Add content for each section here */}
-      </ContentContainer>
     </div>
   );
 }
