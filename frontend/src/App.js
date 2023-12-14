@@ -36,7 +36,10 @@ import PatientSelectedDoctor from "./patient/viewselecteddoctor";
 import PatientPaymentSuccess from "./patient/PaymentSuccess";
 import ViewHealthPackages from "./patient/viewHealthPackage";
 import FollowUp from "./doctor/FollowUp"
-import PatientComponent from "./patient/videocall";
+import DoctorReschedulePage from "./doctor/ReschedulePage";
+import AddPrescription from "./doctor/AddPrescription";
+
+// import PatientComponent from "./patient/videocall";
 const App = () => {
   return (
     <>
@@ -79,6 +82,8 @@ const App = () => {
           path="/doctor/change-password/"
           element={<PasswordChangeForm />}
         />
+                <Route path="/doctor/reschedule/:appointmentId" element={<DoctorReschedulePage />} />
+
         <Route
           path="/admin/change-password/"
           element={<PasswordChangeForm />}
@@ -132,8 +137,11 @@ const App = () => {
           path="/patient/Viewhealthpackages"
           element={<ViewHealthPackages />}
         />
+
+<Route path="/doctor/add-prescription/:patientId" element={<AddPrescription />} /> {/* Add this route */}
+
         <Route path="/payment-success" element={<PatientPaymentSuccess />} />
-        <Route path ="/patient/video-call" element={<PatientComponent/>}/>
+        {/* <Route path ="/patient/video-call" element={<PatientComponent/>}/> */}
       </Routes>
     </>
   );
