@@ -2,6 +2,11 @@ import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import jwt from "jsonwebtoken-promisified";
 import { useParams, useNavigate } from "react-router-dom";
+import DoctorNavbar from "../components/DoctorNavbar";
+import { FaWallet } from "react-icons/fa";
+import CssBaseline from "@mui/material/CssBaseline";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
 const DoctorBalance = () => {
   const [balance, setBalance] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -15,8 +20,6 @@ const DoctorBalance = () => {
   }, []);
 
   const fetchDoctorBalance = () => {
-  
-
     // Make a request to fetch patient balance
     fetch(`http://localhost:8000/Doctor-Home/viewMyBalance`, {
       method: "GET",
@@ -40,26 +43,56 @@ const DoctorBalance = () => {
     return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
   }
   return (
-    <><button onClick={() => navigate(-1)}>Go Back</button>
-    <div className="container mt-5">
-      <div className="row">
-        <div className="col-md-6 mx-auto">
-          <div className="card">
-            <div className="card-body">
-              <h5 className="card-title">Patient Balance</h5>
-              {loading ? (
-                <p>Loading...</p>
-              ) : (
-                <p>
-                  Your current balance is: ${balance}
-                </p>
-              )}
+    <div>
+      <DoctorNavbar />
+
+      <div
+        className="container mt-5"
+        style={{ marginLeft: "240px", padding: "20px" }}
+      >
+        <div>
+          <CssBaseline />
+          {/* Hero unit */}
+          <Container
+            disableGutters
+            maxWidth="sm"
+            component="main"
+            sx={{ pt: 2, pb: 2 }}
+          >
+            <Typography
+              component="h1"
+              variant="h2"
+              align="center"
+              color="text.primary"
+              gutterBottom
+            >
+              Your Wallet
+            </Typography>
+          </Container>
+        </div>
+        <div className="row">
+          <div className="col-md-6 mx-auto text-center">
+            <div className="card">
+              <div className="card-body">
+                {loading ? (
+                  <p>Loading...</p>
+                ) : (
+                  <div>
+                    <div>
+                      <p>Your currently have:</p>
+                      <h2 style={{ fontWeight: "bold" }}>
+                        <FaWallet /> ${balance}
+                      </h2>
+                      <p>Available in your wallet.</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    </>
   );
 };
 

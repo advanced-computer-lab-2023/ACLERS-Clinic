@@ -81,9 +81,8 @@ export default function SignInSide() {
         } else if (decodedToken.role === "admin") {
           // Redirect to doctor home page
           navigate("/admin/dashboard", { state: { id: decodedToken.id } });
-        }
-        else if(decodedToken.role ==="applicant"){
-          navigate("/applicant/contract",{state:{id:decodedToken.id}});
+        } else if (decodedToken.role === "applicant") {
+          navigate("/applicant/contract", { state: { id: decodedToken.id } });
         }
       } else {
         // Login failed
@@ -105,8 +104,7 @@ export default function SignInSide() {
           sm={4}
           md={7}
           sx={{
-            backgroundImage:
-              "url(https://source.unsplash.com/random?wallpapers)",
+            backgroundImage: "url(https://source.unsplash.com/random?hospital)",
             backgroundRepeat: "no-repeat",
             backgroundColor: (t) =>
               t.palette.mode === "light"
@@ -183,7 +181,8 @@ export default function SignInSide() {
                 <Grid item xs>
                   <Link href="/signuppage" variant="body2">
                     {"Don't have an account? Sign Up"}
-                  </Link><br></br>
+                  </Link>
+                  <br></br>
                   <Link href="/ForgotPassword" variant="body2">
                     {"Forgot Password ?"}
                   </Link>

@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
+import DoctorNavbar from "../components/DoctorNavbar";
 
 function DoctorDashboard() {
   const token = localStorage.getItem("token");
@@ -37,7 +38,8 @@ function DoctorDashboard() {
 
   return (
     <div>
-      <nav>
+      <DoctorNavbar />
+      <nav style={{ marginLeft: "290px" }}>
         <ul>
           <li>
             <Link to={`/doctor/view-my-info`}>View My Info</Link>
@@ -51,10 +53,10 @@ function DoctorDashboard() {
             <Link to={`/doctor/view-my-patients`}>View Patients</Link>
           </li>
           <li>
-            <Link to ={`/doctor/change-password`}>Change Password</Link>
+            <Link to={`/doctor/change-password`}>Change Password</Link>
           </li>
           <li>
-            <Link to ={`/doctor/MyWallet`}>My Wallet</Link>
+            <Link to={`/doctor/MyWallet`}>My Wallet</Link>
           </li>
           <li>
             <button onClick={handleLogout}>Logout</button>

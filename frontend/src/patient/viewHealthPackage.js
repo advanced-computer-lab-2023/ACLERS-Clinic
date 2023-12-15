@@ -166,19 +166,10 @@ const SubscribedHealthPackages = () => {
   }
 
   return (
-    <div>
+    <div style={{ marginLeft: "290px" }}>
       <PatientNavbar />
 
-      <div
-        style={{
-          maxWidth: 1000,
-          margin: "auto",
-          marginTop: 50,
-          marginLeft: "240px",
-          padding: "20px",
-        }}
-      >
-        <button onClick={() => navigate(-1)}>Go Back</button>
+      <div>
         <h2>Subscribed Health Packages</h2>
         <TableContainer component={Paper}>
           <Table>
@@ -226,7 +217,6 @@ const SubscribedHealthPackages = () => {
               <TableRow>
                 <TableCell>Name</TableCell>
                 <TableCell>Relation To Patient</TableCell>
-                <TableCell>Health Package ID</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Date of Subscription</TableCell>
                 <TableCell>Renewal Date</TableCell>
@@ -247,7 +237,7 @@ const SubscribedHealthPackages = () => {
                       <TableRow key={healthPackage._id}>
                         <TableCell>{familyMember.name}</TableCell>
                         <TableCell>{familyMember.relationToPatient}</TableCell>
-                        <TableCell>{healthPackage._id}</TableCell>
+
                         <TableCell>{healthPackage.status}</TableCell>
                         <TableCell>
                           {healthPackage.dateOfSubscription}
@@ -278,10 +268,6 @@ const SubscribedHealthPackages = () => {
             </TableBody>
           </Table>
         </TableContainer>
-
-        <Button variant="contained" color="primary" style={{ marginTop: 20 }}>
-          Go Back to Dashboard
-        </Button>
       </div>
     </div>
   );

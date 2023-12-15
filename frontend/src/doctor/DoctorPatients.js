@@ -1,13 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
-
+import { Link, useNavigate } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
-
-
+import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
+import CardContent from "@mui/material/CardContent";
+import CardMedia from "@mui/material/CardMedia";
+import CssBaseline from "@mui/material/CssBaseline";
+import Grid from "@mui/material/Grid";
+import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import Divider from "@mui/material/Divider";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import DoctorNavbar from "../components/DoctorNavbar";
 
 const DoctorPatients = () => {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const decodedtoken = jwt.decode(token);
   console.log("decoded Token:", decodedtoken);
@@ -18,7 +31,8 @@ const DoctorPatients = () => {
   const [searchName, setSearchName] = useState(""); // Add state for search
 
   // Fetch the list of patients initially
-  
+  const defaultTheme = createTheme();
+
   useEffect(() => {
     // Replace with your API call to fetch patients registered with the doctor
     //console.log(doctorId);
@@ -30,7 +44,8 @@ const DoctorPatients = () => {
       },
     };
     fetch(
-      `http://localhost:8000/Doctor-Home/view-patients?doctorId=${id}`,requestOptions
+      `http://localhost:8000/Doctor-Home/view-patients?doctorId=${id}`,
+      requestOptions
     )
       .then((response) => response.json())
       .then((data) => {
@@ -57,7 +72,8 @@ const DoctorPatients = () => {
     if (appointmentStatus) {
       // Filter patients by appointment status
       fetch(
-        `http://localhost:8000/Doctor-Home/view-patients?doctorId=${id}&status=${appointmentStatus}`,requestOptions
+        `http://localhost:8000/Doctor-Home/view-patients?doctorId=${id}&status=${appointmentStatus}`,
+        requestOptions
       )
         .then((response) => response.json())
         .then((data) => {
@@ -96,6 +112,7 @@ const DoctorPatients = () => {
     // Update the state with the filtered results
     setFilteredPatients(filteredPatientsByName);
   };
+
   if (decodedtoken.role !== "doctor") {
     return (
       <div>
@@ -104,66 +121,147 @@ const DoctorPatients = () => {
       </div>
     );
   }
+
   return (
     <div>
-      <button onClick={() => navigate(-1)}>Go Back</button>
-
-      <h1>Doctor's Patients</h1>
-      <div>
-        <label>
-          Filter by Appointment Status:
-          <select
-            onChange={(e) => setAppointmentStatus(e.target.value)}
-            value={appointmentStatus}
+      <DoctorNavbar />
+      <div
+        style={{
+          marginLeft: "240px",
+          padding: "0px",
+          marginBottom: "20px",
+        }}
+      >
+        <ThemeProvider theme={defaultTheme}>
+          <CssBaseline />
+          <Box
+            sx={{
+              bgcolor: "background.paper",
+              pt: 8,
+              pb: 6,
+            }}
           >
-            <option value="">All</option>
-            <option value="UpComing">UpComing</option>
-            <option value="Done">Done</option>
-          </select>
-        </label>
-        <button onClick={handleFilter}>Filter</button>
-      </div>
-      {/* Add the search bar */}
-      <div>
-        <label>
-          Search by Name:
-          <input
-            type="text"
-            value={searchName}
-            onChange={(e) => setSearchName(e.target.value)}
-          />
-        </label>
-        <button onClick={handleSearch}>Search</button>
-      </div>
-      <ul>
-        {filteredPatients.map((item) => {
-          if (item.patient) {
-            return (
-              <li key={item.patient._id}>
-                <div>
-                  <h3>Patient Information</h3>
-                  <p>
-                    Name:{" "}
-                    <Link
-                      to={`/doctor/view-patient/${item.patient._id}`}
+            <Container maxWidth="sm">
+              <Typography
+                component="h1"
+                variant="h2"
+                align="center"
+                color="text.primary"
+                gutterBottom
+              >
+                Patients
+              </Typography>
+              <Stack
+                sx={{ pt: 4 }}
+                direction="column"
+                spacing={2}
+                justifyContent="center"
+              >
+                {/* First set of elements */}
+                <Stack direction="row" spacing={2}>
+                  <div style={{ marginRight: "10px" }}>
+                    <label>
+                      Filter by Appointment Status:
+                      <Select
+                        value={appointmentStatus}
+                        onChange={(e) => setAppointmentStatus(e.target.value)}
+                        displayEmpty
+                        variant="outlined"
+                        size="small"
+                      >
+                        <MenuItem value="">All</MenuItem>
+                        <MenuItem value="UpComing">UpComing</MenuItem>
+                        <MenuItem value="Done">Done</MenuItem>
+                      </Select>
+                    </label>
+                  </div>
+                  <div>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleFilter}
                     >
-                      {item.patient.name}
-                    </Link>
-                  </p>
-                  <p>Email: {item.patient.email}</p>
-                  <p>Mobile Number: {item.patient.mobileNumber}</p>
-                </div>
-              </li>
-            );
-          } else {
-            return (
-              <li key={item._id}>
-                <p>Patient data not available</p>
-              </li>
-            );
-          }
-        })}
-      </ul>
+                      Filter
+                    </Button>
+                  </div>
+                </Stack>
+                <Divider sx={{ mt: 12, mb: 12 }} />
+                {/* Second set of elements */}
+                <Stack direction="row" spacing={2}>
+                  <div style={{ marginRight: "10px" }}>
+                    <TextField
+                      id="searchName"
+                      label="Search by Name"
+                      variant="outlined"
+                      size="small"
+                      value={searchName}
+                      onChange={(e) => setSearchName(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <button
+                      className="filter-button"
+                      style={{ marginLeft: "10px" }}
+                      onClick={handleSearch}
+                    >
+                      search
+                    </button>
+                  </div>
+                </Stack>
+              </Stack>
+            </Container>
+          </Box>
+
+          <Container sx={{ py: 8 }} maxWidth="md">
+            {/* End hero unit */}
+            <Grid container spacing={4}>
+              {filteredPatients.map((item) => {
+                if (item.patient) {
+                  return (
+                    <Grid item key={item.patient._id} xs={12} sm={6} md={4}>
+                      <Card
+                        sx={{
+                          height: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
+                        <CardMedia
+                          component="div"
+                          sx={{
+                            // 16:9
+                            pt: "56.25%",
+                          }}
+                          image="https://source.unsplash.com/random?patients"
+                        />
+                        <CardContent sx={{ flexGrow: 1 }}>
+                          <Typography gutterBottom variant="h5" component="h2">
+                            {item.patient.name}
+                          </Typography>
+                          <Typography>Email: {item.patient.email}</Typography>
+                          <Typography>
+                            Mobile Number: {item.patient.mobileNumber}
+                          </Typography>
+                        </CardContent>
+                        <CardActions>
+                          <Button
+                            size="small"
+                            component={Link}
+                            to={`/doctor/patients/${item.patient._id}`}
+                          >
+                            View Details
+                          </Button>
+                        </CardActions>
+                      </Card>
+                    </Grid>
+                  );
+                } else {
+                }
+              })}
+            </Grid>
+          </Container>
+        </ThemeProvider>
+      </div>
     </div>
   );
 };

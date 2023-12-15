@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import jwt from "jsonwebtoken-promisified";
 import { useParams, useNavigate } from "react-router-dom";
-import PatientNavbar from "../components/PatientNavbar";
+import DoctorNavbar from "../components/DoctorNavbar";
 import { TextField, Button, Grid, Typography } from "@mui/material";
 
 function PasswordChangeForm() {
@@ -60,8 +60,8 @@ function PasswordChangeForm() {
     // Handle the case where id is not available
     return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
   }
-  if (decodedToken.role !== "patient") {
-    return <div>ACCESS DENIED, You are not a patient</div>;
+  if (decodedToken.role !== "doctor") {
+    return <div>ACCESS DENIED, You are not a doctor</div>;
   }
 
   return (
@@ -74,7 +74,7 @@ function PasswordChangeForm() {
         justifyContent: "center",
       }}
     >
-      <PatientNavbar />
+      <DoctorNavbar />
       <div
         style={{
           width: "50%",

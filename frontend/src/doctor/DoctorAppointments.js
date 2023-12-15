@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken-promisified";
 import { format } from "date-fns";
 import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
+import DoctorReschedulePage from "./ReschedulePage";
 
 const DoctorAppointments = () => {
   const navigate = useNavigate();
@@ -15,7 +16,6 @@ const DoctorAppointments = () => {
   const [filterValue, setFilterValue] = useState("");
   const [dateFilter, setDateFilter] = useState(new Date());
   const [statusFilter, setStatusFilter] = useState("");
-
   const [newSlot, setNewSlot] = useState({
     date: new Date(),
     startTime: new Date(),
@@ -61,7 +61,6 @@ const DoctorAppointments = () => {
         adjustedDate,
         "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
       );
-      console.log("formattedDate:", formattedDate);
 
       // Make a request to fetch appointments with the filtered date
       const requestOptions = {
@@ -94,7 +93,6 @@ const DoctorAppointments = () => {
     }
   };
 
-  // Function to handle adding a new time slot
   const handleAddTimeSlot = () => {
     const requestOptions = {
       method: "POST",
@@ -109,7 +107,6 @@ const DoctorAppointments = () => {
         endTime: format(newSlot.endTime, "HH:mm:ss"),
       }),
     };
-    console.log("request body:", requestOptions.body);
     fetch(
       "http://localhost:8000/Doctor-Home/add-doctor-time-slot",
       requestOptions
@@ -122,6 +119,31 @@ const DoctorAppointments = () => {
       })
       .catch((error) => {
         console.error("Error adding time slot:", error);
+      });
+  };
+
+  const handleCancelAppointment = (appointmentId) => {
+    // Make a request to cancel the appointment on the backend
+    const requestOptions = {
+      method: "POST", // or "DELETE" depending on your backend implementation
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    fetch(
+      `http://localhost:8000/Doctor-Home/cancelAppointment?AppointmentId=${appointmentId}`,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Appointment canceled:", data);
+        // Optionally, you can refresh the appointments after canceling
+        // (Fetch the updated appointments from the server)
+      })
+      .catch((error) => {
+        console.error("Error canceling appointment:", error);
       });
   };
 
@@ -173,17 +195,33 @@ const DoctorAppointments = () => {
             <th>Patient</th>
             <th>Date</th>
             <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {filteredAppointments &&
             filteredAppointments.map((appointment) => (
               <tr key={appointment.id}>
-                <td>
-                  {appointment.patient ? appointment.patient.name : "N/A"}
-                </td>
+                <td>{appointment.patient ? appointment.patient.name : "N/A"}</td>
                 <td>{appointment.date}</td>
                 <td>{appointment.status}</td>
+                <td>
+                  {(appointment.status === "UpComing" ||
+                    appointment.status === "Rescheduled") && (
+                    <div>
+                      <button
+                        onClick={() => navigate(`/doctor/reschedule/${appointment._id}`)}
+                      >
+                        Reschedule
+                      </button>
+                      <button
+                        onClick={() => handleCancelAppointment(appointment._id)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+                </td>
               </tr>
             ))}
         </tbody>
