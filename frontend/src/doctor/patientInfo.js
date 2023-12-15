@@ -1,53 +1,20 @@
-// PatientInfo.js
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
+import DoctorNavbar from "../components/DoctorNavbar";
+import Grid from "@mui/material/Grid";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import Avatar from "@mui/material/Avatar";
+import { Person, Event, Email, Phone, Description } from "@mui/icons-material"; // Import icons
 
 const PatientInfo = () => {
   const token = localStorage.getItem("token");
   const decodedToken = jwt.decode(token);
-  console.log("Decoded Token:", decodedToken);
   const doctorId = decodedToken.id;
-  const [isEditing, setIsEditing] = useState(false);
-  const [newHealthRecord, setNewHealthRecord] = useState("");
   const { patientId } = useParams();
   const [patient, setPatient] = useState(null);
   const navigate = useNavigate();
-
-  const handleSaveHealthRecord = () => {
-    // Call the API to update the health record
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        healthRecord: newHealthRecord,
-      }),
-    };
-
-    fetch(`http://localhost:8000/Doctor-home/addHealthRecord?patientId=${patientId}`, requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
-        // Handle success, maybe update the UI or show a notification
-        console.log("Health record updated successfully:", data);
-        setIsEditing(false);
-      })
-      .catch((error) => {
-        console.error("Error updating health record:", error);
-        // Handle error, show an error message to the user
-      });
-  };
-
-  const handleEditHealthRecord = () => {
-    setIsEditing(true);
-  };
-
-  const handleNavigateToAddPrescription = () => {
-    // Navigate to the page for adding prescriptions
-    navigate(`/doctor/add-prescription/${patientId}`);
-  };
 
   useEffect(() => {
     const requestOptions = {
@@ -58,15 +25,16 @@ const PatientInfo = () => {
       },
     };
 
-    // Replace with your API call to fetch patient information by patientId
-    fetch(`http://localhost:8000/Doctor-Home/view-patient?patientId=${patientId}&doctorId=${doctorId}`, requestOptions)
+    fetch(
+      `http://localhost:8000/Doctor-Home/view-patient?patientId=${patientId}&doctorId=${doctorId}`,
+      requestOptions
+    )
       .then((response) => response.json())
       .then((data) => {
         setPatient(data);
-        console.log(data);
       })
       .catch((error) => {
-        console.error('Error fetching patient information:', error);
+        console.error("Error fetching patient information:", error);
       });
   }, [patientId, doctorId, token]);
 
@@ -75,46 +43,71 @@ const PatientInfo = () => {
   }
 
   return (
-    <div>
+    <div style={{ marginLeft: "270px", marginTop: "10px" }}>
       <button onClick={() => navigate(-1)}>Go Back</button>
 
-      <h1>Patient Information</h1>
-      <p>Name: {patient.patient.name}</p>
-      <p>Date of Birth: {patient.patient.dateOfBirth}</p>
-      <p>Email: {patient.patient.email}</p>
-      <p>Gender: {patient.patient.gender}</p>
-      <p>Mobile Number: {patient.patient.mobileNumber}</p>
-      <p>Username: {patient.patient.username}</p>
-      <h3>Emergency Contact</h3>
-      <p>Full Name: {patient.patient.emergencyContact.fullName}</p>
-      <p>Mobile Number: {patient.patient.emergencyContact.mobileNumber}</p>
-      <h3>Health Record</h3>
-      <p>{patient.healthRecord}</p>
-      {isEditing ? (
-        <>
-          <textarea
-            value={newHealthRecord}
-            onChange={(e) => setNewHealthRecord(e.target.value)}
-          />
-          <button onClick={handleSaveHealthRecord}>Save</button>
-        </>
-      ) : (
-        <>
-          <p>Description: {patient.healthRecord}</p>
-          <button onClick={handleEditHealthRecord}>Edit</button>
-        </>
-      )}
-      <div>
-        Attachments:
-        <ul>
-          {patient.attachments.map((attachment, attachmentIndex) => (
-            <li key={attachmentIndex}>
-              <img src={`http://localhost:8000/uploads/${attachment.path.substring(8)}`} style={{ maxWidth: "50%", maxHeight: "50%", objectFit: "contain" }} alt={attachment.filename} />
-            </li>
-          ))}
-        </ul>
-      </div>
-      <button onClick={handleNavigateToAddPrescription}>Add Prescription</button>
+      <DoctorNavbar />
+
+      <Grid container spacing={3}>
+        {/* Patient Information Card */}
+        <Grid item xs={12} md={6}>
+          <Paper elevation={3} style={{ padding: "20px", height: "100%" }}>
+            <Typography variant="h5" gutterBottom>
+              Patient Information
+            </Typography>
+            <Avatar
+              alt={patient.patient.name}
+              src="https://i.ibb.co/HXyFJZM/avatar.jpg"
+              sx={{ width: 150, height: 150, margin: "auto", borderRadius: 0 }}
+            />
+            <Typography variant="body1" paragraph>
+              <Person /> Name: {patient.patient.name}
+            </Typography>
+            <Typography variant="body1" paragraph>
+              <Event /> Date of Birth: {patient.patient.dateOfBirth}
+            </Typography>
+            <Typography variant="body1" paragraph>
+              <Email /> Email: {patient.patient.email}
+            </Typography>
+            <Typography variant="body1" paragraph>
+              <Phone /> Mobile Number: {patient.patient.mobileNumber}
+            </Typography>
+            {/* Add more patient information fields as needed */}
+          </Paper>
+        </Grid>
+
+        {/* Emergency Contact Information Card */}
+        <Grid item xs={12} md={6}>
+          <Paper elevation={3} style={{ padding: "20px", height: "100%" }}>
+            <Typography variant="h5" gutterBottom>
+              Emergency Contact
+            </Typography>
+            {/* Display emergency contact information here */}
+            <Typography variant="body1" paragraph>
+              <Person /> Full Name: {patient.patient.emergencyContact.fullName}
+            </Typography>
+            <Typography variant="body1" paragraph>
+              <Phone /> Mobile Number:{" "}
+              {patient.patient.emergencyContact.mobileNumber}
+            </Typography>
+            {/* Add more emergency contact information fields as needed */}
+          </Paper>
+        </Grid>
+
+        {/* Health Record Card */}
+        <Grid item xs={12} md={12}>
+          <Paper elevation={3} style={{ padding: "20px", height: "100%" }}>
+            <Typography variant="h5" gutterBottom>
+              Health Record
+            </Typography>
+            {/* Display health record information here */}
+            <Typography variant="body1" paragraph>
+              <Description /> {patient.healthRecord}
+            </Typography>
+            {/* You can customize the display of health record information */}
+          </Paper>
+        </Grid>
+      </Grid>
     </div>
   );
 };
