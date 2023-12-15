@@ -13,6 +13,7 @@ const Applicant = require("../models/Applicant");
 const FreeSlots = require("../models/FreeSlots");
 const FollowUps = require("../models/FollowUps");
 const axios = require("axios");
+const FreeSlot = require("../models/FreeSlots");
 
 const editEmail = asyncHandler(async (req, res) => {
   const doctorID = req.user.id;
@@ -535,7 +536,7 @@ res.json({appointment : appointment, wallet : wallet, freeslot : freeslot ,walle
 })
 
 const acceptFollowUp =asyncHandler(async(req,res)=>{
-  followUpId=req.query.followUpId
+ const followUpId=req.query.followUpId
   try{
  const followUp= await FollowUps.findById(followUpId)
  followUp.status='Accepted'
@@ -559,11 +560,14 @@ catch(error){
 })
 
 const rejectFollowUp =asyncHandler(async(req,res)=>{
-  followUpId=req.query.followUpId
+ const followUpId=req.query.followUpId
   try{
  const followUp= await FollowUps.findById(followUpId)
+ const slot = await FreeSlot.findOne({date:followUp.date,startTime:followUp.startTime});
+ slot.status="free";
+ await slot.save();
  followUp.status='Denied'
- followUp.save()
+ await followUp.save();
 
  
 res.send(followUp)

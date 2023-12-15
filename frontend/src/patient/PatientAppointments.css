@@ -136,5 +136,12 @@ body {
   padding: 10px;
   text-align: center;
 }
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center; /* Optional: Align buttons vertically in the center */
+}
+
+
 
 /* Add more custom styles as needed */

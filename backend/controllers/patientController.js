@@ -1201,23 +1201,30 @@ const rescheduleAppointment = asyncHandler(async (req, res) => {
   const {appointmentId,freeSlotId} = req.query;
   try{
   const appointment = await Appointment.findById(appointmentId);
-  const freeSlot = await FreeSlots.findById(freeSlotId);
-  console.log(freeSlot)
-  appointment.date = freeSlot.date;
+  const slot = await FreeSlots.findById(freeSlotId);
+  const slotOld = await FreeSlots.findOne({date:appointment.date,startTime:appointment.startTime});
+  if(slotOld){
+  slotOld.status ="free"
+  await slotOld.save();
+  }
+  console.log(slot+"slotttttttttt")
+  appointment.date = slot.date;
   appointment.status = 'Rescheduled';
-  appointment.startTime = freeSlot.startTime;
-  appointment.endTime = freeSlot.endTime;
+  appointment.startTime = slot.startTime;
+  appointment.endTime = slot.endTime;
   await appointment.save();
+  slot.status="booked";
+  await slot.save();
   const doctor = await Doctor.findById(appointment.doctor)
   const doctorId = doctor._id
-  await notificationService.sendNotification(req.user.id, `Appointment with doctor ${doctor.name} has been cancelled`);
+  await notificationService.sendNotification(req.user.id, `Appointment with doctor ${doctor.name} has been Rescheduled`);
   await notificationService.sendNotification(doctorId, `Appointment with patient ${req.user.name}  
-  on ${slot.date} from  ${slot.startTime} to ${slot.endTime} has been cancelled`);
+  on ${slot.date} from  ${slot.startTime} to ${slot.endTime} has been Rescheduled`);
   
-  await mailService.sendNotification(req.user.email,"Appointment Cancelled",`Appointment with doctor ${doctor.name} has been cancelled`)
+  await mailService.sendNotification(req.user.email,"Appointment Rescheduled",`Appointment with doctor ${doctor.name} has been Rescheduled`)
 
-  await mailService.sendNotification(doctor.email,"Appointment Cancelled",`Appointment with patient ${req.user.name} 
-  on ${slot.date} from  ${slot.startTime} to ${slot.endTime} has been cancelled`)
+  await mailService.sendNotification(doctor.email,"Appointment Rescheduled",`Appointment with patient ${req.user.name} 
+  on ${slot.date} from  ${slot.startTime} to ${slot.endTime} has been Rescheduled`)
   res.json({appointment : appointment});
   }catch(error){
     console.log(error);
@@ -1268,8 +1275,10 @@ const cancelAppointment = asyncHandler(async (req,res)=>{
     appointment.status='Cancelled';
     console.log(appointment)
     const slot = await FreeSlots.findOne({date:appointment.date,startTime:appointment.startTime});
+    if(slot){
     slot.status='free';
     await slot.save();
+    }
     await appointment.save();
      await notificationService.sendNotification(req.user.id, `Appointment with doctor ${doctor.name} has been cancelled`);
   await notificationService.sendNotification(doctorId, `Appointment with patient ${req.user.name}  
@@ -1326,6 +1335,11 @@ const requestFollowUp = asyncHandler(async (req,res)=>{
     price:0,
     status:"Pending"
    })
+   appointment.status="Requested";
+   slot.status="booked";
+   await slot.save();
+   
+   await appointment.save();
    res.send(followUp)
   }catch(error){
     console.log(error)
@@ -1343,6 +1357,8 @@ const rescheduleAppointmentFamMem = asyncHandler(async (req, res) => {
     appointment.startTime = freeSlot.startTime;
     appointment.endTime = freeSlot.endTime;
     await appointment.save();
+    freeSlot.status = "booked";
+    await freeSlot.save();
     res.json({ appointment: appointment });
   } catch (error) {
     console.log(error);
@@ -1450,6 +1466,11 @@ const requestFollowUpFamMem =asyncHandler(async(req,res)=>{
     price:0,
     status:"Pending"
    })
+  
+   slot.status="booked";
+   await slot.save();
+   
+   await appointment.save();
    res.send(followUp)
   }catch(error){
     console.log(error)
@@ -1459,7 +1480,7 @@ const requestFollowUpFamMem =asyncHandler(async(req,res)=>{
 const viewFamMemAppointments = asyncHandler(async(req,res)=>{
   const {famMemId}= req.query;
   try{
-  const appointments = await Appointment.find({patient:famMemId})
+  const appointments = await Appointment.find({patient:famMemId}).populate("doctor");
   res.send(appointments)
   }catch(error){
     console.log(error);

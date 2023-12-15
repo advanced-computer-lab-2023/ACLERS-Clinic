@@ -10,7 +10,10 @@ import "react-datetime/css/react-datetime.css";
 import jwt, { decode } from "jsonwebtoken-promisified";
 import { format } from "date-fns";
 import PatientNavbar from "../components/PatientNavbar";
-import { Button, Paper } from "@mui/material";
+import { Button, Paper ,Popover, Typography} from "@mui/material";
+import { Cancel as CancelIcon, Event as EventIcon } from "@mui/icons-material";
+import ReplayIcon from '@mui/icons-material/Replay'; // Import Material-UI icons
+
 import {
   Table,
   TableHead,
@@ -32,6 +35,77 @@ const PatientAppointments = () => {
   const [filterValue, setFilterValue] = useState(null);
   const [date, setDate] = useState("");
   const [showDateInput, setShowDateInput] = useState(false);
+  const [reschedulePopover, setReschedulePopover] = useState(null);
+  const [rescheduleSlots, setRescheduleSlots] = useState([]);
+  const [followUpPopover, setFollowUpPopover] = useState(null);
+  const [followUpSlots, setFollowUpSlots] = useState([]);
+  const [familyMembers, setFamilyMembers] = useState([]);
+  const [selectedFamilyMember, setSelectedFamilyMember] = useState(null);
+  const [followUpConfirmed, setFollowUpConfirmed] = useState(false);
+
+  useEffect(() => {
+    const handleViewFamilyMembers = () => {
+      const requestOptions = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+  
+      fetch(
+        `http://localhost:8000/Patient-home/view-fam-member?patientId=${id}`,
+        requestOptions
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.familyMembers && Array.isArray(data.familyMembers)) {
+            setFamilyMembers(data.familyMembers);
+           
+          } else {
+            console.error("Error: Family members response is not an array", data);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching family members:", error);
+        });
+    };
+  
+
+    handleViewFamilyMembers();
+  }, [token]);
+  useEffect(() => {
+    const fetchFamilyMemberAppointments = async () => {
+      if (!selectedFamilyMember) return;
+
+      try {
+        console.log(selectedFamilyMember)
+        const response = await fetch(
+          `http://localhost:8000/Patient-Home/view-famMem-appointments?famMemId=${selectedFamilyMember._id}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch family member appointments");
+        }
+
+        const data = await response.json();
+console.log(data)
+        setAppointments(data);
+        setFilteredAppointments(data);
+      } catch (error) {
+        console.error("Error fetching family member appointments:", error);
+      }
+    };
+
+    fetchFamilyMemberAppointments();
+  }, [selectedFamilyMember, token]);
 
   useEffect(() => {
     const requestOptions = {
@@ -97,7 +171,235 @@ const PatientAppointments = () => {
         });
     }
   };
+  const handleFollowUpClick = async (appointment) => {
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+   
+    try {
+      const response = await fetch(
+        `http://localhost:8000/Patient-Home/view-appointments?doctorId=${appointment.doctor._id}`,
+        requestOptions
+      );
 
+      if (!response.ok) {
+        throw new Error("Failed to fetch available slots for follow-up");
+      }
+
+      const data = await response.json();
+      console.log(data);
+      setFollowUpSlots(data.slots);
+
+      // Open the follow-up popover
+      setFollowUpPopover(appointment._id);
+    } catch (error) {
+      console.error("Error fetching available slots for follow-up:", error);
+    }
+   
+   };
+
+  const handleFollowUpConfirm = async (appointmentId, slotId) => {
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+if(selectedFamilyMember){
+  try {
+    const response = await fetch(
+      `http://localhost:8000/Patient-Home/request-followUp-fam?appointmentId=${appointmentId}&freeSlotId=${slotId}&famMemId=${selectedFamilyMember._id}`,
+      requestOptions
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to request follow-up");
+    }
+
+    const data = await response.json();
+    console.log("Follow-up requested:", data);
+    setFollowUpConfirmed(true);
+    // Close the follow-up popover
+    setFilteredAppointments((prevAppointments) =>
+      prevAppointments.map((app) =>
+        app._id === appointmentId ? { ...app, status: 'Pending',date:data.date,startTime:data.startTime,endTime:data.endTime } : app
+      )
+    );
+    setFollowUpPopover(null);
+  } catch (error) {
+    console.error("Error requesting follow-up:", error);
+  }
+}else{
+    try {
+      const response = await fetch(
+        `http://localhost:8000/Patient-Home/request-followUp?appointmentId=${appointmentId}&freeSlotId=${slotId}`,
+        requestOptions
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to request follow-up");
+      }
+
+      const data = await response.json();
+      console.log("Follow-up requested:", data);
+      setFollowUpConfirmed(true);
+      // Close the follow-up popover
+      setFilteredAppointments((prevAppointments) =>
+        prevAppointments.map((app) =>
+          app._id === appointmentId ? { ...app, status: data.status,date:data.date,startTime:data.startTime,endTime:data.endTime } : app
+        )
+      );
+      setFollowUpPopover(null);
+    } catch (error) {
+      console.error("Error requesting follow-up:", error);
+    }
+  }
+  };
+  const handleRescheduleClick = async (appointment) => {
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    try {
+      const response = await fetch(
+        `http://localhost:8000/Patient-Home/view-appointments?doctorId=${appointment.doctor._id}`,
+        requestOptions
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch available slots");
+      }
+
+      const data = await response.json();
+      console.log(data);
+      setRescheduleSlots(data.slots);
+
+      // Open the popover
+      setReschedulePopover(appointment._id);
+    } catch (error) {
+      console.error("Error fetching available slots:", error);
+    }
+  };
+
+  const handleRescheduleConfirm = async (appointmentId, slotId) => {
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+if(selectedFamilyMember){
+  try {
+    const response = await fetch(
+      `http://localhost:8000/Patient-Home/reschedule-appointment-fam?appointmentId=${appointmentId}&freeSlotId=${slotId}&famMemId=${selectedFamilyMember._id}`,
+      requestOptions
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to reschedule appointment");
+    }
+
+    const data = await response.json();
+    console.log("Appointment rescheduled:", data);
+
+    // Update the local state to reflect the changes
+    setFilteredAppointments((prevAppointments) =>
+      prevAppointments.map((app) =>
+        app._id === appointmentId ? { ...app, status: 'Rescheduled',date:data.appointment.date,startTime:data.appointment.startTime,endTime:data.appointment.endTime } : app
+      )
+    );
+
+    // Close the popover
+    setReschedulePopover(null);
+  } catch (error) {
+    console.error("Error rescheduling appointment:", error);
+  }
+}else{
+    try {
+      const response = await fetch(
+        `http://localhost:8000/Patient-Home/reschedule-appointment?appointmentId=${appointmentId}&freeSlotId=${slotId}`,
+        requestOptions
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to reschedule appointment");
+      }
+
+      const data = await response.json();
+      console.log("Appointment rescheduled:", data);
+
+      // Update the local state to reflect the changes
+      setFilteredAppointments((prevAppointments) =>
+        prevAppointments.map((app) =>
+          app._id === appointmentId ? { ...app, status: 'Rescheduled',date:data.appointment.date,startTime:data.appointment.startTime,endTime:data.appointment.endTime } : app
+        )
+      );
+
+      // Close the popover
+      setReschedulePopover(null);
+    } catch (error) {
+      console.error("Error rescheduling appointment:", error);
+    }
+  }
+  };
+  const handleCancelAppointment = (appointmentId) => {
+    console.log(appointmentId)
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    
+    };
+  if(selectedFamilyMember){
+    fetch(`http://localhost:8000/Patient-Home/cancel-appointment-fam?appointmentId=${appointmentId}&famMemId=${selectedFamilyMember._id}`, requestOptions)
+    .then((response) => response.json())
+    .then((data) => {
+      // Assuming the backend returns some data indicating the success or failure of the cancellation
+      console.log("Appointment canceled:", data);
+
+      // Update the local state or refetch the appointments to reflect the changes
+      // For example, you can refetch the appointments from the server
+      setFilteredAppointments((prevAppointments) =>
+        prevAppointments.map((app) =>
+          app._id === appointmentId ? { ...app, status: 'Canceled' } : app
+        )
+      );
+    })
+    .catch((error) => {
+      console.error("Error canceling appointment:", error);
+    });
+  }else{
+    fetch(`http://localhost:8000/Patient-Home/cancel-appointment?appointmentId=${appointmentId}`, requestOptions)
+      .then((response) => response.json())
+      .then((data) => {
+        // Assuming the backend returns some data indicating the success or failure of the cancellation
+        console.log("Appointment canceled:", data);
+  
+        // Update the local state or refetch the appointments to reflect the changes
+        // For example, you can refetch the appointments from the server
+        setFilteredAppointments((prevAppointments) =>
+          prevAppointments.map((app) =>
+            app._id === appointmentId ? { ...app, status: 'Canceled' } : app
+          )
+        );
+      })
+      .catch((error) => {
+        console.error("Error canceling appointment:", error);
+      });
+    }
+  };
   const handlePayment = (
     patientId,
     doctorId,
@@ -235,6 +537,29 @@ const PatientAppointments = () => {
             </div>
           </div>
         </div>
+        <div style={{ textAlign: "center", marginTop: "10px" }}>
+        <label>
+          Select Family Member:
+          <select
+            value={selectedFamilyMember ? selectedFamilyMember.id : ""}
+            onChange={(e) => {
+              const selectedFamMemId = e.target.value;
+              const selectedFamMem = familyMembers.find(
+                (famMem) => famMem._id === selectedFamMemId
+              );
+              console.log(selectedFamMem);
+              setSelectedFamilyMember(selectedFamMem);
+            }}
+          >
+            <option value="">Select a family member</option>
+            {familyMembers.map((famMem) => (
+              <option key={famMem.id} value={famMem._id}>
+                {famMem.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
       </div>
 
       {/* Table displaying appointment results */}
@@ -275,13 +600,38 @@ const PatientAppointments = () => {
                     textAlign: "center",
                   }}
                 >
+                  Start Time
+                </TableCell>
+                <TableCell
+                  style={{
+                    fontSize: "1.7em",
+                    color: "#114B5F",
+                    textAlign: "center",
+                  }}
+                >
+                  End Time
+                </TableCell>
+                <TableCell
+                  style={{
+                    fontSize: "1.7em",
+                    color: "#114B5F",
+                    textAlign: "center",
+                  }}
+                >
                   Status
                 </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredAppointments.map((appointment) => (
-                <TableRow key={appointment.id}>
+              {filteredAppointments.length === 0 ? (
+              // Render a single row with empty cells
+              <TableRow>
+                <TableCell colSpan={6} style={{ textAlign: "center", fontSize: "1.0em" }}>
+                  No appointments found
+                </TableCell>
+              </TableRow>
+            ) :( filteredAppointments.map((appointment) => (
+                <TableRow key={appointment._id}>
                   <TableCell style={{ textAlign: "center", fontSize: "1.0em" }}>
                     {appointment.doctor.name}
                   </TableCell>
@@ -289,14 +639,116 @@ const PatientAppointments = () => {
                     {appointment.date}
                   </TableCell>
                   <TableCell style={{ textAlign: "center", fontSize: "1.0em" }}>
+                  {appointment.startTime}
+                  </TableCell>
+                   <TableCell style={{ textAlign: "center", fontSize: "1.0em" }}>
+                   {appointment.endTime}
+                  </TableCell>
+                  <TableCell style={{ textAlign: "center", fontSize: "1.0em" }}>
+                    
                     {appointment.status}
                   </TableCell>
+                   <TableCell style={{ textAlign: "center", fontSize: "1.0em" }}>
+                    {(appointment.status === 'UpComing' || appointment.status === "Rescheduled") && (
+                      <div className="action-buttons">
+                      <Button
+                        className="cancel-button"
+                        variant="contained"
+                        color="error"
+                        startIcon={<CancelIcon />} // Use Cancel icon
+                        onClick={() => handleCancelAppointment(appointment._id)}
+                      >
+                        
+                      </Button>
+                      <Button
+                        className="reschedule-button"
+                        variant="contained"
+                        color="primary"
+                        startIcon={<EventIcon />} // Use Calendar icon
+                        onClick={() => handleRescheduleClick(appointment)}
+                      >
+                       
+                      </Button>
+                    </div>
+                    )}
+                    {appointment.status==="Done" && !followUpConfirmed &&  (
+                      <div className="action-buttons">
+                      <Button
+                        className="followUp-button"
+                        variant="contained"
+                        color="success"
+                        startIcon={<ReplayIcon />} // Use Cancel icon
+                        onClick={() => handleFollowUpClick(appointment)}
+                      >
+                        
+                      </Button>
+                      </div>
+                    )
+
+                    }
+                  </TableCell>
                 </TableRow>
-              ))}
+              )))}
             </TableBody>
           </Table>
         </Paper>
       </div>
+      <Popover
+        open={reschedulePopover !== null}
+        anchorEl={reschedulePopover}
+        onClose={() => setReschedulePopover(null)}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+      >
+        <Paper style={{ padding: "20px", maxWidth: "300px" }}>
+          <Typography variant="h6">Available Slots</Typography>
+          <div>
+            {rescheduleSlots.map((slot) => (
+              <div key={slot._id}>
+                <Button
+                  onClick={() => handleRescheduleConfirm(reschedulePopover, slot._id)}
+                >
+                  {slot.date}-{slot.startTime} - {slot.endTime}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </Paper>
+      </Popover>
+      <Popover
+        open={followUpPopover !== null}
+        anchorEl={followUpPopover}
+        onClose={() => setFollowUpPopover(null)}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+      >
+        <Paper style={{ padding: "20px", maxWidth: "300px" }}>
+          <Typography variant="h6">Available Slots for Follow-Up</Typography>
+          <div>
+            {followUpSlots.map((slot) => (
+              <div key={slot._id}>
+                <Button
+                  onClick={() => handleFollowUpConfirm(followUpPopover, slot._id)}
+                >
+                  {slot.date}-{slot.startTime} - {slot.endTime}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </Paper>
+      </Popover>
     </div>
   );
 };
