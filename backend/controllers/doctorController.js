@@ -513,13 +513,15 @@ const cancelAppointment=asyncHandler(async(req,res)=>{
   const AppointmentId=req.query.AppointmentId
   try{
    const appointment=await Appointment.findById(AppointmentId)
+   console.log (appointment)
    appointment.status='Cancelled'
     const wallet=await Wallet.findOne({userId:appointment.patient})
     const walletdoc=await Wallet.findOne({userId:appointment.doctor})
     walletdoc.balance-=appointment.price
-
+    console.log(wallet)
     wallet.balance+=appointment.price
     const freeslot=await FreeSlots.findOne({date:appointment.date,startTime:appointment.startTime})
+    console.log(freeslot)
     freeslot.status='free'
     walletdoc.save()
 appointment.save()
