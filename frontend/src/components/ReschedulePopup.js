@@ -1,14 +1,11 @@
-// DoctorReschedulePage.js
+// ReschedulePopup.js
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import jwt from "jsonwebtoken-promisified";
-import Popup from "../components/Popup"; // Adjust the path based on your project structure
+import Popup from "./Popup"; // Adjust the path based on your project structure
 
-const DoctorReschedulePage = () => {
-  const navigate = useNavigate();
-  const { appointmentId } = useParams();
+const ReschedulePopup = ({ appointmentId, handleClose }) => {
   const [freeSlots, setFreeSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
@@ -72,24 +69,20 @@ const DoctorReschedulePage = () => {
 
   const closePopup = () => {
     setShowPopup(false);
-    navigate("/doctor/view-my-appointments");
+    handleClose();
   };
 
   return (
     <div>
-      <h1>Reschedule Appointment</h1>
-
-      <div>
-        <label>Select a Free Slot:</label>
-        <select onChange={(e) => setSelectedSlot(JSON.parse(e.target.value))}>
-          <option value="">Select Free Slot</option>
-          {freeSlots.map((slot) => (
-            <option key={slot._id} value={JSON.stringify(slot)}>
-              {`${slot.date} ${slot.startTime}-${slot.endTime}`}
-            </option>
-          ))}
-        </select>
-      </div>
+      <label>Select a Free Slot:</label>
+      <select onChange={(e) => setSelectedSlot(JSON.parse(e.target.value))}>
+        <option value="">Select Free Slot</option>
+        {freeSlots.map((slot) => (
+          <option key={slot._id} value={JSON.stringify(slot)}>
+            {`${slot.date} ${slot.startTime}-${slot.endTime}`}
+          </option>
+        ))}
+      </select>
 
       <button onClick={handleReschedule}>Reschedule</button>
 
@@ -102,4 +95,4 @@ const DoctorReschedulePage = () => {
   );
 };
 
-export default DoctorReschedulePage;
+export default ReschedulePopup;

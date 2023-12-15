@@ -1,12 +1,36 @@
 import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { Link, useNavigate } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
-import { format } from "date-fns";
+import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
+import CardContent from "@mui/material/CardContent";
+import CardMedia from "@mui/material/CardMedia";
+import CssBaseline from "@mui/material/CssBaseline";
+import Grid from "@mui/material/Grid";
+import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from "@mui/material";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
-import DoctorReschedulePage from "./ReschedulePage";
+import { format } from "date-fns";
+import DoctorNavbar from "../components/DoctorNavbar";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import CancelIcon from "@mui/icons-material/Cancel";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+
+import ReschedulePopup from "../components/ReschedulePopup"; // Adjust the path based on your project structure
 
 const DoctorAppointments = () => {
   const navigate = useNavigate();
@@ -24,9 +48,13 @@ const DoctorAppointments = () => {
 
   const token = localStorage.getItem("token");
   const decodedtoken = jwt.decode(token);
-  console.log("decoded Token:", decodedtoken);
-  const doctorId = decodedtoken.id;
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
+  const [openRescheduleDialog, setOpenRescheduleDialog] = useState(false);
 
+  const handleRescheduleClick = (appointmentId) => {
+    setSelectedAppointmentId(appointmentId);
+    setOpenRescheduleDialog(true);
+  };
   // Fetch doctor's appointments based on doctorId
   useEffect(() => {
     const requestOptions = {
@@ -48,7 +76,7 @@ const DoctorAppointments = () => {
         setAppointments([]); // Set appointments as an empty array in case of an error
         setFilteredAppointments([]);
       });
-  }, [doctorId, token]);
+  }, [token]);
 
   const handleFilter = () => {
     if (filterBy === "date") {
@@ -101,7 +129,7 @@ const DoctorAppointments = () => {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        doctorId,
+        doctorId: decodedtoken.id,
         date: format(newSlot.date, "yyyy-MM-dd"),
         startTime: format(newSlot.startTime, "HH:mm:ss"),
         endTime: format(newSlot.endTime, "HH:mm:ss"),
@@ -156,105 +184,264 @@ const DoctorAppointments = () => {
     );
   }
 
+  const defaultTheme = createTheme();
+
   return (
-    <div>
-      <button onClick={() => navigate(-1)}>Go Back</button>
-
-      <h1>Doctor Appointments</h1>
-
-      <div>
-        <label>
-          Filter by:
-          <select onChange={(e) => setFilterBy(e.target.value)}>
-            <option value="date">Date</option>
-            <option value="status">Status</option>
-          </select>
-        </label>
-        {filterBy === "date" && (
-          <Datetime
-            value={dateFilter}
-            onChange={(date) => setDateFilter(date)}
-            dateFormat="YYYY-MM-DD"
-            timeFormat="HH:mm"
-            inputProps={{ placeholder: "Select Date and Time" }}
+    <div
+      style={{
+        marginLeft: "240px",
+        padding: "0px",
+        marginBottom: "20px",
+      }}
+    >
+      <DoctorNavbar />
+      <ThemeProvider theme={defaultTheme}>
+        <CssBaseline />
+        <Box
+          sx={{
+            backgroundImage: 'url("https://source.unsplash.com/random?doctor")',
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            bgcolor: "background.paper",
+            pt: 8,
+            pb: 6,
+          }}
+        >
+          <div
+            style={{
+              position: "relative",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center", // Center the content vertically
+              minHeight: "80%", // Ensure the content takes at least the full viewport height
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.8)", // Adjust the alpha value for transparency
+                padding: "20px", // Adjust as needed
+                maxWidth: "1000px", // Set the maximum width as needed
+                width: "100%",
+                borderRadius: "8px", // Optional: Add border-radius for rounded corners
+              }}
+            >
+              <Container maxWidth="sm">
+                <Typography
+                  component="h1"
+                  variant="h2"
+                  align="center"
+                  color="text.primary"
+                  gutterBottom
+                >
+                  <h1>Doctor Appointments</h1>
+                  <p style={{ fontSize: "0.4em", marginTop: "10px" }}>
+                    El7a2ni simplifies appointment tracking by offering
+                    easy-to-use filters for date and status, ensuring users can
+                    efficiently view and manage their healthcare appointments
+                    with convenience.
+                  </p>
+                </Typography>
+                <Stack
+                  sx={{ pt: 4 }}
+                  direction="column"
+                  spacing={2}
+                  justifyContent="center"
+                >
+                  <Stack direction="row" spacing={2} justifyContent="center">
+                    <label>
+                      <Select
+                        value={filterBy}
+                        onChange={(e) => setFilterBy(e.target.value)}
+                        displayEmpty
+                        variant="outlined"
+                        size="small"
+                      >
+                        <MenuItem value="date">Date</MenuItem>
+                        <MenuItem value="status">Status</MenuItem>
+                      </Select>
+                    </label>
+                    {filterBy === "date" && (
+                      <Datetime
+                        value={dateFilter}
+                        onChange={(date) => setDateFilter(date)}
+                        dateFormat="YYYY-MM-DD"
+                        timeFormat="HH:mm"
+                        inputProps={{ placeholder: "Select Date and Time" }}
+                      />
+                    )}
+                    {filterBy === "status" && (
+                      <Select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        displayEmpty
+                        variant="outlined"
+                        size="small"
+                      >
+                        <MenuItem value="">Select Status</MenuItem>
+                        <MenuItem value="UpComing">UpComing</MenuItem>
+                        <MenuItem value="Done">Done</MenuItem>
+                      </Select>
+                    )}
+                    <button
+                      className="filter-button"
+                      style={{ marginLeft: "10px" }}
+                      onClick={handleFilter}
+                    >
+                      Filter
+                    </button>
+                  </Stack>
+                </Stack>
+              </Container>
+            </div>
+          </div>
+        </Box>
+        <div
+          style={{
+            position: "relative",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center", // Center the content vertically
+            minHeight: "80%", // Ensure the content takes at least the full viewport height
+          }}
+        >
+          <h2>Add Time Slot</h2>
+        </div>
+        <div
+          style={{
+            position: "relative",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center", // Center the content vertically
+            minHeight: "80%", // Ensure the content takes at least the full viewport height
+          }}
+        >
+          <DatePicker
+            selected={newSlot.date}
+            onChange={(date) => setNewSlot({ ...newSlot, date })}
           />
-        )}
-        {filterBy === "status" && (
-          <select onChange={(e) => setStatusFilter(e.target.value)}>
-            <option value="">Select Status</option>
-            <option value="UpComing">UpComing</option>
-            <option value="Done">Done</option>
-          </select>
-        )}
-        <button onClick={handleFilter}>Filter</button>
-      </div>
+          <DatePicker
+            selected={newSlot.startTime}
+            onChange={(time) => setNewSlot({ ...newSlot, startTime: time })}
+            showTimeSelect
+            showTimeSelectOnly
+            timeIntervals={15}
+            timeCaption="Time"
+            dateFormat="h:mm aa"
+            timeFormat="HH:mm"
+          />
+          <DatePicker
+            selected={newSlot.endTime}
+            onChange={(time) => setNewSlot({ ...newSlot, endTime: time })}
+            showTimeSelect
+            showTimeSelectOnly
+            timeIntervals={15}
+            timeCaption="Time"
+            dateFormat="h:mm aa"
+            timeFormat="HH:mm"
+          />
+          <button
+            className="filter-button"
+            style={{ marginLeft: "10px" }}
+            onClick={handleAddTimeSlot}
+          >
+            Add Time Slot
+          </button>
+        </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Patient</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredAppointments &&
-            filteredAppointments.map((appointment) => (
-              <tr key={appointment.id}>
-                <td>{appointment.patient ? appointment.patient.name : "N/A"}</td>
-                <td>{appointment.date}</td>
-                <td>{appointment.status}</td>
-                <td>
-                  {(appointment.status === "UpComing" ||
-                    appointment.status === "Rescheduled") && (
-                    <div>
-                      <button
-                        onClick={() => navigate(`/doctor/reschedule/${appointment._id}`)}
+        <Container sx={{ py: 8 }}>
+          <Grid container spacing={4}>
+            {filteredAppointments.map((appointment) => (
+              <Grid item key={appointment.id} xs={12} sm={6} md={4}>
+                <Card
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  <CardMedia
+                    component="div"
+                    sx={{
+                      pt: "56.25%",
+                    }}
+                    image="https://source.unsplash.com/random?appointments"
+                  />
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Typography gutterBottom variant="h5" component="h2">
+                      {appointment.patient ? appointment.patient.name : "N/A"}
+                    </Typography>
+                    <Typography>Date: {appointment.date}</Typography>
+                    <Typography>Status: {appointment.status}</Typography>
+                  </CardContent>
+                  <CardActions sx={{ justifyContent: "center", width: "100%" }}>
+                    {(appointment.status === "UpComing" ||
+                      appointment.status === "Rescheduled") && (
+                      <div
+                        style={{
+                          padding: "10px",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "10px",
+                          width: "100%",
+                        }}
                       >
-                        Reschedule
-                      </button>
-                      <button
-                        onClick={() => handleCancelAppointment(appointment._id)}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  )}
-                </td>
-              </tr>
+                        <Button
+                          variant="contained"
+                          style={{
+                            backgroundColor: "#001F3F", // Dark Navy Blue
+                            color: "white",
+                            fontWeight: "bold",
+                            padding: "8px 16px", // Add padding here
+                            width: "100%",
+                          }}
+                          onClick={() => handleRescheduleClick(appointment._id)}
+                          startIcon={<LibraryBooksIcon />}
+                        >
+                          Reschedule
+                        </Button>
+                        <Button
+                          variant="contained"
+                          style={{
+                            backgroundColor: "#851414", // red
+                            color: "white",
+                            fontWeight: "bold",
+                            padding: "8px 16px", // Add padding here
+                            width: "100%",
+                          }}
+                          onClick={() =>
+                            handleCancelAppointment(appointment._id)
+                          }
+                          startIcon={<CancelIcon />}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    )}
+                  </CardActions>
+                </Card>
+              </Grid>
             ))}
-        </tbody>
-      </table>
-
-      <div>
-        <h2>Add Time Slot</h2>
-        <DatePicker
-          selected={newSlot.date}
-          onChange={(date) => setNewSlot({ ...newSlot, date })}
-        />
-        <DatePicker
-          selected={newSlot.startTime}
-          onChange={(time) => setNewSlot({ ...newSlot, startTime: time })}
-          showTimeSelect
-          showTimeSelectOnly
-          timeIntervals={15}
-          timeCaption="Time"
-          dateFormat="h:mm aa"
-          timeFormat="HH:mm"
-        />
-        <DatePicker
-          selected={newSlot.endTime}
-          onChange={(time) => setNewSlot({ ...newSlot, endTime: time })}
-          showTimeSelect
-          showTimeSelectOnly
-          timeIntervals={15}
-          timeCaption="Time"
-          dateFormat="h:mm aa"
-          timeFormat="HH:mm"
-        />
-        <button onClick={handleAddTimeSlot}>Add Time Slot</button>
-      </div>
+          </Grid>
+        </Container>
+        <Dialog
+          open={openRescheduleDialog}
+          onClose={() => setOpenRescheduleDialog(false)}
+        >
+          <DialogTitle>Reschedule Appointment</DialogTitle>
+          <DialogContent>
+            <ReschedulePopup
+              appointmentId={selectedAppointmentId}
+              handleClose={() => setOpenRescheduleDialog(false)}
+            />
+          </DialogContent>
+          <DialogActions>
+            {/* Add any actions or buttons you need */}
+            <Button onClick={() => setOpenRescheduleDialog(false)}>
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </ThemeProvider>
     </div>
   );
 };
