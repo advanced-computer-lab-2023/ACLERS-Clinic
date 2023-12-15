@@ -136,83 +136,120 @@ const DoctorPatients = () => {
           <CssBaseline />
           <Box
             sx={{
+              backgroundImage:
+                'url("https://source.unsplash.com/random?doctor")',
+              backgroundSize: "cover", // Adjust as needed
+              backgroundPosition: "center", // Adjust as needed
               bgcolor: "background.paper",
+
               pt: 8,
               pb: 6,
             }}
           >
-            <Container maxWidth="sm">
-              <Typography
-                component="h1"
-                variant="h2"
-                align="center"
-                color="text.primary"
-                gutterBottom
+            <div
+              style={{
+                position: "relative",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center", // Center the content vertically
+                minHeight: "80%", // Ensure the content takes at least the full viewport height
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: "rgba(255, 255, 255, 0.8)", // Adjust the alpha value for transparency
+                  padding: "20px", // Adjust as needed
+                  maxWidth: "1000px", // Set the maximum width as needed
+                  width: "100%",
+                  borderRadius: "8px", // Optional: Add border-radius for rounded corners
+                }}
               >
-                Patients
-              </Typography>
-              <Stack
-                sx={{ pt: 4 }}
-                direction="column"
-                spacing={2}
-                justifyContent="center"
-              >
-                {/* First set of elements */}
-                <Stack direction="row" spacing={2}>
-                  <div style={{ marginRight: "10px" }}>
-                    <label>
-                      Filter by Appointment Status:
-                      <Select
-                        value={appointmentStatus}
-                        onChange={(e) => setAppointmentStatus(e.target.value)}
-                        displayEmpty
-                        variant="outlined"
-                        size="small"
-                      >
-                        <MenuItem value="">All</MenuItem>
-                        <MenuItem value="UpComing">UpComing</MenuItem>
-                        <MenuItem value="Done">Done</MenuItem>
-                      </Select>
-                    </label>
-                  </div>
-                  <div>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={handleFilter}
-                    >
-                      Filter
-                    </Button>
-                  </div>
-                </Stack>
-                <Divider sx={{ mt: 12, mb: 12 }} />
-                {/* Second set of elements */}
-                <Stack direction="row" spacing={2}>
-                  <div style={{ marginRight: "10px" }}>
-                    <TextField
-                      id="searchName"
-                      label="Search by Name"
-                      variant="outlined"
-                      size="small"
-                      value={searchName}
-                      onChange={(e) => setSearchName(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <button
-                      className="filter-button"
-                      style={{ marginLeft: "10px" }}
-                      onClick={handleSearch}
-                    >
-                      search
-                    </button>
-                  </div>
-                </Stack>
-              </Stack>
-            </Container>
+                <Container maxWidth="sm">
+                  <Typography
+                    component="h1"
+                    variant="h2"
+                    align="center"
+                    color="text.primary"
+                    gutterBottom
+                  >
+                    Patients
+                  </Typography>
+                  <Typography
+                    variant="h5"
+                    align="center"
+                    color="text.secondary"
+                    paragraph
+                  >
+                    El7a2ni streamlines patient oversight, providing doctors
+                    with a user-friendly platform to view and manage patient
+                    details, facilitating quick searches and efficient filtering
+                    based on appointment status.
+                  </Typography>
+                  <Stack
+                    sx={{ pt: 4 }}
+                    direction="column"
+                    spacing={2}
+                    justifyContent="center"
+                  >
+                    {/* First set of elements */}
+                    <Stack direction="row" spacing={2} justifyContent="center">
+                      <div style={{ marginRight: "10px" }}>
+                        <TextField
+                          id="searchName"
+                          label="Search by Name"
+                          variant="outlined"
+                          size="small"
+                          value={searchName}
+                          onChange={(e) => setSearchName(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <button
+                          className="filter-button"
+                          style={{ marginLeft: "10px" }}
+                          onClick={handleSearch}
+                        >
+                          Search
+                        </button>
+                      </div>
+                    </Stack>
+                    <Divider sx={{ mt: 12, mb: 12 }} />
+                    {/* Second set of elements */}
+                    <Stack direction="row" spacing={2} justifyContent="center">
+                      <div style={{ marginRight: "10px" }}>
+                        <label>
+                          <Select
+                            value={appointmentStatus}
+                            onChange={(e) =>
+                              setAppointmentStatus(e.target.value)
+                            }
+                            displayEmpty
+                            variant="outlined"
+                            size="small"
+                          >
+                            <MenuItem value="">Select Status</MenuItem>
+                            <MenuItem value="UpComing">UpComing</MenuItem>
+                            <MenuItem value="Done">Done</MenuItem>
+                          </Select>
+                        </label>
+                      </div>
+                      <div>
+                        <button
+                          className="filter-button"
+                          style={{ marginLeft: "10px" }}
+                          onClick={handleFilter}
+                        >
+                          Filter
+                        </button>
+                      </div>
+                    </Stack>
+                  </Stack>
+                </Container>
+              </div>
+            </div>
           </Box>
 
-          <Container sx={{ py: 8 }} maxWidth="md">
+          <Container sx={{ py: 8 }}>
             {/* End hero unit */}
             <Grid container spacing={4}>
               {filteredPatients.map((item) => {

@@ -239,7 +239,7 @@ function PrescriptionDataText() {
       {/* Prescription Cards */}
       <Grid container spacing={2}>
         {prescriptions.map((prescription) => (
-          <Grid item xs={2.98} key={prescription._id}>
+          <Grid item xs={5.98} key={prescription._id}>
             <Card
               style={{
                 width: "100%",
