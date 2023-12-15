@@ -30,7 +30,7 @@ price:{
     status:{
         type:String,
         
-enum:['UpComing','Done','Rescheduled','Cancelled']
+enum:['UpComing','Done','Rescheduled','Cancelled','Requested']
     }
  })
  module.exports = mongoose.model('Appointment',appointmentSchema)
