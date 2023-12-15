@@ -1543,7 +1543,8 @@ const fillPrescription = asyncHandler(async (req, res) => {
   }
 });
 const getNotifications = asyncHandler(async (req,res)=>{
-  const notifications = notificationService.getNotifications(req.user.id);
+  const notifications = await notificationService.getNotifications(req.user.id);
+  console.log(notifications)
   res.send(notifications);
 })
 module.exports = {

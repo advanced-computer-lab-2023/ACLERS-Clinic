@@ -21,6 +21,7 @@ async function sendNotification(userId, message) {
 async function getNotifications(userId) {
   try {
     const notification = await Notification.findOne({ userId });
+    console.log(notification)
     return notification ? notification.messages : [];
   } catch (error) {
     console.error(`Error getting notifications: ${error.message}`);
