@@ -31,11 +31,12 @@ import ForgotPassword from "./login/forgotpassword";
 import PatientBalance from "./patient/patientWallet";
 import DoctorBalance from "./doctor/doctorWallet";
 import PasswordChangeForm from "./patient/changePassword";
+import DoctorPasswordChangeForm from "./doctor/changePassword";
 import ContractDetails from "./applicant/contract";
 import PatientSelectedDoctor from "./patient/viewselecteddoctor";
 import PatientPaymentSuccess from "./patient/PaymentSuccess";
 import ViewHealthPackages from "./patient/viewHealthPackage";
-import FollowUp from "./doctor/FollowUp"
+import FollowUp from "./doctor/FollowUp";
 import PatientComponent from "./patient/videocall";
 const App = () => {
   return (
@@ -66,24 +67,21 @@ const App = () => {
         />
         <Route path="/admin/Dashboard" element={<AdminDashboard />} />
         <Route path="/doctor/Dashboard" element={<DoctorDashboard />} />
-        <Route path="/doctor/view-my-info" element={<DoctorInfo />} />
-        <Route
-          path="/doctor/view-my-appointments"
-          element={<DoctorAppointments />}
-        />
+        <Route path="/doctor/profile" element={<DoctorInfo />} />
+        <Route path="/doctor/appointments" element={<DoctorAppointments />} />
         <Route
           path="/patient/changepassword/"
           element={<PasswordChangeForm />}
         />
         <Route
-          path="/doctor/change-password/"
-          element={<PasswordChangeForm />}
+          path="/doctor/changepassword/"
+          element={<DoctorPasswordChangeForm />}
         />
         <Route
           path="/admin/change-password/"
           element={<PasswordChangeForm />}
         />
-        <Route path="/doctor/view-my-patients" element={<DoctorPatients />} />
+        <Route path="/doctor/patients" element={<DoctorPatients />} />
 
         <Route path="/patient/dashboard" element={<PatientDashBoard />} />
         <Route
@@ -104,12 +102,9 @@ const App = () => {
           path="/patient/medicalhistory/"
           element={<PatientMedicalHistory />}
         />
+        <Route path="/doctor/patients/:patientId" element={<PatientInfo />} />
         <Route
-          path="/doctor/view-patient/:patientId"
-          element={<PatientInfo />}
-        />
-        <Route
-          path="/doctor/view-patient/:patientId/view-freeSlots/:patientId"
+          path="/doctor/patients/:patientId/view-freeSlots/:patientId"
           element={<FollowUp />}
         />
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
@@ -133,7 +128,7 @@ const App = () => {
           element={<ViewHealthPackages />}
         />
         <Route path="/payment-success" element={<PatientPaymentSuccess />} />
-        <Route path ="/patient/video-call" element={<PatientComponent/>}/>
+        <Route path="/patient/video-call" element={<PatientComponent />} />
       </Routes>
     </>
   );

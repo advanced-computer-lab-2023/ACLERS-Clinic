@@ -164,14 +164,31 @@ function AddFamilyMember() {
   }
 
   return (
-    <div style={{ marginLeft: "240px", padding: "20px" }}>
-      <Container>
-        <PatientNavbar />
-        <Container
-          disableGutters
-          maxWidth="sm"
-          component="main"
-          sx={{ pt: 0, pb: 6 }}
+    <div style={{ marginLeft: "240px" }}>
+      <PatientNavbar />
+      <div
+        style={{
+          position: "relative",
+          marginBottom: "10px",
+        }}
+      >
+        <img
+          src="https://as2.ftcdn.net/v2/jpg/04/18/64/49/1000_F_418644919_UrFFQt49zHPWlph9FkejArj3NjiGygXI.jpg"
+          alt="Background"
+          style={{ width: "100%", height: "auto", display: "block" }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            textAlign: "center",
+            color: "black",
+            padding: "20px",
+            background: "rgba(255, 255, 255, 0.8)",
+            borderRadius: "10px",
+          }}
         >
           <Typography
             component="h1"
@@ -194,7 +211,17 @@ function AddFamilyMember() {
             list of your connected family members. Experience personalized and
             comprehensive healthcare coordination at your fingertips.
           </Typography>
-        </Container>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              marginTop: "20px",
+            }}
+          ></div>
+        </div>
+      </div>
+      <div style={{ marginLeft: "48px" }}>
         <Grid container spacing={3} justifyContent="center">
           <Grid item xs={12} md={6}>
             <Paper elevation={3} style={{ padding: "20px" }}>
@@ -367,7 +394,7 @@ function AddFamilyMember() {
             ))}
           </Grid>
         )}
-      </Container>
+      </div>
     </div>
   );
 }
