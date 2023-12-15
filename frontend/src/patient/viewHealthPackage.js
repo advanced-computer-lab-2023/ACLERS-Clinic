@@ -195,7 +195,7 @@ const SubscribedHealthPackages = () => {
                     {healthPackage.status !== "cancelled" && (
                       <Button
                         variant="contained"
-                        color="secondary"
+                        color="error"
                         onClick={() =>
                           handleCancelSubscription(healthPackage._id)
                         }
@@ -248,7 +248,7 @@ const SubscribedHealthPackages = () => {
                           {healthPackage.status === "subscribed" && (
                             <Button
                               variant="contained"
-                              color="secondary"
+                              color="error"
                               onClick={() =>
                                 handleCancelSubscriptionFamilyMember(
                                   familyMember._id,

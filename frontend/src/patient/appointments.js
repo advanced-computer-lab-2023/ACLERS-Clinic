@@ -12,7 +12,8 @@ import { format } from "date-fns";
 import PatientNavbar from "../components/PatientNavbar";
 import { Button, Paper ,Popover, Typography} from "@mui/material";
 import { Cancel as CancelIcon, Event as EventIcon } from "@mui/icons-material";
-import ReplayIcon from '@mui/icons-material/Replay'; // Import Material-UI icons
+import ReplayIcon from '@mui/icons-material/Replay';
+import VideoCallIcon from '@mui/icons-material/VideoCall'; // Import Material-UI icons
 
 import {
   Table,
@@ -431,7 +432,11 @@ if(selectedFamilyMember){
         console.error("Error making payment:", error);
       });
   };
-
+  const handleVideoCall = (appointment) => {
+    // Add logic to redirect to the Google Meet link
+    const googleMeetLink = "https://meet.google.com/"; // Replace with your actual Google Meet link
+    window.location.href = googleMeetLink;
+  };
   if (!token) {
     return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
   }
@@ -633,8 +638,14 @@ if(selectedFamilyMember){
             ) :( filteredAppointments.map((appointment) => (
                 <TableRow key={appointment._id}>
                   <TableCell style={{ textAlign: "center", fontSize: "1.0em" }}>
-                    {appointment.doctor.name}
-                  </TableCell>
+  {appointment.status === "UpComing" || appointment.status === "Rescheduled" ? (
+    <VideoCallIcon
+      style={{ cursor: "pointer", marginRight: "5px" }}
+      onClick={() => handleVideoCall(appointment)}
+    />
+  ) : null}
+  {appointment.doctor.name}
+</TableCell>
                   <TableCell style={{ textAlign: "center", fontSize: "1.0em" }}>
                     {appointment.date}
                   </TableCell>
