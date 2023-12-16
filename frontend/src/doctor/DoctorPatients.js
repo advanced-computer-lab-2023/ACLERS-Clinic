@@ -18,7 +18,7 @@ import Button from "@mui/material/Button";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import DoctorNavbar from "../components/DoctorNavbar";
-
+import VideoCallIcon from '@mui/icons-material/VideoCall';
 const DoctorPatients = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -111,6 +111,11 @@ const DoctorPatients = () => {
 
     // Update the state with the filtered results
     setFilteredPatients(filteredPatientsByName);
+  };
+  const handleVideoCall = (mobileNumber) => {
+    // Assuming the Google Meet URL is a constant, you can replace it with the actual URL
+    const googleMeetURL = 'https://meet.google.com';
+    window.location.href = `${googleMeetURL}/`;
   };
 
   if (decodedtoken.role !== "doctor") {
@@ -279,6 +284,10 @@ const DoctorPatients = () => {
                           <Typography>
                             Mobile Number: {item.patient.mobileNumber}
                           </Typography>
+                          <VideoCallIcon
+    style={{ cursor: 'pointer', color: 'blue', marginTop: '8px' }}
+    onClick={() => handleVideoCall(item.patient.mobileNumber)}
+  />
                         </CardContent>
                         <CardActions>
                           <Button

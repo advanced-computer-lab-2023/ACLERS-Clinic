@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const {getNotifications,getMedicines,viewMyInfo,searchForPatient,viewPatient,viewPatients,filterAppointments,addFreeSlot,addHealthRecord,editEmail, writePerscription, viewPatientHealthRecords, getDoctorBalance, ViewMyContract, acceptContract, denyContract, setAppointmentORFollowup, viewDoctorFreeSlots, viewPerscriptions, rescheduleAppointment,cancelAppointment, acceptFollowUp, rejectFollowUp}= require('../controllers/doctorController')
+const {viewFollowUps,getNotifications,getMedicines,viewMyInfo,searchForPatient,viewPatient,viewPatients,filterAppointments,addFreeSlot,addHealthRecord,editEmail, writePerscription, viewPatientHealthRecords, getDoctorBalance, ViewMyContract, acceptContract, denyContract, setAppointmentORFollowup, viewDoctorFreeSlots, viewPerscriptions, rescheduleAppointment,cancelAppointment, acceptFollowUp, rejectFollowUp}= require('../controllers/doctorController')
 const {protect,checkRole} = require('../middleware/authMiddleware')
 router.put('/editDocEmail',protect,checkRole('doctor'),editEmail)
 router.get('/view-appointments',protect,checkRole('doctor'),filterAppointments)
@@ -25,6 +25,7 @@ router.post('/acceptFollowup',protect,checkRole('doctor'),acceptFollowUp)
 router.post('/rejectFollowUp',protect,checkRole('doctor'),rejectFollowUp)
 router.get('/get-Medicines',protect,checkRole('doctor'),getMedicines)
 router.get('/get-notifications',protect,checkRole('doctor'),getNotifications)
+router.get('/view-followUps',protect,checkRole('doctor'),viewFollowUps)
 
 
 

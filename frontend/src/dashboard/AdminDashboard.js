@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
-
+import AdminNavBar from "../components/AdminNavBar";
 function AdminDashboard() {
   const token = localStorage.getItem("token");
   const decodedtoken = jwt.decode(token);
@@ -41,6 +41,7 @@ function AdminDashboard() {
   };
   return (
     <div>
+      <AdminNavBar/>
       <nav>
         <ul>
           <li>

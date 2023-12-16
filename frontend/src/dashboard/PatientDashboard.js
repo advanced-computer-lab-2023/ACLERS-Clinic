@@ -143,7 +143,10 @@ export default function Dashboard() {
   if (!token) {
     // Handle the case where id is not available
     return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
+  }if (decodedToken.role !== "patient") {
+    return <div>ACCESS DENIED, You are not an patient</div>;
   }
+
   const handleLogout = async () => {
     try {
       const response = await fetch("http://localhost:8000/auth/logout", {

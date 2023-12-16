@@ -14,6 +14,8 @@ const FreeSlots = require("../models/FreeSlots");
 const FollowUps = require("../models/FollowUps");
 const axios = require("axios");
 const FreeSlot = require("../models/FreeSlots");
+const notificationService = require('../services/notificationService');
+const mailService = require('../services/mailService')
 
 const editEmail = asyncHandler(async (req, res) => {
   const doctorID = req.user.id;
@@ -216,7 +218,7 @@ const viewMyInfo = asyncHandler(async (req, res) => {
   }
 });
 const getNotifications = asyncHandler(async (req,res)=>{
-  const notifications = notificationService.getNotifications(req.user.id);
+  const notifications = await notificationService.getNotifications(req.user.id);
   res.send(notifications);
 })
 const writePerscription = asyncHandler(async (req, res) => {
@@ -544,7 +546,7 @@ const acceptFollowUp =asyncHandler(async(req,res)=>{
  followUp.status='Accepted'
  followUp.save();
 
- const newAppointment = new Appointment({
+ const newAppointment = await Appointment.create({
   doctor: followUp.doctor,
   patient:followUp.patient,
   date: followUp.date,
@@ -592,7 +594,20 @@ const getMedicines = asyncHandler(async (req,res)=>{
     res.status(500).json({ error: 'Internal Server Error' });
   }
 })
+const viewFollowUps = asyncHandler(async (req,res)=>{
+  try{
+    const followUps = await FollowUps.find({doctor:req.user.id}).populate('patient')
+    if(!followUps){
+      res.send("no follow ups were found")
+    }else{
+      res.send(followUps);
+    }
+  }catch(error){
+    res.send(error);
+  }
+})
 module.exports = {
+  viewFollowUps,
   getNotifications,
   getMedicines,
   writePerscription,

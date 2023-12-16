@@ -39,6 +39,7 @@ import ViewHealthPackages from "./patient/viewHealthPackage";
 import FollowUp from "./doctor/FollowUp";
 import DoctorReschedulePage from "./doctor/ReschedulePage";
 import AddPrescription from "./doctor/AddPrescription";
+import PasswordChangeForm1 from "./admin/changePassword";
 
 // import PatientComponent from "./patient/videocall";
 const App = () => {
@@ -51,17 +52,17 @@ const App = () => {
         <Route path="/signuppage/patient" element={<PatinetSignUpPage />} />
         <Route path="/signuppage/doctor" element={<DoctorSignUpPage />} />
         <Route path="/admin" element={<AdminHome />} />
-        <Route path="/admin/adminadd" element={<AdminAdd />} />
+        <Route path="/admin/admin" element={<AdminAdd />} />
         <Route path="/admin/adminremove" element={<AdminRemove />} />
         <Route path="/admin/viewadmins" element={<ViewAdmins />} />
-        <Route path="/admin/viewdoctors" element={<ViewDoctors />} />
-        <Route path="/admin/viewpatients" element={<ViewPatients />} />
+        <Route path="/admin/doctors" element={<ViewDoctors />} />
+        <Route path="/admin/patients" element={<ViewPatients />} />
         <Route
-          path="/admin/add-health-package"
+          path="/admin/addhealthpackage"
           element={<AddHealthPackage />}
         />
         <Route
-          path="/admin/view-HealthPackages"
+          path="/admin/viewhealthpackages"
           element={<HealthPackageList />}
         />
         <Route
@@ -85,8 +86,8 @@ const App = () => {
           element={<DoctorReschedulePage />}
         />
         <Route
-          path="/admin/change-password/"
-          element={<PasswordChangeForm />}
+          path="/admin/changepassword/"
+          element={<PasswordChangeForm1 />}
         />
         <Route path="/doctor/patients" element={<DoctorPatients />} />
         <Route path="/patient/dashboard" element={<PatientDashBoard />} />
@@ -98,7 +99,7 @@ const App = () => {
           path="/patient/familymembers"
           element={<PatientFamilyMembers />}
         />
-        <Route path="/admin/view-applicants" element={<ViewApplicants />} />
+        <Route path="/admin/applicants" element={<ViewApplicants />} />
         <Route path="/patient/doctors/" element={<PatientDoctors />} />
         <Route
           path="/patient/appointments/"

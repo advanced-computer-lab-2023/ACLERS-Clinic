@@ -45,7 +45,8 @@ const DoctorAppointments = () => {
     startTime: new Date(),
     endTime: new Date(),
   });
-
+  const [followUps, setFollowUps] = useState([]);
+  const [filteredFollowUps, setFilteredFollowUps] = useState([]);
   const token = localStorage.getItem("token");
   const decodedtoken = jwt.decode(token);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
@@ -77,7 +78,84 @@ const DoctorAppointments = () => {
         setFilteredAppointments([]);
       });
   }, [token]);
+  useEffect(() => {
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
 
+    fetch(`http://localhost:8000/Doctor-Home/view-followUps`, requestOptions)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        setFollowUps(data);
+        setFilteredFollowUps(data); // Initialize filteredFollowUps with all follow-ups
+      })
+      .catch((error) => {
+        console.error("Error fetching follow-up requests:", error);
+        setFollowUps([]); // Set follow-ups as an empty array in case of an error
+        setFilteredFollowUps([]);
+      });
+  }, [token]);
+
+  const handleAcceptFollowUp = (followUpId) => {
+    // Make a request to accept the follow-up on the backend
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    fetch(
+      `http://localhost:8000/Doctor-Home/acceptFollowup?followUpId=${followUpId}`,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Follow-up request accepted:", data);
+        // Optionally, you can refresh the follow-ups after accepting
+        // (Fetch the updated follow-ups from the server)
+        setFilteredFollowUps((prevFollowUps) =>
+        prevFollowUps.filter((followUp) => followUp._id !== followUpId)
+      );
+      })
+      .catch((error) => {
+        console.error("Error accepting follow-up request:", error);
+      });
+  };
+
+  const handleDenyFollowUp = (followUpId) => {
+    // Make a request to deny the follow-up on the backend
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    fetch(
+      `http://localhost:8000/Doctor-Home/rejectFollowup?followUpId=${followUpId}`,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Follow-up request denied:", data);
+        // Optionally, you can refresh the follow-ups after denying
+        // (Fetch the updated follow-ups from the server)
+        setFilteredFollowUps((prevFollowUps) =>
+        prevFollowUps.filter((followUp) => followUp._id !== followUpId)
+      );
+      })
+      .catch((error) => {
+        console.error("Error denying follow-up request:", error);
+      });
+  };
   const handleFilter = () => {
     if (filterBy === "date") {
       // Convert the date to string and set minutes and seconds to 0
@@ -347,8 +425,99 @@ const DoctorAppointments = () => {
             Add Time Slot
           </button>
         </div>
-
         <Container sx={{ py: 8 }}>
+          <Typography
+            component="h1"
+            variant="h4"
+            align="center"
+            color="text.primary"
+            gutterBottom
+          >
+            Follow-up Requests
+          </Typography>
+          <Grid container spacing={4}>
+            {filteredFollowUps .filter((followUp) => followUp.status === 'Pending').map((followUp) => (
+              <Grid item key={followUp.id} xs={12} sm={6} md={4}>
+                <Card
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  <CardMedia
+                    component="div"
+                    sx={{
+                      pt: "56.25%",
+                    }}
+                    image="https://source.unsplash.com/random?appointments"
+                  />
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Typography gutterBottom variant="h5" component="h2">
+                      {followUp.patient ? followUp.patient.name : "N/A"}
+                    </Typography>
+                    <Typography>Date: {followUp.date}</Typography>
+                    <Typography>Start time: {followUp.startTime}</Typography>
+                    <Typography>End time: {followUp.endTime}</Typography>
+                    <Typography>Status: {followUp.status}</Typography>
+                  </CardContent>
+                  <CardActions
+                    sx={{ justifyContent: "center", width: "100%" }}
+                  >
+                    <div
+                      style={{
+                        padding: "10px",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "10px",
+                        width: "100%",
+                      }}
+                    >
+                      <Button
+                        variant="contained"
+                        style={{
+                          backgroundColor: "#4CAF50", // Green
+                          color: "white",
+                          fontWeight: "bold",
+                          padding: "8px 16px", // Add padding here
+                          width: "100%",
+                        }}
+                        onClick={() =>
+                          handleAcceptFollowUp(followUp._id)
+                        }
+                      >
+                        Accept
+                      </Button>
+                      <Button
+                        variant="contained"
+                        style={{
+                          backgroundColor: "#D32F2F", // Red
+                          color: "white",
+                          fontWeight: "bold",
+                          padding: "8px 16px", // Add padding here
+                          width: "100%",
+                        }}
+                        onClick={() => handleDenyFollowUp(followUp._id)}
+                      >
+                        Deny
+                      </Button>
+                    </div>
+                  </CardActions>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+        <Container sx={{ py: 8 }}>
+           <Typography
+            component="h1"
+            variant="h4"
+            align="center"
+            color="text.primary"
+            gutterBottom
+          >
+            Appointments
+          </Typography>
           <Grid container spacing={4}>
             {filteredAppointments.map((appointment) => (
               <Grid item key={appointment.id} xs={12} sm={6} md={4}>
