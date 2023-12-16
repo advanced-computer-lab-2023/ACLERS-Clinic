@@ -1,18 +1,22 @@
-// PatientInfo.js
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
+import DoctorNavbar from "../components/DoctorNavbar";
+import Grid from "@mui/material/Grid";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import Avatar from "@mui/material/Avatar";
+import { Person, Event, Email, Phone, Description } from "@mui/icons-material"; // Import icons
 
 const PatientInfo = () => {
   const token = localStorage.getItem("token");
   const decodedToken = jwt.decode(token);
-  console.log("Decoded Token:", decodedToken);
   const doctorId = decodedToken.id;
-  const [isEditing, setIsEditing] = useState(false);
-  const [newHealthRecord, setNewHealthRecord] = useState("");
   const { patientId } = useParams();
   const [patient, setPatient] = useState(null);
   const navigate = useNavigate();
+  const [isEditing, setIsEditing] = useState(false);
+  const [newHealthRecord, setNewHealthRecord] = useState("");
 
   const handleSaveHealthRecord = () => {
     // Call the API to update the health record
@@ -27,7 +31,10 @@ const PatientInfo = () => {
       }),
     };
 
-    fetch(`http://localhost:8000/Doctor-home/addHealthRecord?patientId=${patientId}`, requestOptions)
+    fetch(
+      `http://localhost:8000/Doctor-home/addHealthRecord?patientId=${patientId}`,
+      requestOptions
+    )
       .then((response) => response.json())
       .then((data) => {
         // Handle success, maybe update the UI or show a notification
@@ -48,7 +55,6 @@ const PatientInfo = () => {
     // Navigate to the page for adding prescriptions
     navigate(`/doctor/add-prescription/${patientId}`);
   };
-
   useEffect(() => {
     const requestOptions = {
       method: "GET",
@@ -58,15 +64,16 @@ const PatientInfo = () => {
       },
     };
 
-    // Replace with your API call to fetch patient information by patientId
-    fetch(`http://localhost:8000/Doctor-Home/view-patient?patientId=${patientId}&doctorId=${doctorId}`, requestOptions)
+    fetch(
+      `http://localhost:8000/Doctor-Home/view-patient?patientId=${patientId}&doctorId=${doctorId}`,
+      requestOptions
+    )
       .then((response) => response.json())
       .then((data) => {
         setPatient(data);
-        console.log(data);
       })
       .catch((error) => {
-        console.error('Error fetching patient information:', error);
+        console.error("Error fetching patient information:", error);
       });
   }, [patientId, doctorId, token]);
 
@@ -75,46 +82,162 @@ const PatientInfo = () => {
   }
 
   return (
-    <div>
-      <button onClick={() => navigate(-1)}>Go Back</button>
+    <div
+      style={{ marginLeft: "270px", marginTop: "10px", marginBottom: "20px" }}
+    >
+      <DoctorNavbar />
 
-      <h1>Patient Information</h1>
-      <p>Name: {patient.patient.name}</p>
-      <p>Date of Birth: {patient.patient.dateOfBirth}</p>
-      <p>Email: {patient.patient.email}</p>
-      <p>Gender: {patient.patient.gender}</p>
-      <p>Mobile Number: {patient.patient.mobileNumber}</p>
-      <p>Username: {patient.patient.username}</p>
-      <h3>Emergency Contact</h3>
-      <p>Full Name: {patient.patient.emergencyContact.fullName}</p>
-      <p>Mobile Number: {patient.patient.emergencyContact.mobileNumber}</p>
-      <h3>Health Record</h3>
-      <p>{patient.healthRecord}</p>
-      {isEditing ? (
-        <>
-          <textarea
-            value={newHealthRecord}
-            onChange={(e) => setNewHealthRecord(e.target.value)}
-          />
-          <button onClick={handleSaveHealthRecord}>Save</button>
-        </>
-      ) : (
-        <>
-          <p>Description: {patient.healthRecord}</p>
-          <button onClick={handleEditHealthRecord}>Edit</button>
-        </>
-      )}
-      <div>
-        Attachments:
-        <ul>
-          {patient.attachments.map((attachment, attachmentIndex) => (
-            <li key={attachmentIndex}>
-              <img src={`http://localhost:8000/uploads/${attachment.path.substring(8)}`} style={{ maxWidth: "50%", maxHeight: "50%", objectFit: "contain" }} alt={attachment.filename} />
-            </li>
-          ))}
-        </ul>
-      </div>
-      <button onClick={handleNavigateToAddPrescription}>Add Prescription</button>
+      <Grid container spacing={3}>
+        {/* Left Half: Patient Information and Emergency Contact Information */}
+        <Grid item xs={12} md={6}>
+          {/* Patient Information Card */}
+          <Paper elevation={3} style={{ padding: "20px", minHeight: "250px" }}>
+            <Typography
+              variant="h5"
+              gutterBottom
+              sx={{
+                textAlign: "center",
+              }}
+            >
+              Patient Information
+            </Typography>
+            <Avatar
+              alt={patient.patient.name}
+              src="https://i.ibb.co/HXyFJZM/avatar.jpg"
+              sx={{
+                width: 250,
+                height: 250,
+                margin: "auto",
+                borderRadius: 0,
+                textAlign: "left",
+              }}
+            />
+            <Typography variant="body1" paragraph>
+              <Person /> Name: {patient.patient.name}
+            </Typography>
+            <Typography variant="body1" paragraph>
+              {/* ////// */}
+              <Person /> Gender: {patient.patient.gender}
+            </Typography>
+            <Typography variant="body1" paragraph>
+              <Event /> Date of Birth: {patient.patient.dateOfBirth}
+            </Typography>
+            <Typography variant="body1" paragraph>
+              <Email /> Email: {patient.patient.email}
+            </Typography>
+            <Typography variant="body1" paragraph>
+              {/* //////// */}
+              <Phone /> Username: {patient.patient.username}
+            </Typography>
+            <Typography variant="body1" paragraph>
+              <Phone /> Mobile Number: {patient.patient.mobileNumber}
+            </Typography>
+            {/* Add more patient information fields as needed */}
+          </Paper>
+
+          {/* Emergency Contact Information Card */}
+          <Paper
+            elevation={3}
+            style={{ padding: "20px", minHeight: "250px", marginTop: "20px" }}
+          >
+            <Typography
+              variant="h5"
+              gutterBottom
+              sx={{
+                textAlign: "center",
+              }}
+            >
+              Emergency Contact
+            </Typography>
+
+            <Avatar
+              alt={patient.patient.name}
+              src="https://source.unsplash.com/random?person"
+              sx={{
+                width: 250,
+                height: 250,
+                margin: "auto",
+                borderRadius: 0,
+              }}
+            />
+
+            {/* Display emergency contact information here */}
+            <Typography variant="body1" paragraph>
+              <Person /> Full Name: {patient.patient.emergencyContact.fullName}
+            </Typography>
+            <Typography variant="body1" paragraph>
+              <Phone /> Mobile Number:{" "}
+              {patient.patient.emergencyContact.mobileNumber}
+            </Typography>
+            {/* Add more emergency contact information fields as needed */}
+          </Paper>
+        </Grid>
+
+        {/* Right Half: Health Record */}
+        <Grid item xs={12} md={6} paddingRight={"20px"}>
+          <Paper elevation={3} style={{ padding: "20px", minHeight: "500px" }}>
+            <Typography variant="h5" gutterBottom>
+              Health Record
+            </Typography>
+            {/* Display health record information here */}
+            {isEditing ? (
+              <>
+                <textarea
+                  value={newHealthRecord}
+                  onChange={(e) => setNewHealthRecord(e.target.value)}
+                />
+                <button onClick={handleSaveHealthRecord}>Save</button>
+              </>
+            ) : (
+              <>
+                <Typography variant="body1" paragraph>
+                  <Description /> {patient.healthRecord}
+                  <button
+                    className="filter-button"
+                    style={{ marginLeft: "10px" }}
+                    onClick={handleEditHealthRecord}
+                  >
+                    Edit
+                  </button>
+                </Typography>
+              </>
+            )}
+            <div>
+              <Typography variant="h5" gutterBottom>
+                Attachments:
+              </Typography>
+
+              <ul>
+                {patient.attachments.map((attachment, attachmentIndex) => (
+                  <li key={attachmentIndex}>
+                    <img
+                      src={`http://localhost:8000/uploads/${attachment.path.substring(
+                        8
+                      )}`}
+                      style={{
+                        maxWidth: "50%",
+                        maxHeight: "50%",
+                        objectFit: "contain",
+                      }}
+                      alt={attachment.filename}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <button
+              className="filter-button"
+              style={{ marginLeft: "10px" }}
+              onClick={handleNavigateToAddPrescription}
+            >
+              Add Prescription
+            </button>
+
+            {/* You can customize the display of health record information */}
+          </Paper>
+        </Grid>
+      </Grid>
     </div>
   );
 };
