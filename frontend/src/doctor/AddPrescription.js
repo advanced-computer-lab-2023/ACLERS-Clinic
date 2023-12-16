@@ -1,14 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
+import DoctorNavbar from "../components/DoctorNavbar";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 
 const AddPrescription = () => {
   const { patientId } = useParams();
   const navigate = useNavigate();
   const [medicines, setMedicines] = useState([]);
   const [selectedMedicines, setSelectedMedicines] = useState([]);
-  const [dosages, setDosages] = useState({}); // State for storing dosages
-
+  const [dosages, setDosages] = useState({});
   const token = localStorage.getItem("token");
   const decodedToken = jwt.decode(token);
 
@@ -23,7 +27,10 @@ const AddPrescription = () => {
           },
         };
 
-        const response = await fetch('http://localhost:8000/Doctor-Home/get-Medicines', requestOptions);
+        const response = await fetch(
+          "http://localhost:8000/Doctor-Home/get-Medicines",
+          requestOptions
+        );
         const data = await response.json();
         const medicinesData = data.medicines;
         setMedicines(medicinesData);
@@ -35,7 +42,7 @@ const AddPrescription = () => {
         });
         setDosages(initialDosages);
       } catch (error) {
-        console.error('Error fetching medicines from pharmacy:', error.message);
+        console.error("Error fetching medicines from pharmacy:", error.message);
       }
     };
 
@@ -43,7 +50,6 @@ const AddPrescription = () => {
   }, [token]);
 
   const handleAddMedicine = (medicine) => {
-    // Add selected medicine with its dosage to the list
     setSelectedMedicines((prevMedicines) => [
       ...prevMedicines,
       { ...medicine, dosage: dosages[medicine.id] },
@@ -51,9 +57,10 @@ const AddPrescription = () => {
   };
 
   const handleRemoveMedicine = (medicineId) => {
-    // Remove selected medicine from the list
     setSelectedMedicines((prevMedicines) =>
-      prevMedicines.filter((selectedMedicine) => selectedMedicine.id !== medicineId)
+      prevMedicines.filter(
+        (selectedMedicine) => selectedMedicine.id !== medicineId
+      )
     );
   };
 
@@ -63,6 +70,9 @@ const AddPrescription = () => {
       [medicineId]: Math.max(1, prevDosages[medicineId] + change),
     }));
   };
+
+  const getRandomImageURL = () =>
+    `https://source.unsplash.com/random?pill=${Math.random()}`;
 
   const handleSavePrescription = async () => {
     try {
@@ -79,45 +89,76 @@ const AddPrescription = () => {
         }),
       };
 
-      const response = await fetch(`http://localhost:8000/write-prescription?patientId=${patientId}`, requestOptions);
+      const response = await fetch(
+        `http://localhost:8000/write-prescription?patientId=${patientId}`,
+        requestOptions
+      );
       const data = await response.json();
 
-      console.log('Prescription saved successfully:', data);
+      console.log("Prescription saved successfully:", data);
       if (response.ok) {
         navigate(`/doctor/view-patient/${patientId}`);
       } else {
-        console.error('Error saving prescription');
+        console.error("Error saving prescription");
       }
     } catch (error) {
-      console.error('Error saving prescription:', error.message);
+      console.error("Error saving prescription:", error.message);
     }
   };
 
   return (
-    <div>
-      <button onClick={() => navigate(`/doctor/view-patient/${patientId}`)}>Go Back</button>
+    <div style={{ marginLeft: "240px", padding: "20px" }}>
+      <DoctorNavbar />
 
       <h1>Add Prescription</h1>
       <h2>Select Medicines</h2>
-      <ul>
-        {medicines && medicines.map((medicine) => (
-          <li key={medicine.id}>
-            {medicine.name} - {medicine.dosage} {/* Display dosage next to medicine */}
-            <button onClick={() => handleDosageChange(medicine.id, 1)}>+</button>
-            <button onClick={() => handleDosageChange(medicine.id, -1)}>-</button>
-            <button onClick={() => handleAddMedicine(medicine)}>Add</button>
-          </li>
-        ))}
-      </ul>
+      <div style={{ display: "flex", flexWrap: "wrap" }}>
+        {medicines &&
+          medicines.map((medicine) => (
+            <Card
+              key={medicine.id}
+              style={{ width: "30%", margin: "10px", textAlign: "left" }}
+            >
+              <CardContent>
+                <Typography variant="h6" textAlign={"center"}>
+                  {medicine.name}
+                </Typography>
+                <img
+                  src={getRandomImageURL()}
+                  alt={medicine.name}
+                  style={{
+                    width: "100%",
+                    height: "150px", // Set the desired fixed height
+                    objectFit: "cover", // Ensure the image covers the entire container
+                    marginBottom: "10px",
+                  }}
+                />
+                <Typography variant="body2">
+                  Dosage: {medicine.dosage}
+                </Typography>
+                <Button onClick={() => handleDosageChange(medicine.id, 1)}>
+                  +
+                </Button>
+                <Button onClick={() => handleDosageChange(medicine.id, -1)}>
+                  -
+                </Button>
+                <Button onClick={() => handleAddMedicine(medicine)}>Add</Button>
+              </CardContent>
+            </Card>
+          ))}
+      </div>
 
       <h2>Selected Medicines</h2>
       <ul>
-        {selectedMedicines && selectedMedicines.map((selectedMedicine) => (
-          <li key={selectedMedicine.id}>
-            {selectedMedicine.name} - {selectedMedicine.dosage}
-            <button onClick={() => handleRemoveMedicine(selectedMedicine.id)}>Remove</button>
-          </li>
-        ))}
+        {selectedMedicines &&
+          selectedMedicines.map((selectedMedicine) => (
+            <li key={selectedMedicine.id}>
+              {selectedMedicine.name} - {selectedMedicine.dosage}
+              <button onClick={() => handleRemoveMedicine(selectedMedicine.id)}>
+                Remove
+              </button>
+            </li>
+          ))}
       </ul>
 
       <button onClick={handleSavePrescription}>Save Prescription</button>
