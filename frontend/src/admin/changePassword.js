@@ -3,7 +3,11 @@ import jwt from "jsonwebtoken-promisified";
 import { useParams, useNavigate } from "react-router-dom";
 import PatientNavbar from "../components/PatientNavbar";
 import { TextField, Button, Grid, Typography } from "@mui/material";
-import AdminNavBar from "../components/AdminNavBar";
+import AdminNavbar from "../components/AdminNavbar";
+import Dialog from "@mui/material/Dialog";
+import DialogContent from "@mui/material/DialogContent";
+import Slide from "@mui/material/Slide";
+
 function PasswordChangeForm() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -12,6 +16,7 @@ function PasswordChangeForm() {
   console.log("decoded Token:", decodedToken);
   const patientId = decodedToken.id;
   const navigate = useNavigate();
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleOldPasswordChange = (e) => {
     setOldPassword(e.target.value);
@@ -43,6 +48,12 @@ function PasswordChangeForm() {
         const result = await response.json();
         alert("Password changed successfully");
         console.log("Password changed successfully:", result);
+        setDialogOpen(true);
+
+        // Close the dialog after 3 seconds
+        setTimeout(() => {
+          setDialogOpen(false);
+        }, 5000);
         // You might want to update your UI or perform additional actions here
       } else {
         // Handle errors here
@@ -74,7 +85,7 @@ function PasswordChangeForm() {
         justifyContent: "center",
       }}
     >
-      <AdminNavBar />
+      <AdminNavbar />
       <div
         style={{
           width: "50%",
@@ -154,6 +165,19 @@ function PasswordChangeForm() {
             </Grid>
           </form>
         </div>
+        <Dialog
+          open={dialogOpen}
+          TransitionComponent={Slide}
+          keepMounted
+          onClose={() => setDialogOpen(false)}
+          aria-describedby="alert-dialog-slide-description"
+        >
+          <DialogContent>
+            <Typography variant="h6" color="primary">
+              Password changed successfully
+            </Typography>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
