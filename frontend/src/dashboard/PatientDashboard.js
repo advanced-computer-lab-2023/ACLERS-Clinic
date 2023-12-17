@@ -52,7 +52,7 @@ const drawerWidth = 240;
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
+  zIndex: 0,
   transition: theme.transitions.create(["width", "margin"], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
@@ -101,7 +101,8 @@ export default function Dashboard() {
   const [notifications, setNotifications] = React.useState([]);
   const [unreadCount, setUnreadCount] = React.useState(0);
 
-  const [isNotificationCardOpen, setIsNotificationCardOpen] = React.useState(false);
+  const [isNotificationCardOpen, setIsNotificationCardOpen] =
+    React.useState(false);
   const token = localStorage.getItem("token");
   const decodedToken = jwt.decode(token);
   console.log("decoded Token:", decodedToken);
@@ -110,17 +111,20 @@ export default function Dashboard() {
   React.useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await fetch("http://localhost:8000/Patient-Home/get-notifications", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          "http://localhost:8000/Patient-Home/get-notifications",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (response.ok) {
           const data = await response.json();
-          console.log(data)
+          console.log(data);
           setNotifications(data);
           setUnreadCount(data.length); // Set initial unread count
         } else {
@@ -135,15 +139,15 @@ export default function Dashboard() {
   }, [token]);
   const handleNotificationIconClick = () => {
     setUnreadCount(0);
-    setIsNotificationCardOpen((prev) => !prev); 
-    setOpen((prev)=>!prev);// Toggle the card visibility
+    setIsNotificationCardOpen((prev) => !prev);
+    setOpen((prev) => !prev); // Toggle the card visibility
   };
 
- 
   if (!token) {
     // Handle the case where id is not available
     return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
-  }if (decodedToken.role !== "patient") {
+  }
+  if (decodedToken.role !== "patient") {
     return <div>ACCESS DENIED, You are not an patient</div>;
   }
 
@@ -191,13 +195,12 @@ export default function Dashboard() {
               >
                 Dashboard
               </Typography>
-             
-                <IconButton color="inherit" onClick={handleNotificationIconClick}>
-                  <Badge badgeContent={unreadCount} color="secondary">
-                    <NotificationsIcon />
-                  </Badge>
-                </IconButton>
-              
+
+              <IconButton color="inherit" onClick={handleNotificationIconClick}>
+                <Badge badgeContent={unreadCount} color="secondary">
+                  <NotificationsIcon />
+                </Badge>
+              </IconButton>
             </Toolbar>
           </AppBar>
           {open && (

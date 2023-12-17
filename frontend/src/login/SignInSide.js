@@ -15,7 +15,13 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import jwt from "jsonwebtoken-promisified";
-import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from "@mui/material";
 
 function Copyright(props) {
   return (
@@ -83,7 +89,7 @@ export default function SignInSide() {
           navigate("/doctor/dashboard", { state: { id: decodedToken.id } });
         } else if (decodedToken.role === "admin") {
           // Redirect to doctor home page
-          navigate("/admin/dashboard", { state: { id: decodedToken.id } });
+          navigate("/admin/doctors", { state: { id: decodedToken.id } });
         } else if (decodedToken.role === "applicant") {
           navigate("/applicant/contract", { state: { id: decodedToken.id } });
         }
@@ -93,7 +99,6 @@ export default function SignInSide() {
         setLoginSuccess(false);
         setErrorMessage("Invalid email or password. Please try again.");
         setOpenDialog(true);
-
       }
     } catch (error) {
       console.error("Error during login:", error);
@@ -199,14 +204,14 @@ export default function SignInSide() {
             </Box>
           </Box>
           <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-      <DialogTitle>Login Failed</DialogTitle>
-      <DialogContent>
-        <DialogContentText>{errorMessage}</DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setOpenDialog(false)}>OK</Button>
-      </DialogActions>
-    </Dialog>
+            <DialogTitle>Login Failed</DialogTitle>
+            <DialogContent>
+              <DialogContentText>{errorMessage}</DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpenDialog(false)}>OK</Button>
+            </DialogActions>
+          </Dialog>
         </Grid>
       </Grid>
     </ThemeProvider>
