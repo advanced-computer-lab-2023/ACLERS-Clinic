@@ -13,6 +13,11 @@ import TableCell from "@mui/material/TableCell";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
 import jwt from "jsonwebtoken-promisified";
 import { Link, useNavigate } from "react-router-dom";
 import PatientNavbar from "../components/PatientNavbar";
@@ -32,7 +37,8 @@ function SelectedDoctor() {
   const [paymentMethods, setPaymentMethods] = useState({});
   const [bookingFor, setBookingFor] = useState({});
   const [familyMembers, setFamilyMembers] = useState([]);
-
+  const [openDialog, setOpenDialog] = useState(false);
+  const [dialogContent, setDialogContent] = useState("");
   const token = localStorage.getItem("token");
   const decodedtoken = jwt.decode(token);
 
@@ -157,6 +163,8 @@ function SelectedDoctor() {
         .then((response) => response.json())
         .then((data) => {
           console.log("Appointment booked for yourself:", data);
+          setDialogContent("Your appointment has been booked successfully.");
+         
           console.log(paymentMethods[slotId]);
           if (paymentMethods[slotId] === "creditCard") {
             console.log("inn");
@@ -164,9 +172,24 @@ function SelectedDoctor() {
               window.location.href = data.url;
             }
           }
+          setOpenDialog(true); // Open the dialog
+
+          // Close the dialog after 3000 milliseconds (3 seconds)
+          setTimeout(() => {
+            setOpenDialog(false);
+          }, 3000);
         })
         .catch((error) => {
           console.error("Error booking appointment for family member:", error);
+          setDialogContent(
+             "Couldn't book your appointment. Please try again later."
+          );
+          setOpenDialog(true); // Open the dialog
+
+          // Close the dialog after 3000 milliseconds (3 seconds)
+          setTimeout(() => {
+            setOpenDialog(false);
+          }, 3000);
         });
     } else {
       params.familyMemId = selectedValue;
@@ -178,14 +201,31 @@ function SelectedDoctor() {
         .then((response) => response.json())
         .then((data) => {
           console.log("Appointment booked for family member:", data);
+          setDialogContent("Your family member appointment has been booked successfully.");
+         
           if (paymentMethods[slotId] === "creditCard") {
             if (data.url) {
               window.location.href = data.url;
             }
           }
+          setOpenDialog(true); // Open the dialog
+
+          // Close the dialog after 3000 milliseconds (3 seconds)
+          setTimeout(() => {
+            setOpenDialog(false);
+          }, 3000);
         })
         .catch((error) => {
           console.error("Error booking appointment for family member:", error);
+          setDialogContent(
+            "Couldn't book your appointment. Please try again later."
+         );
+         setOpenDialog(true); // Open the dialog
+
+         // Close the dialog after 3000 milliseconds (3 seconds)
+         setTimeout(() => {
+           setOpenDialog(false);
+         }, 3000);
         });
     }
   };
@@ -337,6 +377,13 @@ function SelectedDoctor() {
                 </TableBody>
               </Table>
             </TableContainer>
+            <Dialog open={openDialog} >
+        <DialogTitle>Appointment Booking Status</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{dialogContent}</DialogContentText>
+        </DialogContent>
+        
+      </Dialog>
           </div>
         ) : (
           <p>No appointment slots available.</p>

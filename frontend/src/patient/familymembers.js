@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
 import PatientNavbar from "../components/PatientNavbar";
+import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
+
 import {
   Container,
   Button,
@@ -23,7 +25,9 @@ function AddFamilyMember() {
   const token = localStorage.getItem("token");
   const decodedtoken = jwt.decode(token);
   const id = decodedtoken.id;
-
+  const [openDialog, setOpenDialog] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     nationalId: "",
@@ -78,6 +82,8 @@ function AddFamilyMember() {
       .then((response) => response.json())
       .then((data) => {
         console.log("Family member added:", data);
+        setSuccessMessage("Family member added successfully");
+setOpenDialog(true);
         setFormData({
           name: "",
           nationalId: "",
@@ -88,6 +94,8 @@ function AddFamilyMember() {
       })
       .catch((error) => {
         console.error("Error adding family member:", error);
+        setErrorMessage("Error adding family member. Please try again.");
+setOpenDialog(true);
       });
   };
 
@@ -112,6 +120,8 @@ function AddFamilyMember() {
       .then((response) => response.json())
       .then((data) => {
         console.log("Family member linked:", data);
+        setSuccessMessage("Family member linked successfully");
+setOpenDialog(true);
         setLinkFormData({
           email: "",
           mobileNumber: "",
@@ -120,6 +130,8 @@ function AddFamilyMember() {
       })
       .catch((error) => {
         console.error("Error linking family member:", error);
+        setErrorMessage("Could not find a family member with this email or phone number");
+setOpenDialog(true);
       });
   };
 
@@ -302,7 +314,17 @@ function AddFamilyMember() {
               </form>
             </Paper>
           </Grid>
-
+          <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+  <DialogTitle>{successMessage ? "Success" : "Error"}</DialogTitle>
+  <DialogContent>
+    <DialogContentText>
+      {successMessage || errorMessage}
+    </DialogContentText>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setOpenDialog(false)}>OK</Button>
+  </DialogActions>
+</Dialog>
           <Grid item xs={12} md={6}>
             <Paper elevation={3} style={{ padding: "20px" }}>
               <Typography variant="h4" gutterBottom>

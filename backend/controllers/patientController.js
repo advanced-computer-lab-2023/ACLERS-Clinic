@@ -469,17 +469,20 @@ const viewDoctors = asyncHandler(async (req, res) => {
 
           if (
             patientHealthPackages.length > 0 &&
-            patientHealthPackages[0].status == "subscribed"
+            patientHealthPackages[patientHealthPackages.length-1].status == "subscribed"
           ) {
-            const healthPackageId = patientHealthPackages[0].healthPackage;
+            const healthPackageId = patientHealthPackages[patientHealthPackages.length-1].healthPackage;
             const healthPackage = await HealthPackage.findById(healthPackageId);
 
             // Calculate the session price based on the health package
+            console.log(sessionPrice+"sesssssioooonnnnn beforeeeee");
             if (healthPackage) {
+              
               sessionPrice +=
                 sessionPrice * 0.1 -
                 (healthPackage.doctorDiscount / 100) * doctor.hourlyRate;
             }
+            console.log(sessionPrice+"sesssssioooonnnnn afteeerrrrrrr");
           } else {
             // If no health package is provided, calculate without discounts and markup
             sessionPrice += sessionPrice * 0.1;
@@ -511,20 +514,22 @@ const viewDoctors = asyncHandler(async (req, res) => {
           const patientHealthPackages = await PatientHealthPackage.find({
             patient: patientId,
           });
-
+    console.log(patientHealthPackages +"healthhhhhhhhhhh")
           if (
             patientHealthPackages.length > 0 &&
-            patientHealthPackages[0].status == "subscribed"
+            patientHealthPackages[patientHealthPackages.length-1].status == "subscribed"
           ) {
-            const healthPackageId = patientHealthPackages[0].healthPackage;
+            const healthPackageId = patientHealthPackages[patientHealthPackages.length-1].healthPackage;
             const healthPackage = await HealthPackage.findById(healthPackageId);
 
             // Calculate the session price based on the health package
+            console.log(sessionPrice+"sesssssioooonnnnn beforeeeee");
             if (healthPackage) {
               sessionPrice +=
                 sessionPrice * 0.1 -
                 (healthPackage.doctorDiscount / 100) * doctor.hourlyRate;
             }
+            console.log(sessionPrice+"sesssssioooonnnnn afteeerrrrrrr");
           } else {
             // If no health package is provided, calculate without discounts and markup
             sessionPrice += sessionPrice * 0.1;

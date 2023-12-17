@@ -10,7 +10,15 @@ import { jsPDF } from "jspdf";
 import { Button, Grid } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-
+import {
+  
+  
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
+} from "@mui/material";
 import { CardMedia } from "@mui/material";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -22,6 +30,7 @@ function PrescriptionDataText() {
   const decodedtoken = jwt.decode(token);
   console.log("decoded Token:", decodedtoken);
   const id = decodedtoken.id;
+  const [isSuccessDialogOpen, setSuccessDialogOpen] = useState(false);
 
   const navigate = useNavigate();
   const [patientId, setPatientId] = useState("");
@@ -102,6 +111,13 @@ function PrescriptionDataText() {
       if (response.ok) {
         // Prescription filled successfully, you might want to update the UI accordingly
         console.log("Prescription filled successfully");
+        const updatedPrescriptions = prescriptions.map((p) =>
+        p._id ===prescriptionId ? { ...p, status: "filled" } : p
+      );
+      setPrescriptions(updatedPrescriptions);
+
+      // Show the success dialog
+      setSuccessDialogOpen(true);
       } else {
         console.error("Failed to fill prescription");
       }
@@ -329,6 +345,19 @@ function PrescriptionDataText() {
         onClose={() => setDetailsPopupOpen(false)}
         prescription={selectedPrescription}
       />
+       <Dialog open={isSuccessDialogOpen} onClose={() => setSuccessDialogOpen(false)}>
+        <DialogTitle>Prescription Filled Successfully</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Your prescription has been filled successfully. Medicines have been added to your cart in our pharmacy platform.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSuccessDialogOpen(false)} color="primary">
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

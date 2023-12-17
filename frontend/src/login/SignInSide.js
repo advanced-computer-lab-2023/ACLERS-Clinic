@@ -15,6 +15,8 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import jwt from "jsonwebtoken-promisified";
+import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
+
 function Copyright(props) {
   return (
     <Typography
@@ -39,7 +41,8 @@ const defaultTheme = createTheme();
 export default function SignInSide() {
   const [loginSuccess, setLoginSuccess] = useState(false);
   const navigate = useNavigate();
-
+  const [openDialog, setOpenDialog] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -88,6 +91,9 @@ export default function SignInSide() {
         // Login failed
         console.error("Login failed");
         setLoginSuccess(false);
+        setErrorMessage("Invalid email or password. Please try again.");
+        setOpenDialog(true);
+
       }
     } catch (error) {
       console.error("Error during login:", error);
@@ -192,6 +198,15 @@ export default function SignInSide() {
               <Copyright sx={{ mt: 5 }} />
             </Box>
           </Box>
+          <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+      <DialogTitle>Login Failed</DialogTitle>
+      <DialogContent>
+        <DialogContentText>{errorMessage}</DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setOpenDialog(false)}>OK</Button>
+      </DialogActions>
+    </Dialog>
         </Grid>
       </Grid>
     </ThemeProvider>

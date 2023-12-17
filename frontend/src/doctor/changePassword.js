@@ -3,7 +3,15 @@ import jwt from "jsonwebtoken-promisified";
 import { useParams, useNavigate } from "react-router-dom";
 import DoctorNavbar from "../components/DoctorNavbar";
 import { TextField, Button, Grid, Typography } from "@mui/material";
-
+import {
+  
+  
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  
+} from "@mui/material";
 function PasswordChangeForm() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -12,7 +20,7 @@ function PasswordChangeForm() {
   console.log("decoded Token:", decodedToken);
   const patientId = decodedToken.id;
   const navigate = useNavigate();
-
+  const [isSuccessDialogOpen, setSuccessDialogOpen] = useState(false);
   const handleOldPasswordChange = (e) => {
     setOldPassword(e.target.value);
   };
@@ -41,7 +49,7 @@ function PasswordChangeForm() {
       if (response.ok) {
         // Password change successful
         const result = await response.json();
-        alert("Password changed successfully");
+        setSuccessDialogOpen(true);
         console.log("Password changed successfully:", result);
         // You might want to update your UI or perform additional actions here
       } else {
@@ -151,6 +159,15 @@ function PasswordChangeForm() {
                   Change Password
                 </Button>
               </Grid>
+              <Dialog open={isSuccessDialogOpen} onClose={() => setSuccessDialogOpen(false)}>
+        <DialogTitle>Password Changed Successfully</DialogTitle>
+       
+        <DialogActions>
+          <Button onClick={() => setSuccessDialogOpen(false)} color="primary">
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
             </Grid>
           </form>
         </div>

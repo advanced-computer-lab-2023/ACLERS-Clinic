@@ -13,8 +13,17 @@ import PatientNavbar from "../components/PatientNavbar";
 import { Button, Paper ,Popover, Typography} from "@mui/material";
 import { Cancel as CancelIcon, Event as EventIcon } from "@mui/icons-material";
 import ReplayIcon from '@mui/icons-material/Replay';
-import VideoCallIcon from '@mui/icons-material/VideoCall'; // Import Material-UI icons
+import VideoCallIcon from '@mui/icons-material/VideoCall'; 
+import ChatIcon from '@mui/icons-material/Chat';// Import Material-UI icons
+import {
+  // ... other imports
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 
+} from "@mui/material";
 import {
   Table,
   TableHead,
@@ -43,7 +52,25 @@ const PatientAppointments = () => {
   const [familyMembers, setFamilyMembers] = useState([]);
   const [selectedFamilyMember, setSelectedFamilyMember] = useState(null);
   const [followUpConfirmed, setFollowUpConfirmed] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState("");
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [cancelAppointmentId, setCancelAppointmentId] = useState(null);
 
+  // Function to open the cancel confirmation dialog
+  const openCancelDialog = (appointmentId) => {
+    setCancelAppointmentId(appointmentId);
+    setCancelDialogOpen(true);
+  };
+  const openDialog = (message) => {
+    setDialogMessage(message);
+    setDialogOpen(true);
+
+    // Automatically close the dialog after 3 seconds
+    setTimeout(() => {
+      setDialogOpen(false);
+    }, 3000);
+  };
   useEffect(() => {
     const handleViewFamilyMembers = () => {
       const requestOptions = {
@@ -226,6 +253,7 @@ if(selectedFamilyMember){
     console.log("Follow-up requested:", data);
     setFollowUpConfirmed(true);
     // Close the follow-up popover
+    openDialog("Follow-up requested successfully");
     setFilteredAppointments((prevAppointments) =>
       prevAppointments.map((app) =>
         app._id === appointmentId ? { ...app, status: 'Pending',date:data.date,startTime:data.startTime,endTime:data.endTime } : app
@@ -234,6 +262,7 @@ if(selectedFamilyMember){
     setFollowUpPopover(null);
   } catch (error) {
     console.error("Error requesting follow-up:", error);
+    openDialog("Error requesting follow-up");
   }
 }else{
     try {
@@ -250,6 +279,7 @@ if(selectedFamilyMember){
       console.log("Follow-up requested:", data);
       setFollowUpConfirmed(true);
       // Close the follow-up popover
+      openDialog("Follow-up requested successfully");
       setFilteredAppointments((prevAppointments) =>
         prevAppointments.map((app) =>
           app._id === appointmentId ? { ...app, status: data.status,date:data.date,startTime:data.startTime,endTime:data.endTime } : app
@@ -258,6 +288,7 @@ if(selectedFamilyMember){
       setFollowUpPopover(null);
     } catch (error) {
       console.error("Error requesting follow-up:", error);
+      openDialog("Error requesting follow-up");
     }
   }
   };
@@ -312,7 +343,7 @@ if(selectedFamilyMember){
 
     const data = await response.json();
     console.log("Appointment rescheduled:", data);
-
+    openDialog("Appointment rescheduled successfully");
     // Update the local state to reflect the changes
     setFilteredAppointments((prevAppointments) =>
       prevAppointments.map((app) =>
@@ -324,6 +355,7 @@ if(selectedFamilyMember){
     setReschedulePopover(null);
   } catch (error) {
     console.error("Error rescheduling appointment:", error);
+    openDialog("Couldn't reschedule appointment try again later");
   }
 }else{
     try {
@@ -338,7 +370,7 @@ if(selectedFamilyMember){
 
       const data = await response.json();
       console.log("Appointment rescheduled:", data);
-
+      openDialog("Appointment rescheduled successfully");
       // Update the local state to reflect the changes
       setFilteredAppointments((prevAppointments) =>
         prevAppointments.map((app) =>
@@ -350,11 +382,17 @@ if(selectedFamilyMember){
       setReschedulePopover(null);
     } catch (error) {
       console.error("Error rescheduling appointment:", error);
+      openDialog("Couldn't reschedule appointment try again later");
     }
   }
   };
   const handleCancelAppointment = (appointmentId) => {
+    // Open the cancel confirmation dialog
+    openCancelDialog(appointmentId);
+  };
+  const handleCancelConfirmation = (appointmentId) => {
     console.log(appointmentId)
+    setCancelDialogOpen(false);
     const requestOptions = {
       method: "POST",
       headers: {
@@ -436,6 +474,31 @@ if(selectedFamilyMember){
     // Add logic to redirect to the Google Meet link
     const googleMeetLink = "https://meet.google.com/"; // Replace with your actual Google Meet link
     window.location.href = googleMeetLink;
+  };
+  const handleChat = async (doctorId) => {
+    try {
+      // Replace 'doctorId' with the actual ID of the doctor
+      
+      console.log(doctorId)
+      const response = await fetch(`http://localhost:8000/Patient-Home/create-chat?receiverId=${doctorId.email}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+       
+      });
+      const data = await response.json();
+         
+      // Assuming the response contains the conversation ID
+      const conversationId = data;
+console.log(data)
+      // Navigate to the chat page with the conversation ID
+      navigate(`/patient/chat/${conversationId}/${doctorId.email}`);
+    } catch (error) {
+      console.error("Error creating conversation:", error);
+      // Handle error as needed
+    }
   };
   if (!token) {
     return <div>ACCESS DENIED, You are not authenticated, please log in</div>;
@@ -639,10 +702,16 @@ if(selectedFamilyMember){
                 <TableRow key={appointment._id}>
                   <TableCell style={{ textAlign: "center", fontSize: "1.0em" }}>
   {appointment.status === "UpComing" || appointment.status === "Rescheduled" ? (
+    <>
     <VideoCallIcon
       style={{ cursor: "pointer", marginRight: "5px" }}
       onClick={() => handleVideoCall(appointment)}
     />
+    <ChatIcon
+    style={{ cursor: "pointer", marginRight: "5px" }}
+    onClick={() => handleChat(appointment.doctor)}
+    />
+    </>
   ) : null}
   {appointment.doctor.name}
 </TableCell>
@@ -704,6 +773,38 @@ if(selectedFamilyMember){
           </Table>
         </Paper>
       </div>
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+        <DialogTitle>Notification</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{dialogMessage}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDialogOpen(false)} autoFocus>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={cancelDialogOpen}
+        onClose={() => setCancelDialogOpen(false)}
+      >
+        <DialogTitle>Cancel Appointment</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to cancel this appointment?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCancelDialogOpen(false)} color="primary">
+            No
+          </Button>
+          <Button onClick={() => handleCancelConfirmation(cancelAppointmentId)} color="primary">
+  Yes
+</Button>
+
+        </DialogActions>
+      </Dialog>
+
       <Popover
         open={reschedulePopover !== null}
         anchorEl={reschedulePopover}
