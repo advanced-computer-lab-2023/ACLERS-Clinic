@@ -3,7 +3,7 @@ const router = express.Router()
 
 const {getNotifications,fillPrescription,requestFollowUpFamMem,viewFamMemAppointments,requestFollowUp,cancelAppointmentFamMem,cancelAppointment,rescheduleAppointmentFamMem,rescheduleAppointment,setAppointmentFamMem,cancelSubscription,cancelSubscriptionFamMem,viewAppointmentsOfDr,viewSubscribedHealthPackageFamMem,subscribeHealthPackageFamMember,payUsingStripe,removeHealthRecordAttachment,getPatientBalance,linkAccount,upload,handleUpload,searchForDoctor,selectPresc,viewMyPerscriptions,viewDoctor,viewHealthPackages,subscribeHealthPackage, viewMyHealthRecords,viewDoctors, viewSubscribedHealthPackage,filterAppointments,addFamilyMember,viewFamilyMembers,setAppointment}= require('../controllers/patientController')
 const {protect,checkRole} = require('../middleware/authMiddleware')
-const {createConversation ,getConversation,getConversations} = require('../controllers/conversationController')
+const {createConversation ,getConversation,getConversations,sendMessage,getMessages} = require('../controllers/conversationController')
 router.post('/add-family-member',protect,checkRole('patient'),addFamilyMember)
 router.get('/view-fam-member',protect,checkRole('patient'),viewFamilyMembers)
 router.post('/book-appointment',protect,checkRole('patient'),setAppointment)
@@ -38,6 +38,8 @@ router.get('/view-famMem-appointments',protect,checkRole('patient'),viewFamMemAp
 router.post('/create-chat',protect,checkRole('patient'),createConversation)
 router.get('/get-chats',protect,checkRole('patient'),getConversations)
 router.get('/get-chat',protect,checkRole('patient'),getConversation)
+router.get('/get-messages',protect,checkRole('patient'),getMessages)
+router.post('/send-message',protect,checkRole('patient'),sendMessage)
 router.post('/fill-Perscription',protect,checkRole('patient'),fillPrescription)
 router.get('/get-notifications',protect,checkRole('patient'),getNotifications)
 module.exports = router

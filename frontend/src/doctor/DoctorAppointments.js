@@ -29,7 +29,7 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import CancelIcon from "@mui/icons-material/Cancel";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
-
+import DialogContentText from "@mui/material/DialogContentText";
 import ReschedulePopup from "../components/ReschedulePopup"; // Adjust the path based on your project structure
 
 const DoctorAppointments = () => {
@@ -51,7 +51,11 @@ const DoctorAppointments = () => {
   const decodedtoken = jwt.decode(token);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
   const [openRescheduleDialog, setOpenRescheduleDialog] = useState(false);
-
+  const [openDialog, setOpenDialog] = useState(false);
+  const [dialogContent, setDialogContent] = useState("");
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [cancelappId, setCancelAppId] = useState(null);
+  const [apptype, setAppType] = useState(false);
   const handleRescheduleClick = (appointmentId) => {
     setSelectedAppointmentId(appointmentId);
     setOpenRescheduleDialog(true);
@@ -100,7 +104,14 @@ const DoctorAppointments = () => {
         setFilteredFollowUps([]);
       });
   }, [token]);
-
+  const openCancelDialog = (appId,apptype) => {
+    setCancelAppId(appId);
+    setCancelDialogOpen(true);
+    setAppType(apptype);
+  };
+  const cancelApp = (appId) => {
+    openCancelDialog(appId);
+  };
   const handleAcceptFollowUp = (followUpId) => {
     // Make a request to accept the follow-up on the backend
     const requestOptions = {
@@ -120,6 +131,13 @@ const DoctorAppointments = () => {
         console.log("Follow-up request accepted:", data);
         // Optionally, you can refresh the follow-ups after accepting
         // (Fetch the updated follow-ups from the server)
+        setDialogContent("Your follow up has been accepted successfully.");
+        setOpenDialog(true); // Open the dialog
+
+        // Close the dialog after 3000 milliseconds (3 seconds)
+        setTimeout(() => {
+          setOpenDialog(false);
+        }, 3000);
         setFilteredFollowUps((prevFollowUps) =>
         prevFollowUps.filter((followUp) => followUp._id !== followUpId)
       );
@@ -222,6 +240,13 @@ const DoctorAppointments = () => {
         console.log("Time slot added:", data);
         // Optionally, you can refresh the appointments after adding a new time slot
         // (Fetch the updated appointments from the server)
+        setDialogContent("Time slot Added successfully.");
+        setOpenDialog(true); // Open the dialog
+
+        // Close the dialog after 3000 milliseconds (3 seconds)
+        setTimeout(() => {
+          setOpenDialog(false);
+        }, 3000);
       })
       .catch((error) => {
         console.error("Error adding time slot:", error);
@@ -247,6 +272,13 @@ const DoctorAppointments = () => {
         console.log("Appointment canceled:", data);
         // Optionally, you can refresh the appointments after canceling
         // (Fetch the updated appointments from the server)
+        setFilteredAppointments((prevFilteredAppointments) =>
+        prevFilteredAppointments.map((appointment) =>
+          appointment._id === appointmentId
+            ? { ...appointment, status: "Cancelled" }
+            : appointment
+        )
+      );
       })
       .catch((error) => {
         console.error("Error canceling appointment:", error);
@@ -497,7 +529,7 @@ const DoctorAppointments = () => {
                           padding: "8px 16px", // Add padding here
                           width: "100%",
                         }}
-                        onClick={() => handleDenyFollowUp(followUp._id)}
+                        onClick={() => openCancelDialog(followUp._id,false)}
                       >
                         Deny
                       </Button>
@@ -578,7 +610,7 @@ const DoctorAppointments = () => {
                             width: "100%",
                           }}
                           onClick={() =>
-                            handleCancelAppointment(appointment._id)
+                            openCancelDialog(appointment._id,true)
                           }
                           startIcon={<CancelIcon />}
                         >
@@ -610,6 +642,40 @@ const DoctorAppointments = () => {
             </Button>
           </DialogActions>
         </Dialog>
+        <Dialog open={cancelDialogOpen} onClose={() => setCancelDialogOpen(false)}>
+  <DialogTitle>Cancel </DialogTitle>
+  <DialogContent>
+    <Typography>
+      Are you sure you want to cancel/deny?
+    </Typography>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setCancelDialogOpen(false)} color="primary">
+      No
+    </Button>
+    <Button
+      onClick={async () => {
+        setCancelDialogOpen(false);
+        // Apply the logic for canceling the subscription using cancelPackageId
+        if(!apptype){
+          handleDenyFollowUp(cancelappId)
+        }else{
+          handleCancelAppointment(cancelappId);
+        }
+      }}
+      color="primary"
+    >
+      Yes
+    </Button>
+  </DialogActions>
+</Dialog>
+<Dialog open={openDialog} >
+        <DialogTitle>Appointment Booking Status</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{dialogContent}</DialogContentText>
+        </DialogContent>
+        
+      </Dialog>
       </ThemeProvider>
     </div>
   );

@@ -19,6 +19,7 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import DoctorNavbar from "../components/DoctorNavbar";
 import VideoCallIcon from '@mui/icons-material/VideoCall';
+import ChatIcon from '@mui/icons-material/Chat';// Import Material-UI icons
 const DoctorPatients = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -111,6 +112,31 @@ const DoctorPatients = () => {
 
     // Update the state with the filtered results
     setFilteredPatients(filteredPatientsByName);
+  };
+  const handleChat = async (doctorId) => {
+    try {
+      // Replace 'doctorId' with the actual ID of the doctor
+      
+      console.log(doctorId)
+      const response = await fetch(`http://localhost:8000/Doctor-Home/create-chat?receiverId=${doctorId.email}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+       
+      });
+      const data = await response.json();
+         
+      // Assuming the response contains the conversation ID
+      const conversationId = data;
+console.log(data)
+      // Navigate to the chat page with the conversation ID
+      navigate(`/doctor/chat/${conversationId}/${doctorId.email}`);
+    } catch (error) {
+      console.error("Error creating conversation:", error);
+      // Handle error as needed
+    }
   };
   const handleVideoCall = (mobileNumber) => {
     // Assuming the Google Meet URL is a constant, you can replace it with the actual URL
@@ -284,10 +310,16 @@ const DoctorPatients = () => {
                           <Typography>
                             Mobile Number: {item.patient.mobileNumber}
                           </Typography>
-                          <VideoCallIcon
-    style={{ cursor: 'pointer', color: 'blue', marginTop: '8px' }}
-    onClick={() => handleVideoCall(item.patient.mobileNumber)}
-  />
+                          <>
+    <VideoCallIcon
+      style={{ cursor: "pointer", marginRight: "5px" }}
+      onClick={() => handleVideoCall()}
+    />
+    <ChatIcon
+    style={{ cursor: "pointer", marginRight: "5px" }}
+    onClick={() => handleChat(item.patient)}
+    />
+    </>
                         </CardContent>
                         <CardActions>
                           <Button

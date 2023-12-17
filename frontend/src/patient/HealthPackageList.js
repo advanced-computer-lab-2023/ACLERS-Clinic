@@ -24,6 +24,15 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
+import {
+  // ... other imports
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+
+} from "@mui/material";
 
 const HealthPackageList = () => {
   const location = useLocation();
@@ -36,7 +45,7 @@ const HealthPackageList = () => {
   const [subscriptionType, setSubscriptionType] = useState(""); // Added subscriptionType state
   const [familyMembers, setFamilyMembers] = useState([]);
   const [paymentOption, setPaymentOption] = useState("");
-
+  const [successDialogOpen, setSuccessDialogOpen] = useState(false)
   const tiers = healthPackages.map((healthPackage) => ({
     title: healthPackage.type,
     price: healthPackage.Price,
@@ -95,6 +104,7 @@ const HealthPackageList = () => {
         if (data.familyMembers && Array.isArray(data.familyMembers)) {
           // Update the state variable to show family members
           setFamilyMembers(data.familyMembers);
+          console.log(familyMembers)
         } else {
           console.error("Error: Family members response is not an array", data);
         }
@@ -128,20 +138,23 @@ const HealthPackageList = () => {
         .then((response) => response.json())
         .then((data) => {
           console.log(data);
+          setSuccessDialogOpen(true);
+          console.log("Dialog should be open now!")
           if (paymentOption == "creditCard") {
             if (data.url) {
               window.location.href = data.url;
             }
           }
+         
         })
         .catch((error) => {
           console.error("Error subscribing:", error);
         });
     } else {
       const selectedFamilyMember = familyMembers.find(
-        (member) => member.relationToPatient === subscriptionType
+        (member) => member.memberId === subscriptionType
       );
-      const familyMemberId = selectedFamilyMember._id;
+      const familyMemberId = selectedFamilyMember.memberId;
       console.log(id);
       console.log(healthPackageId);
       console.log(paymentOption);
@@ -165,17 +178,23 @@ const HealthPackageList = () => {
       )
         .then((response) => response.json())
         .then((data) => {
+          setSuccessDialogOpen(true);
           console.log(data);
           if (paymentOption == "creditCard") {
             if (data.url) {
               window.location.href = data.url;
             }
           }
+         
         })
         .catch((error) => {
           console.error("Error subscribing:", error);
         });
     }
+  };
+  const handleCloseSuccessDialog = () => {
+    // Close the success dialog
+    setSuccessDialogOpen(false);
   };
   if (decodedtoken.role !== "patient") {
     return (
@@ -326,8 +345,8 @@ const HealthPackageList = () => {
                               <MenuItem value="Myself">Myself</MenuItem>
                               {familyMembers.map((familyMember) => (
                                 <MenuItem
-                                  key={familyMember._id}
-                                  value={familyMember.relationToPatient}
+                                  key={familyMember.memberId}
+                                  value={familyMember.memberId}
                                 >
                                   {familyMember.name} -{" "}
                                   {familyMember.relationToPatient}
@@ -351,6 +370,19 @@ const HealthPackageList = () => {
                 })}
               </Grid>
             </Container>
+            <Dialog open={successDialogOpen} onClose={handleCloseSuccessDialog}>
+  <DialogTitle>Subscription Success</DialogTitle>
+  <DialogContent>
+    <Typography>
+      You have successfully subscribed to the health package!
+    </Typography>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={handleCloseSuccessDialog} color="primary">
+      OK
+    </Button>
+  </DialogActions>
+</Dialog>
           </ThemeProvider>
         </div>
       </div>

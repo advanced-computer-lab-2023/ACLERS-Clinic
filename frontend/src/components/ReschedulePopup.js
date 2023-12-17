@@ -31,6 +31,7 @@ const ReschedulePopup = ({ appointmentId, handleClose }) => {
         if (response.ok) {
           const data = await response.json();
           setFreeSlots(data);
+          
         } else {
           console.error("Failed to retrieve free slots");
         }
@@ -58,6 +59,7 @@ const ReschedulePopup = ({ appointmentId, handleClose }) => {
 
         if (response.ok) {
           setShowPopup(true);
+          window.location.reload();
         } else {
           console.error("Failed to reschedule appointment");
         }

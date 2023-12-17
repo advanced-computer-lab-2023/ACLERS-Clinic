@@ -6,16 +6,24 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-
+import TextField from "@mui/material/TextField";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import { jsPDF } from "jspdf";
+import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 const AddPrescription = () => {
   const { patientId } = useParams();
   const navigate = useNavigate();
   const [medicines, setMedicines] = useState([]);
+  const [selectedMedicine, setSelectedMedicine] = useState(null);
+  const [dosage, setDosage] = useState(1);
   const [selectedMedicines, setSelectedMedicines] = useState([]);
-  const [dosages, setDosages] = useState({});
+  const [openDialog, setOpenDialog] = useState(false);
   const token = localStorage.getItem("token");
   const decodedToken = jwt.decode(token);
-
+  const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   useEffect(() => {
     const fetchMedicines = async () => {
       try {
@@ -34,13 +42,6 @@ const AddPrescription = () => {
         const data = await response.json();
         const medicinesData = data.medicines;
         setMedicines(medicinesData);
-
-        // Initialize dosages for each medicine with default value 1
-        const initialDosages = {};
-        medicinesData.forEach((medicine) => {
-          initialDosages[medicine.id] = 1;
-        });
-        setDosages(initialDosages);
       } catch (error) {
         console.error("Error fetching medicines from pharmacy:", error.message);
       }
@@ -49,30 +50,39 @@ const AddPrescription = () => {
     fetchMedicines();
   }, [token]);
 
+  const getRandomImageURL = () =>
+    `https://source.unsplash.com/random?pill=${Math.random()}`;
+
   const handleAddMedicine = (medicine) => {
-    setSelectedMedicines((prevMedicines) => [
-      ...prevMedicines,
-      { ...medicine, dosage: dosages[medicine.id] },
-    ]);
+    console.log(medicine+"adddddddd")
+    setSelectedMedicine(medicine);
+    console.log(selectedMedicine+"selecteeeddddd")
+    setOpenDialog(true);
   };
 
   const handleRemoveMedicine = (medicineId) => {
     setSelectedMedicines((prevMedicines) =>
       prevMedicines.filter(
-        (selectedMedicine) => selectedMedicine.id !== medicineId
+        (selectedMedicine) => selectedMedicine.medicine !== medicineId
       )
     );
   };
 
-  const handleDosageChange = (medicineId, change) => {
-    setDosages((prevDosages) => ({
-      ...prevDosages,
-      [medicineId]: Math.max(1, prevDosages[medicineId] + change),
-    }));
+  const handleDosageChange = (change) => {
+    setDosage(Math.max(1, dosage + change));
   };
 
-  const getRandomImageURL = () =>
-    `https://source.unsplash.com/random?pill=${Math.random()}`;
+  const handleSaveDosage = () => {
+    console.log(selectedMedicine+"saveeeee")
+    if (selectedMedicine) {
+      setSelectedMedicines((prevMedicines) => [
+        ...prevMedicines,
+        { medicine: selectedMedicine._id, dosage },
+      ]);
+      setOpenDialog(false);
+    }
+    console.log(selectedMedicines)
+  };
 
   const handleSavePrescription = async () => {
     try {
@@ -85,19 +95,19 @@ const AddPrescription = () => {
         body: JSON.stringify({
           patientId,
           doctorId: decodedToken.id,
-          medicines: selectedMedicines,
+          description: selectedMedicines,
         }),
       };
 
       const response = await fetch(
-        `http://localhost:8000/write-prescription?patientId=${patientId}`,
+        `http://localhost:8000/Doctor-Home/write-prescription?patientId=${patientId}`,
         requestOptions
       );
       const data = await response.json();
 
       console.log("Prescription saved successfully:", data);
       if (response.ok) {
-        navigate(`/doctor/view-patient/${patientId}`);
+        setSuccessDialogOpen(true);
       } else {
         console.error("Error saving prescription");
       }
@@ -105,7 +115,36 @@ const AddPrescription = () => {
       console.error("Error saving prescription:", error.message);
     }
   };
+  const handleCloseSuccessDialog = () => {
+    // Close the success dialog
+    setSuccessDialogOpen(false);
+    // Redirect or perform any other action after closing the dialog
+   
+  };
+  const downloadPdf = (selectedMedicines) => {
+    const doc = new jsPDF();
 
+    doc.text("Prescription", 10, 10);
+   
+    doc.text("Medicines:", 10, 60);
+    selectedMedicines.forEach((selectedMedicine, index) => {
+      // Find the medicine object based on its ID
+      const medicineObject = medicines.find(
+        (medicine) => medicine._id === selectedMedicine.medicine
+      );
+
+      if (medicineObject) {
+        doc.text(
+          `Medicine Name: ${medicineObject.name}`,
+          10,
+          70 + index * 20
+        );
+        doc.text(`Dosage: ${selectedMedicine.dosage}`, 10, 80 + index * 20);
+      }
+    });
+
+    doc.save("prescription.pdf");
+  };
   return (
     <div style={{ marginLeft: "240px", padding: "20px" }}>
       <DoctorNavbar />
@@ -128,20 +167,16 @@ const AddPrescription = () => {
                   alt={medicine.name}
                   style={{
                     width: "100%",
-                    height: "150px", // Set the desired fixed height
-                    objectFit: "cover", // Ensure the image covers the entire container
+                    height: "150px",
+                    objectFit: "cover",
                     marginBottom: "10px",
                   }}
                 />
                 <Typography variant="body2">
                   Dosage: {medicine.dosage}
                 </Typography>
-                <Button onClick={() => handleDosageChange(medicine.id, 1)}>
-                  +
-                </Button>
-                <Button onClick={() => handleDosageChange(medicine.id, -1)}>
-                  -
-                </Button>
+                <Button onClick={() => handleDosageChange(1)}>+</Button>
+                <Button onClick={() => handleDosageChange(-1)}>-</Button>
                 <Button onClick={() => handleAddMedicine(medicine)}>Add</Button>
               </CardContent>
             </Card>
@@ -150,18 +185,96 @@ const AddPrescription = () => {
 
       <h2>Selected Medicines</h2>
       <ul>
-        {selectedMedicines &&
-          selectedMedicines.map((selectedMedicine) => (
-            <li key={selectedMedicine.id}>
-              {selectedMedicine.name} - {selectedMedicine.dosage}
-              <button onClick={() => handleRemoveMedicine(selectedMedicine.id)}>
-                Remove
-              </button>
-            </li>
-          ))}
+      {selectedMedicines &&
+  selectedMedicines.map((selectedMedicine) => {
+    // Find the medicine object based on its ID
+    const medicineObject = medicines.find(
+      (medicine) => medicine._id === selectedMedicine.medicine
+    );
+
+    return (
+      <li key={selectedMedicine.medicine}>
+        {medicineObject ? (
+          <>
+            {medicineObject.name} - {selectedMedicine.dosage}
+            <button
+        onClick={() => handleRemoveMedicine(selectedMedicine.medicine)}
+        style={{ color: "white", backgroundColor: "red", fontWeight: "bold" }}
+      >
+        Remove
+      </button>
+
+          </>
+        ) : (
+          <span>Medicine not found</span>
+        )}
+      </li>
+    );
+  })}
+
       </ul>
 
-      <button onClick={handleSavePrescription}>Save Prescription</button>
+      {/* Dialog for entering dosage */}
+      <Dialog
+        open={successDialogOpen}
+        onClose={handleCloseSuccessDialog}
+      >
+        <DialogTitle>Success</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Prescription saved successfully!
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseSuccessDialog} color="primary">
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Enter Dosage</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Dosage"
+            type="number"
+            value={dosage}
+            onChange={(e) => setDosage(Math.max(1, parseInt(e.target.value) || 0))}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleSaveDosage} color="primary">
+            Save Dosage
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Button
+                  variant="contained"
+                  style={{
+                    backgroundColor: "#2D5968", // Blue
+                    color: "white",
+                    fontWeight: "bold",
+                    padding: "8px 16px", // Add padding here
+                  }}
+                  onClick={() => downloadPdf(selectedMedicines)}
+                  startIcon={<CloudDownloadIcon />}
+                >
+                  Download PDF
+                </Button>
+                <Button
+        variant="contained"
+        style={{
+          backgroundColor: "green", // Green
+          color: "white",
+          fontWeight: "bold",
+          padding: "8px 16px", // Add padding here
+        }}
+        onClick={handleSavePrescription}
+      >
+        Save Prescription
+      </Button>
     </div>
   );
 };

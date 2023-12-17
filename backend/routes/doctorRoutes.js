@@ -2,6 +2,8 @@ const express = require('express')
 const router = express.Router()
 const {viewFollowUps,getNotifications,getMedicines,viewMyInfo,searchForPatient,viewPatient,viewPatients,filterAppointments,addFreeSlot,addHealthRecord,editEmail, writePerscription, viewPatientHealthRecords, getDoctorBalance, ViewMyContract, acceptContract, denyContract, setAppointmentORFollowup, viewDoctorFreeSlots, viewPerscriptions, rescheduleAppointment,cancelAppointment, acceptFollowUp, rejectFollowUp}= require('../controllers/doctorController')
 const {protect,checkRole} = require('../middleware/authMiddleware')
+const {createConversation ,getConversation,getConversations,sendMessage,getMessages} = require('../controllers/conversationController')
+
 router.put('/editDocEmail',protect,checkRole('doctor'),editEmail)
 router.get('/view-appointments',protect,checkRole('doctor'),filterAppointments)
 router.get('/view-patients',protect,checkRole('doctor'),viewPatients)
@@ -27,7 +29,11 @@ router.get('/get-Medicines',protect,checkRole('doctor'),getMedicines)
 router.get('/get-notifications',protect,checkRole('doctor'),getNotifications)
 router.get('/view-followUps',protect,checkRole('doctor'),viewFollowUps)
 
-
+router.post('/create-chat',protect,checkRole('doctor'),createConversation)
+router.get('/get-chats',protect,checkRole('doctor'),getConversations)
+router.get('/get-chat',protect,checkRole('doctor'),getConversation)
+router.get('/get-messages',protect,checkRole('doctor'),getMessages)
+router.post('/send-message',protect,checkRole('doctor'),sendMessage)
 
 
 

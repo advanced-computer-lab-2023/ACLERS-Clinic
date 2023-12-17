@@ -40,7 +40,8 @@ import FollowUp from "./doctor/FollowUp";
 import DoctorReschedulePage from "./doctor/ReschedulePage";
 import AddPrescription from "./doctor/AddPrescription";
 import PasswordChangeForm1 from "./admin/changePassword";
-
+import ChatPatient from "./patient/ChatPatient";
+import ChatPatient1 from "./doctor/ChatPatient";
 // import PatientComponent from "./patient/videocall";
 const App = () => {
   return (
@@ -130,6 +131,8 @@ const App = () => {
           path="/patient/viewdoctors/selecteddoctor/:doctorId/:sessionPrice"
           element={<PatientSelectedDoctor />}
         />
+        <Route path ="/patient/chat/:conversationId/:doctor" element={<ChatPatient/>}/>
+        <Route path ="/doctor/chat/:conversationId/:patient" element={<ChatPatient1/>}/>
         <Route
           path="/patient/Viewhealthpackages"
           element={<ViewHealthPackages />}

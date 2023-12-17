@@ -8,6 +8,16 @@ import {
   TableRow,
   Paper,
   Button,
+  Typography
+} from "@mui/material";
+import {
+  // ... other imports
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+
 } from "@mui/material";
 import jwt from "jsonwebtoken-promisified";
 import { Link, useNavigate } from "react-router-dom";
@@ -19,13 +29,26 @@ const SubscribedHealthPackages = () => {
   const [familyMemberHealthPackages, setFamilyMemberHealthPackages] = useState(
     []
   );
-
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [cancelPackageId, setCancelPackageId] = useState(null);
+  const [familyMemberId,setFamilyMemberId] = useState(null);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const decodedtoken = jwt.decode(token);
   const id = decodedtoken.id;
   const patientId = id;
+  const openCancelDialog = (packageId) => {
+    setCancelPackageId(packageId);
+    setCancelDialogOpen(true);
+  };
+  const handleCancelSubscription = (packageId) => {
+  openCancelDialog(packageId);
+};
 
+const handleCancelSubscriptionFamilyMember = (familyMemberId, packageId) => {
+  openCancelDialog(packageId);
+  setFamilyMemberId(familyMemberId);
+};
   useEffect(() => {
     // Fetch subscribed health packages for the patient
     const fetchSubscribedPackages = () => {
@@ -103,11 +126,12 @@ const SubscribedHealthPackages = () => {
 
     // Fetch health packages for each family member
     familyMembers.forEach((familyMember) => {
-      fetchFamilyMemberHealthPackages(familyMember._id);
+      fetchFamilyMemberHealthPackages(familyMember.memberId);
     });
+    console.log(familyMemberHealthPackages+"packkkkkkk")
   }, [token, familyMembers]);
 
-  const handleCancelSubscription = (packageId) => {
+  const handleCancelSubscription1 = (packageId) => {
     const requestOptions = {
       method: "POST",
       headers: {
@@ -131,7 +155,7 @@ const SubscribedHealthPackages = () => {
         console.error("Error canceling subscription:", error);
       });
   };
-  const handleCancelSubscriptionFamilyMember = (familyMemberId, packageId) => {
+  const handleCancelSubscriptionFamilyMember1 = (familyMemberId, packageId) => {
     const requestOptions = {
       method: "POST",
       headers: {
@@ -231,7 +255,7 @@ const SubscribedHealthPackages = () => {
                     {(
                       familyMemberHealthPackages.find(
                         (packageData) =>
-                          packageData.familyMemberId === familyMember._id
+                          packageData.familyMemberId === familyMember.memberId
                       )?.healthPackages || []
                     ).map((healthPackage) => (
                       <TableRow key={healthPackage._id}>
@@ -251,7 +275,7 @@ const SubscribedHealthPackages = () => {
                               color="error"
                               onClick={() =>
                                 handleCancelSubscriptionFamilyMember(
-                                  familyMember._id,
+                                  familyMember.memberId,
                                   healthPackage._id
                                 )
                               }
@@ -267,6 +291,39 @@ const SubscribedHealthPackages = () => {
               )}
             </TableBody>
           </Table>
+          <Dialog open={cancelDialogOpen} onClose={() => setCancelDialogOpen(false)}>
+  <DialogTitle>Cancel Subscription</DialogTitle>
+  <DialogContent>
+    <Typography>
+      Are you sure you want to cancel this subscription?
+    </Typography>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setCancelDialogOpen(false)} color="primary">
+      No
+    </Button>
+    <Button
+      onClick={async () => {
+        setCancelDialogOpen(false);
+        // Apply the logic for canceling the subscription using cancelPackageId
+        if (cancelPackageId) {
+          // Call your cancel subscription API here
+          if(familyMemberId){
+            handleCancelSubscriptionFamilyMember1(
+              familyMemberId,
+              cancelPackageId
+            )
+          }else{
+          await handleCancelSubscription1(cancelPackageId);
+          }
+        }
+      }}
+      color="primary"
+    >
+      Yes
+    </Button>
+  </DialogActions>
+</Dialog>
         </TableContainer>
       </div>
     </div>

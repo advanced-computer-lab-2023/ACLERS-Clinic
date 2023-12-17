@@ -1,18 +1,32 @@
 const Conversation = require("../models/Conversation");
 const asyncHandler = require("express-async-handler");
 const Message = require("../models/Message");
-const createConversation = asyncHandler(async (req,res)=>{
-    const newConversation = new Conversation({
-        members: [req.user.id, req.query.receiverId],
-      });
-    
-      try {
-        const savedConversation = await newConversation.save();
-        res.status(200).json(savedConversation);
-      } catch (err) {
-        res.status(500).json(err);
-      }
-})
+const createConversation = asyncHandler(async (req, res) => {
+  const receiverId = req.query.receiverId;
+  const userId = req.user.email;
+
+  // Check if a conversation already exists between the users
+  const existingConversation = await Conversation.findOne({
+    members: { $in: [[userId, receiverId], [receiverId, userId]] },
+  });
+
+  if (existingConversation) {
+    // Conversation already exists, return its ID
+    return res.status(200).json(existingConversation._id);
+  }
+
+  // If no existing conversation, create a new one
+  const newConversation = new Conversation({
+    members: [userId, receiverId],
+  });
+
+  try {
+    const savedConversation = await newConversation.save();
+    res.status(200).json(savedConversation._id);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
 
 const getConversations = asyncHandler(async (req,res)=>{
     try {
