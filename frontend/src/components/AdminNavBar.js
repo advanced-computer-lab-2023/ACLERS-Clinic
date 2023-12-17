@@ -23,7 +23,9 @@ import LockIcon from "@mui/icons-material/Lock";
 import LoyaltyIcon from "@mui/icons-material/Loyalty";
 import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import SupervisedUserCircleIcon from "@mui/icons-material/SupervisedUserCircle";
 // Use the `styled` function instead of `makeStyles`
 const ContentContainer = styled("div")(({ theme }) => ({
   marginLeft: theme.spacing(7), // Adjust the margin as needed
@@ -33,17 +35,17 @@ const ContentContainer = styled("div")(({ theme }) => ({
 const logoImageUrl = "https://i.ibb.co/vP2dX46/el7a2nilogo.png";
 
 const iconMap = {
-  Doctors: <GroupIcon />,
-   Admin:<GroupIcon/>,
-  Patients: <GroupIcon />,
+  Doctors: <SupervisorAccountIcon />,
+  Admin: <SupervisedUserCircleIcon />,
+  Patients: <PersonOutlineIcon />,
   Applicants: <GroupIcon />,
-  
+
   ChangePassword: <LockIcon />,
   AddHealthPackage: <LoyaltyIcon />,
   ViewHealthPackages: <HealthAndSafetyIcon />,
 };
 
-function DoctorNavbar() {
+function AdminNavbar() {
   const token = localStorage.getItem("token");
   const decodedToken = jwt.decode(token);
   console.log("decoded Token:", decodedToken);
@@ -84,7 +86,7 @@ function DoctorNavbar() {
     "Applicants",
     "AddHealthPackage",
     "ViewHealthPackages",
-    "ChangePassword"
+    "ChangePassword",
     // "SubscribeHealthPackages",
     // "ViewHealthPackages",
   ];
@@ -109,7 +111,7 @@ function DoctorNavbar() {
               component={Link}
               to={`/admin/${item.toLowerCase()}`}
             >
-                  <ListItemIcon>{iconMap[item]}</ListItemIcon>
+              <ListItemIcon>{iconMap[item]}</ListItemIcon>
               <ListItemText
                 primary={item.replace(/([a-z])([A-Z])/g, "$1 $2")}
               />
@@ -132,4 +134,4 @@ function DoctorNavbar() {
   );
 }
 
-export default DoctorNavbar;
+export default AdminNavbar;

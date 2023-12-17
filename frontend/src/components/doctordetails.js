@@ -1,4 +1,3 @@
-
 import jwt from "jsonwebtoken-promisified";
 const DoctorDetails = ({ doctor }) => {
   const token = localStorage.getItem("token");

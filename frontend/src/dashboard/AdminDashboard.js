@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import jwt from "jsonwebtoken-promisified";
-import AdminNavBar from "../components/AdminNavBar";
+import AdminNavbar from "../components/AdminNavbar";
 function AdminDashboard() {
   const token = localStorage.getItem("token");
   const decodedtoken = jwt.decode(token);
@@ -41,7 +41,7 @@ function AdminDashboard() {
   };
   return (
     <div>
-      <AdminNavBar/>
+      <AdminNavbar />
       <nav>
         <ul>
           <li>
@@ -63,7 +63,7 @@ function AdminDashboard() {
             <Link to="/admin/view-HealthPackages">View Health Packages</Link>
           </li>
           <li>
-            <Link to ={`/admin/change-password`}>Change Password</Link>
+            <Link to={`/admin/change-password`}>Change Password</Link>
           </li>
           <li>
             <button onClick={handleLogout}>Logout</button>
