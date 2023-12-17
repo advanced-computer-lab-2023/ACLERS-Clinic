@@ -81,14 +81,10 @@ function AdminNavbar() {
     "Doctors",
     "Patients",
     "Admin",
-    // "Perscriptions",
-    // "MedicalHistory",
     "Applicants",
     "AddHealthPackage",
     "ViewHealthPackages",
     "ChangePassword",
-    // "SubscribeHealthPackages",
-    // "ViewHealthPackages",
   ];
 
   return (
@@ -128,8 +124,6 @@ function AdminNavbar() {
           </ListItem>
         </List>
       </Drawer>
-
-      {/* Use the `ContentContainer` instead of a `div` */}
     </div>
   );
 }

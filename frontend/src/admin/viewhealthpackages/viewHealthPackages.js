@@ -93,9 +93,6 @@ const HealthPackageList = () => {
       );
 
       if (response.ok) {
-        // Handle success, e.g., update the UI or show a success message
-        // You may want to refresh the list of health packages after deletion
-        // For simplicity, you can re-fetch the list here
         fetchPackages();
         setDialogOpen(true);
 
@@ -104,7 +101,6 @@ const HealthPackageList = () => {
           setDialogOpen(false);
         }, 5000);
       } else {
-        // Handle errors, e.g., show an error message
       }
     } catch (error) {
       console.error("Error:", error);

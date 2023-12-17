@@ -23,22 +23,22 @@ const login = asyncHandler(async (req, res) => {
   const admin = await Admin.findOne({ username: email });
   if (patient && (await bcrypt.compare(password, patient.password))) {
     return res.json({
-      token: generateToken(patient._id, "patient",patient.email),
+      token: generateToken(patient._id, "patient", patient.email),
     });
   }
   if (doctor && (await bcrypt.compare(password, doctor.password))) {
     return res.json({
-      token: generateToken(doctor._id, "doctor",doctor.email),
+      token: generateToken(doctor._id, "doctor", doctor.email),
     });
   }
   if (applicant && (await bcrypt.compare(password, applicant.password))) {
     return res.json({
-      token: generateToken(applicant._id, "applicant",applicant.email),
+      token: generateToken(applicant._id, "applicant", applicant.email),
     });
   }
   if (admin && (await bcrypt.compare(password, admin.password))) {
     return res.json({
-      token: generateToken(admin._id, "admin",admin.username),
+      token: generateToken(admin._id, "admin", admin.username),
     });
   }
   return res.status(400).send("invalid credentials");
@@ -53,14 +53,12 @@ const logout = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "Logout successful" });
 });
 
-const generateToken = (id, role,email) => {
-  return jwt.sign({ id, role ,email}, process.env.JWT_SECRET, { expiresIn: "2h" });
+const generateToken = (id, role, email) => {
+  return jwt.sign({ id, role, email }, process.env.JWT_SECRET, {
+    expiresIn: "2h",
+  });
 };
 const registerPatient = asyncHandler(async (req, res) => {
-  // if (Patient.findOne({email:req.body.email}).exists){
-  //    return res.status(400).json({message : "already registered"})
-  // }
-
   const saltRounds = await bcrypt.genSalt(10); // You can adjust the number of salt rounds for security
   const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
 
@@ -243,7 +241,7 @@ const resetPassword = asyncHandler(async (req, res) => {
   }
 
   if (user) {
-    const hashedpass =await bcrypt.hash(newPassword, 10);
+    const hashedpass = await bcrypt.hash(newPassword, 10);
     user.password = hashedpass;
     await user.save(); // Assuming you save the user details in your database
     console.log("Password changed successfully");
@@ -301,7 +299,7 @@ const registerDoctor = asyncHandler(async (req, res) => {
       medicalLicense: medicalLicensePath, // Store the path to the uploaded medical license
       medicalDegree: medicalDegreePath,
     });
-    console.log(doctor +"doctor");
+    console.log(doctor + "doctor");
     res.status(200).json(doctor);
   } catch (error) {
     res.send(error);
