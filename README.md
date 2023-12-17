@@ -19,7 +19,13 @@ Follow [JavaScript Standard Style](https://standardjs.com/) for code styling.
 
 ## Screenshots
 
-Include screenshots or a video showcasing how the system looks or works.
+![Screenshot 2023-12-15 153201](https://github.com/advanced-computer-lab-2023/ACLERS-Clinic/assets/121206244/8f141981-a099-4e1f-b1cb-3d02483a17fb)
+![Screenshot 2023-12-16 150723](https://github.com/advanced-computer-lab-2023/ACLERS-Clinic/assets/121206244/333290db-6bcf-414e-99ff-d9ee98c9f8d8)
+![Screenshot 2023-12-16 150752](https://github.com/advanced-computer-lab-2023/ACLERS-Clinic/assets/121206244/274e1c43-0be4-4e44-a070-bce726fdf980)
+![Screenshot 2023-12-17 050528](https://github.com/advanced-computer-lab-2023/ACLERS-Clinic/assets/121206244/8d55d9c5-744a-40fb-b682-b1b8de5955b9)
+![Screenshot 2023-12-17 050333](https://github.com/advanced-computer-lab-2023/ACLERS-Clinic/assets/121206244/0412d1de-f938-4a9d-8383-7512f4b1e9a0)
+![Screenshot 2023-12-17 050402](https://github.com/advanced-computer-lab-2023/ACLERS-Clinic/assets/121206244/fd5fd43d-8498-4fc9-8606-c06e9075910a)
+![Screenshot 2023-12-17 050422](https://github.com/advanced-computer-lab-2023/ACLERS-Clinic/assets/121206244/375d9e6f-ee9f-498b-9db7-2c9bbb513878)
 
 ## Tech/Framework used
 
