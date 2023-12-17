@@ -11,7 +11,8 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
-
+import { jsPDF } from "jspdf";
+import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 const AddPrescription = () => {
   const { patientId } = useParams();
   const navigate = useNavigate();
@@ -120,6 +121,30 @@ const AddPrescription = () => {
     // Redirect or perform any other action after closing the dialog
    
   };
+  const downloadPdf = (selectedMedicines) => {
+    const doc = new jsPDF();
+
+    doc.text("Prescription", 10, 10);
+   
+    doc.text("Medicines:", 10, 60);
+    selectedMedicines.forEach((selectedMedicine, index) => {
+      // Find the medicine object based on its ID
+      const medicineObject = medicines.find(
+        (medicine) => medicine._id === selectedMedicine.medicine
+      );
+
+      if (medicineObject) {
+        doc.text(
+          `Medicine Name: ${medicineObject.name}`,
+          10,
+          70 + index * 20
+        );
+        doc.text(`Dosage: ${selectedMedicine.dosage}`, 10, 80 + index * 20);
+      }
+    });
+
+    doc.save("prescription.pdf");
+  };
   return (
     <div style={{ marginLeft: "240px", padding: "20px" }}>
       <DoctorNavbar />
@@ -173,10 +198,12 @@ const AddPrescription = () => {
           <>
             {medicineObject.name} - {selectedMedicine.dosage}
             <button
-              onClick={() => handleRemoveMedicine(selectedMedicine.medicine)}
-            >
-              Remove
-            </button>
+        onClick={() => handleRemoveMedicine(selectedMedicine.medicine)}
+        style={{ color: "white", backgroundColor: "red", fontWeight: "bold" }}
+      >
+        Remove
+      </button>
+
           </>
         ) : (
           <span>Medicine not found</span>
@@ -223,8 +250,31 @@ const AddPrescription = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
-      <button onClick={handleSavePrescription}>Save Prescription</button>
+      <Button
+                  variant="contained"
+                  style={{
+                    backgroundColor: "#2D5968", // Blue
+                    color: "white",
+                    fontWeight: "bold",
+                    padding: "8px 16px", // Add padding here
+                  }}
+                  onClick={() => downloadPdf(selectedMedicines)}
+                  startIcon={<CloudDownloadIcon />}
+                >
+                  Download PDF
+                </Button>
+                <Button
+        variant="contained"
+        style={{
+          backgroundColor: "green", // Green
+          color: "white",
+          fontWeight: "bold",
+          padding: "8px 16px", // Add padding here
+        }}
+        onClick={handleSavePrescription}
+      >
+        Save Prescription
+      </Button>
     </div>
   );
 };
