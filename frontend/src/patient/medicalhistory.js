@@ -4,6 +4,23 @@ import "./MedicalHistory.css"; // Create a separate CSS file for styling
 import jwt from "jsonwebtoken-promisified";
 import { useParams, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import {
+  Container,
+  Button,
+  Typography,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Grid,
+  Card,
+  CardContent,
+  CardMedia,
+  Paper,
+  Stack,
+} from "@mui/material";
+import Box from "@mui/material/Box";
 
 import PatientNavbar from "../components/PatientNavbar";
 
@@ -134,13 +151,79 @@ function MedicalHistory() {
     );
   }
   return (
-    <div>
+    <div style={{ marginLeft: "240px" }}>
       <PatientNavbar />
-
       <div
-        className="container"
-        style={{ marginLeft: "240px", padding: "20px" }}
+        style={{
+          position: "relative",
+          marginBottom: "10px",
+        }}
       >
+        <Box
+          sx={{
+            backgroundImage:
+              'url("https://source.unsplash.com/random?medical")',
+            backgroundSize: "cover", // Adjust as needed
+            backgroundPosition: "center", // Adjust as needed
+            bgcolor: "background.paper",
+
+            pt: 8,
+            pb: 6,
+          }}
+        >
+          <div
+            style={{
+              position: "relative",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center", // Center the content vertically
+              minHeight: "80%", // Ensure the content takes at least the full viewport height
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.8)", // Adjust the alpha value for transparency
+                padding: "20px", // Adjust as needed
+                maxWidth: "1000px", // Set the maximum width as needed
+                width: "100%",
+                borderRadius: "8px", // Optional: Add border-radius for rounded corners
+              }}
+            >
+              <Container maxWidth="sm">
+                <Typography
+                  component="h1"
+                  variant="h2"
+                  align="center"
+                  color="text.primary"
+                  gutterBottom
+                >
+                  Family Members
+                </Typography>
+                <Typography
+                  variant="h5"
+                  align="center"
+                  color="text.secondary"
+                  component="p"
+                >
+                  Manage your family's health with ease by adding and linking
+                  family members to your patient profile. Use our intuitive
+                  forms to add new family members, link existing ones, and
+                  seamlessly view a detailed list of your connected family
+                  members. Experience personalized and comprehensive healthcare
+                  coordination at your fingertips.
+                </Typography>
+                <Stack
+                  sx={{ pt: 4 }}
+                  direction="column"
+                  spacing={2}
+                  justifyContent="center"
+                ></Stack>
+              </Container>
+            </div>
+          </div>
+        </Box>
+      </div>
+      <div className="container" style={{ padding: "20px" }}>
         <div className="row">
           <div className="col-md-6 mx-auto mt-5">
             <div className="card">
@@ -152,12 +235,11 @@ function MedicalHistory() {
                   accept=".pdf, .jpg, .jpeg, .png"
                   onChange={handleFileChange}
                 />
-                <button
-                  className="btn btn-primary btn-sm"
-                  onClick={uploadFiles}
-                >
+
+                <button className="filter-button" onClick={uploadFiles}>
                   Upload
                 </button>
+
                 <div className="file-list">{fileItems}</div>
                 <div className="upload-status">{uploadStatus}</div>
                 <h5 className="card-title">Uploaded Files</h5>
@@ -182,14 +264,22 @@ function MedicalHistory() {
                                 }}
                                 alt={attachment.filename}
                               />
-                              <button
-                                className="btn btn-danger btn-sm"
+
+                              <Button
+                                variant="contained"
+                                style={{
+                                  backgroundColor: "#940E0E", // Green
+                                  color: "white",
+                                  fontWeight: "bold",
+                                  padding: "8px 16px", // Add padding here
+                                  width: "100%",
+                                }}
                                 onClick={() =>
                                   removeAttachment(attachment.filename)
                                 }
                               >
                                 Remove
-                              </button>
+                              </Button>
                             </li>
                           )
                         )}

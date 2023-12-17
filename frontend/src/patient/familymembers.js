@@ -16,7 +16,9 @@ import {
   CardContent,
   CardMedia,
   Paper,
+  Stack,
 } from "@mui/material";
+import Box from "@mui/material/Box";
 
 function AddFamilyMember() {
   const navigate = useNavigate();
@@ -172,54 +174,68 @@ function AddFamilyMember() {
           marginBottom: "10px",
         }}
       >
-        <img
-          src="https://as2.ftcdn.net/v2/jpg/04/18/64/49/1000_F_418644919_UrFFQt49zHPWlph9FkejArj3NjiGygXI.jpg"
-          alt="Background"
-          style={{ width: "100%", height: "auto", display: "block" }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            textAlign: "center",
-            color: "black",
-            padding: "20px",
-            background: "rgba(255, 255, 255, 0.8)",
-            borderRadius: "10px",
+        <Box
+          sx={{
+            backgroundImage: 'url("https://source.unsplash.com/random?family")',
+            backgroundSize: "cover", // Adjust as needed
+            backgroundPosition: "center", // Adjust as needed
+            bgcolor: "background.paper",
+
+            pt: 8,
+            pb: 6,
           }}
         >
-          <Typography
-            component="h1"
-            variant="h2"
-            align="center"
-            color="text.primary"
-            gutterBottom
-          >
-            Family Members
-          </Typography>
-          <Typography
-            variant="h5"
-            align="center"
-            color="text.secondary"
-            component="p"
-          >
-            Manage your family's health with ease by adding and linking family
-            members to your patient profile. Use our intuitive forms to add new
-            family members, link existing ones, and seamlessly view a detailed
-            list of your connected family members. Experience personalized and
-            comprehensive healthcare coordination at your fingertips.
-          </Typography>
           <div
             style={{
+              position: "relative",
               display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              marginTop: "20px",
+              justifyContent: "center",
+              alignItems: "center", // Center the content vertically
+              minHeight: "80%", // Ensure the content takes at least the full viewport height
             }}
-          ></div>
-        </div>
+          >
+            <div
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.8)", // Adjust the alpha value for transparency
+                padding: "20px", // Adjust as needed
+                maxWidth: "1000px", // Set the maximum width as needed
+                width: "100%",
+                borderRadius: "8px", // Optional: Add border-radius for rounded corners
+              }}
+            >
+              <Container maxWidth="sm">
+                <Typography
+                  component="h1"
+                  variant="h2"
+                  align="center"
+                  color="text.primary"
+                  gutterBottom
+                >
+                  Family Members
+                </Typography>
+                <Typography
+                  variant="h5"
+                  align="center"
+                  color="text.secondary"
+                  component="p"
+                >
+                  Manage your family's health with ease by adding and linking
+                  family members to your patient profile. Use our intuitive
+                  forms to add new family members, link existing ones, and
+                  seamlessly view a detailed list of your connected family
+                  members. Experience personalized and comprehensive healthcare
+                  coordination at your fingertips.
+                </Typography>
+                <Stack
+                  sx={{ pt: 4 }}
+                  direction="column"
+                  spacing={2}
+                  justifyContent="center"
+                ></Stack>
+              </Container>
+            </div>
+          </div>
+        </Box>
       </div>
       <div style={{ marginLeft: "48px" }}>
         <Grid container spacing={3} justifyContent="center">
