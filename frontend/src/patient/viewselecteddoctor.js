@@ -55,6 +55,8 @@ function SelectedDoctor() {
       },
     };
 
+    setBookingFor("myself");
+
     // Fetch slots for the selected doctor
     fetch(
       `http://localhost:8000/Patient-home/view-appointments?doctorId=${doctorId}`,
@@ -164,7 +166,7 @@ function SelectedDoctor() {
         .then((data) => {
           console.log("Appointment booked for yourself:", data);
           setDialogContent("Your appointment has been booked successfully.");
-         
+
           console.log(paymentMethods[slotId]);
           if (paymentMethods[slotId] === "creditCard") {
             console.log("inn");
@@ -172,6 +174,7 @@ function SelectedDoctor() {
               window.location.href = data.url;
             }
           }
+          window.location.reload();
           setOpenDialog(true); // Open the dialog
 
           // Close the dialog after 3000 milliseconds (3 seconds)
@@ -182,7 +185,7 @@ function SelectedDoctor() {
         .catch((error) => {
           console.error("Error booking appointment for family member:", error);
           setDialogContent(
-             "Couldn't book your appointment. Please try again later."
+            "Couldn't book your appointment. Please try again later."
           );
           setOpenDialog(true); // Open the dialog
 
@@ -201,13 +204,16 @@ function SelectedDoctor() {
         .then((response) => response.json())
         .then((data) => {
           console.log("Appointment booked for family member:", data);
-          setDialogContent("Your family member appointment has been booked successfully.");
-         
+          setDialogContent(
+            "Your family member appointment has been booked successfully."
+          );
+
           if (paymentMethods[slotId] === "creditCard") {
             if (data.url) {
               window.location.href = data.url;
             }
           }
+          window.location.reload();
           setOpenDialog(true); // Open the dialog
 
           // Close the dialog after 3000 milliseconds (3 seconds)
@@ -219,13 +225,13 @@ function SelectedDoctor() {
           console.error("Error booking appointment for family member:", error);
           setDialogContent(
             "Couldn't book your appointment. Please try again later."
-         );
-         setOpenDialog(true); // Open the dialog
+          );
+          setOpenDialog(true); // Open the dialog
 
-         // Close the dialog after 3000 milliseconds (3 seconds)
-         setTimeout(() => {
-           setOpenDialog(false);
-         }, 3000);
+          // Close the dialog after 3000 milliseconds (3 seconds)
+          setTimeout(() => {
+            setOpenDialog(false);
+          }, 3000);
         });
     }
   };
@@ -377,13 +383,12 @@ function SelectedDoctor() {
                 </TableBody>
               </Table>
             </TableContainer>
-            <Dialog open={openDialog} >
-        <DialogTitle>Appointment Booking Status</DialogTitle>
-        <DialogContent>
-          <DialogContentText>{dialogContent}</DialogContentText>
-        </DialogContent>
-        
-      </Dialog>
+            <Dialog open={openDialog}>
+              <DialogTitle>Appointment Booking Status</DialogTitle>
+              <DialogContent>
+                <DialogContentText>{dialogContent}</DialogContentText>
+              </DialogContent>
+            </Dialog>
           </div>
         ) : (
           <p>No appointment slots available.</p>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Button, TextField, Grid, Typography, Container } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const DoctorSignUp = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,8 @@ const DoctorSignUp = () => {
     medicalLicense: null,
     medicalDegree: null,
   });
+
+  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -47,6 +50,7 @@ const DoctorSignUp = () => {
         const result = await response.json();
         console.log("Doctor registration successful:", result);
         // Redirect to a success page or handle accordingly
+        navigate("/");
       } else {
         console.error("Doctor registration failed:", response.statusText);
       }

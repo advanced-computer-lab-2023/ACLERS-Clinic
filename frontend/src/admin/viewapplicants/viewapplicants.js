@@ -143,7 +143,7 @@ const ViewApplicants = () => {
                 color="text.primary"
                 gutterBottom
               >
-                Patients
+                Applicants
               </Typography>
               <Typography
                 variant="h5"
@@ -151,7 +151,7 @@ const ViewApplicants = () => {
                 color="text.secondary"
                 paragraph
               >
-                El7a2ni streamlines patient oversight, providing you with a
+                El7a2ni streamlines applicant oversight, providing you with a
                 user-friendly platform to view and manage patient, facilitating
                 quick inspections and account management.
               </Typography>
