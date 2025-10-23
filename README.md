@@ -1,6 +1,15 @@
-# ACLERS
+[![MERN Stack](https://img.shields.io/badge/Stack-MERN-brightgreen?style=for-the-badge&logo=mongodb&logoColor=white)](https://en.wikipedia.org/wiki/MERN_(software_bundle))
+[![MongoDB](https://img.shields.io/badge/MongoDB-%2347A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Express](https://img.shields.io/badge/Express-%23404d59?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
+[![React](https://img.shields.io/badge/React-%2361DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-%2343853D?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
 
-## Project title
+[![JavaScript](https://img.shields.io/badge/JavaScript-%23F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![TypeScript](https://img.shields.io/badge/TypeScript-%23007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![CSS3](https://img.shields.io/badge/CSS3-%231572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
+[![HTML5](https://img.shields.io/badge/HTML5-%23E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
+
+# El7a2ny
 
 Welcome to our Platform – a cutting-edge healthcare solution designed to connect doctors and patients seamlessly. Our platform facilitates efficient communication, appointment scheduling, and comprehensive health management. Whether you're a healthcare professional or a patient seeking efficient healthcare services, our Doctor-Patient Platform is designed to elevate your experience. Join us on this journey towards a healthier and more connected future!
 
